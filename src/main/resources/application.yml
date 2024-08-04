@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: usedAuction
+
+  # 404 ?? ???? ?? ??
+  web:
+    resources:
+      add-mappings: false
+
+  # ??????
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        highlight_sql: true
+        default_batch_fetch_size: 100
+
+  datasource:
+    username: ${DB_USER_NAME} # ?? ??
+    password: ${DB_PWD} # ?? ??
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${DB_HOST}:3306/usedauction?characterEncoding=UTF-8
+
+#  # redis
+#  data:
+#    redis:
+#      port: 6379
+#      host: ${REDIS_HOST}
+#  cache:
+#    type: redis
+
+#  # JWT ??? ?
+#  jwt:
+#    secret: ${JWT_SECRET} # ?? ??
+
+  # multipart
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+## S3
+#aws:
+#  s3:
+#    bucket: ${S3_BUCKET_NAME}
+#    access-key: ${S3_ACCESS_KEY}
+#    secret-key: ${S3_SECRET_KEY}
+#  region:
+#    static: ap-northeast-2
+#  stack:
+#    auto: false
+
+# ??
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: info
+        type:
+          descriptor:
+            sql: trace
+  config: classpath:logback-spring.xml
