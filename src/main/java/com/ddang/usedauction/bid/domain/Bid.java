@@ -46,7 +46,6 @@ public class Bid extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
-    // todo : 회원 dto로 변경하여 저장
     // 입찰 엔티티를 서비스에서 사용할 dto로 변경
     public BidServiceDto toServiceDto() {
 
@@ -54,6 +53,7 @@ public class Bid extends BaseTimeEntity {
             .id(id)
             .bidPrice(bidPrice)
             .auction(auction.toServiceDto())
+            .member(member.toServiceDto())
             .createdAt(getCreatedAt())
             .build();
     }
