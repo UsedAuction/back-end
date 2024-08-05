@@ -5,6 +5,7 @@ import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -105,7 +106,6 @@ public class Auction extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
-    // todo : 회원 및 카테고리, 문의글 정보 serviceDto로 저장해야 함
     // 엔티티를 서비스에서 사용할 dto로 변경
     public AuctionServiceDto toServiceDto() {
 
@@ -125,6 +125,11 @@ public class Auction extends BaseTimeEntity {
             .instantPrice(instantPrice)
             .endedAt(endedAt)
             .bidList(bidList != null && !bidList.isEmpty() ? bidList.stream().map(Bid::toServiceDto)
+                .toList() : new ArrayList<>())
+            .seller(seller.toServiceDto())
+            .parentCategory(parentCategory.toServiceDto())
+            .childCategory(childCategory.toServiceDto())
+            .ask(askList != null && !askList.isEmpty() ? askList.stream().map(Ask::toServiceDto)
                 .toList() : new ArrayList<>())
             .createdAt(getCreatedAt())
             .build();
