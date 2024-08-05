@@ -77,6 +77,29 @@ public class ImageService {
         return imageList;
     }
 
+    /**
+     * s3에 저장된 이미지 삭제
+     *
+     * @param fileName 이미지 파일 이름
+     */
+    public void deleteImage(String fileName) {
+
+        try {
+            amazonS3Client.deleteObject(bucket, fileName);
+        } catch (Exception e) {
+            throw new ImageException(ImageErrorCode.FAIL_DELETE_IMAGE);
+        }
+
+        Image image = imageRepository.findByImageName(fileName)
+            .orElseThrow(() -> new ImageException(ImageErrorCode.NOT_FOUND_IMAGE));
+
+        image = image.toBuilder()
+            .deletedAt(LocalDateTime.now())
+            .build();
+
+        imageRepository.save(image);
+    }
+
     // s3에 저장하고 저장된 이미지 이름과 url을 map으로 반환
     private Map<String, String> getFileNameAndImageUrl(MultipartFile image) {
 
