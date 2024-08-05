@@ -1,9 +1,13 @@
 package com.ddang.usedauction.auction.dto;
 
+import com.ddang.usedauction.ask.dto.AskServiceDto;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.bid.dto.BidServiceDto;
+import com.ddang.usedauction.category.dto.CategoryServiceDto;
+import com.ddang.usedauction.image.dto.ImageServiceDto;
+import com.ddang.usedauction.member.dto.MemberServiceDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -38,6 +42,11 @@ public class AuctionServiceDto implements Serializable {
     private long startPrice; // 입찰 시작가
     private long instantPrice; // 즉시 구매가
     private List<BidServiceDto> bidList; // 입찰 리스트
+    private MemberServiceDto seller; // 판매자
+    private CategoryServiceDto parentCategory; // 대분류 카테고리
+    private CategoryServiceDto childCategory; // 소분류 카테고리
+    private List<AskServiceDto> ask; // 문의글
+    private List<ImageServiceDto> imageList; // 이미지 리스트
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -46,8 +55,6 @@ public class AuctionServiceDto implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDateTime createdAt; // 생성 날짜
-
-    //todo : 회원 및 카테고리, 문의글 작업 완료 후 dto로 저장
 
     // 경매 생성 완료 시 response로 변경하는 메소드
     public AuctionCreateDto.Response toCreateResponse() {
