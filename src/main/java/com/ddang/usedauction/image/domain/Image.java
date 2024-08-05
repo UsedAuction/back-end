@@ -61,6 +61,7 @@ public class Image extends BaseTimeEntity {
         return ImageServiceDto.builder()
             .id(id)
             .imageUrl(imageUrl)
+            .imageName(imageName)
             .imageType(imageType)
             .answer(answer.toServiceDto())
             .auction(auction.toServiceDto())
