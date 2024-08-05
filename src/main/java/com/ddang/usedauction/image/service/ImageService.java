@@ -52,6 +52,31 @@ public class ImageService {
             .build();
     }
 
+    /**
+     * 이미지 리스트를 s3에 업로드
+     *
+     * @param multipartFileList 업로드할 이미지 리스트
+     * @return Image 엔티티로 변환된 리스트
+     */
+    public List<Image> uploadImageList(List<MultipartFile> multipartFileList) {
+
+        List<Image> imageList = new ArrayList<>();
+
+        multipartFileList.forEach(mf -> {
+            Map<String, String> fileNameAndImageUrlMap = getFileNameAndImageUrl(mf);
+
+            Image image = Image.builder()
+                .imageName(fileNameAndImageUrlMap.get(IMAGE_NAME))
+                .imageType(ImageType.NORMAL)
+                .imageUrl(fileNameAndImageUrlMap.get(IMAGE_URL))
+                .build();
+
+            imageList.add(image);
+        });
+
+        return imageList;
+    }
+
     // s3에 저장하고 저장된 이미지 이름과 url을 map으로 반환
     private Map<String, String> getFileNameAndImageUrl(MultipartFile image) {
 
