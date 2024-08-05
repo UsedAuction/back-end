@@ -2,6 +2,7 @@ package com.ddang.usedauction.auction.dto;
 
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
+import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.bid.dto.BidServiceDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -30,8 +31,7 @@ public class AuctionServiceDto implements Serializable {
     private String productColor; // 상품 색상
     private double productStatus; // 상품 상태
     private String productDescription; // 상품 설명
-    private boolean contact; // 대면 거래 가능 여부
-    private boolean delivery; // 택배 거래 가능 여부
+    private TransactionType transactionType; // 거래 방식
     private DeliveryType deliveryType; // 택배비 타입
     private String deliveryPrice; // 택배비
     private long currentPrice; // 현재 입찰가

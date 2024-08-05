@@ -43,7 +43,7 @@ public class Auction extends BaseTimeEntity {
     private String title; // 경매 제목
 
     @Column(nullable = false)
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private AuctionState auctionState; // 경매 상태
 
     @Column(nullable = false)
@@ -58,13 +58,12 @@ public class Auction extends BaseTimeEntity {
     @Column(length = 5000)
     private String productDescription; // 상품 설명
 
-    @Column
-    private boolean contact; // 대면 거래 가능 여부
-
-    @Column
-    private boolean delivery; // 택배 거래 가능 여부
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType; // 거래 방식
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType; // 택배비 타입
 
     @Column
@@ -111,8 +110,7 @@ public class Auction extends BaseTimeEntity {
             .productColor(productColor)
             .productStatus(productStatus)
             .productDescription(productDescription)
-            .contact(contact)
-            .delivery(delivery)
+            .transactionType(transactionType)
             .deliveryType(deliveryType)
             .deliveryPrice(deliveryPrice)
             .currentPrice(currentPrice)
