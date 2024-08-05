@@ -44,16 +44,16 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
-## S3
-#aws:
-#  s3:
-#    bucket: ${S3_BUCKET_NAME}
-#    access-key: ${S3_ACCESS_KEY}
-#    secret-key: ${S3_SECRET_KEY}
-#  region:
-#    static: ap-northeast-2
-#  stack:
-#    auto: false
+# S3
+aws:
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+  region:
+    static: ap-northeast-2
+  stack:
+    auto: false
 
 # 로그
 logging:
