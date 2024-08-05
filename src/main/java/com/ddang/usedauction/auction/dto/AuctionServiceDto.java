@@ -48,4 +48,13 @@ public class AuctionServiceDto implements Serializable {
     private LocalDateTime createdAt; // 생성 날짜
 
     //todo : 회원 및 카테고리, 문의글 작업 완료 후 dto로 저장
+
+    // 경매 생성 완료 시 response로 변경하는 메소드
+    public AuctionCreateDto.Response toCreateResponse() {
+
+        return AuctionCreateDto.Response.builder()
+            .id(id)
+            .title(title)
+            .build();
+    }
 }
