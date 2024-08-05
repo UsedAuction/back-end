@@ -23,6 +23,7 @@ public class ImageServiceDto implements Serializable {
 
     private Long id;
     private String imageUrl;
+    private String imageName;
     private ImageType imageType;
     private AnswerServiceDto answer;
     private AuctionServiceDto auction;
