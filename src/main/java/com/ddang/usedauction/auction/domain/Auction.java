@@ -86,8 +86,12 @@ public class Auction extends BaseTimeEntity {
     private Member seller; // 판매자
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category; // 카테고리
+    @JoinColumn(name = "parent_category_id", nullable = false)
+    private Category parentCategory; // 대분류 카테고리
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "child_category_id", nullable = false)
+    private Category childCategory; // 소분류 카테고리
 
     @OneToMany(mappedBy = "auction", fetch = FetchType.LAZY)
     private List<Bid> bidList; // 입찰 리스트
