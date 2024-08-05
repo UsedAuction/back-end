@@ -1,6 +1,7 @@
 package com.ddang.usedauction.member.domain;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.member.dto.MemberServiceDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -12,7 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
@@ -50,4 +50,20 @@ public class Member extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
+
+    // entity -> serviceDto
+    public MemberServiceDto toServiceDto() {
+
+        return MemberServiceDto.builder()
+            .id(id)
+            .memberId(memberId)
+            .passWord(passWord)
+            .email(email)
+            .siteAlarm(siteAlarm)
+            .point(point)
+            .social(social)
+            .socialProviderId(socialProviderId)
+            .createdAt(getCreatedAt())
+            .build();
+    }
 }
