@@ -25,13 +25,13 @@ spring:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:test
 
-  #  # redis
-  #  data:
-  #    redis:
-  #      port: 6379
-  #      host: localhost
-  #  cache:
-  #    type: redis
+  # redis
+  data:
+    redis:
+      port: 6379
+      host: localhost
+  cache:
+    type: redis
 
   #  # JWT 시크릿 키
   #  jwt:
