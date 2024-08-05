@@ -1,6 +1,8 @@
 package com.ddang.usedauction.auction.domain;
 
+import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
+import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.member.domain.Member;
@@ -14,7 +16,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -84,6 +88,12 @@ public class Auction extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category; // 카테고리
+
+    @OneToMany(mappedBy = "auction", fetch = FetchType.LAZY)
+    private List<Bid> bidList; // 입찰 리스트
+
+    @OneToMany(mappedBy = "auction", fetch = FetchType.LAZY)
+    private List<Ask> askList; // 문의글 리스트
 
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
