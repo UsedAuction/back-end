@@ -3,8 +3,11 @@ package com.ddang.usedauction.image.domain;
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.image.dto.ImageServiceDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -34,8 +37,9 @@ public class Image extends BaseTimeEntity {
     @Column(nullable = false)
     private String imageUrl;
 
-    @Column
-    private boolean thumbnail;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ImageType imageType; // 이미지 타입
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
@@ -47,4 +51,5 @@ public class Image extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
+    }
 }
