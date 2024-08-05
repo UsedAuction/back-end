@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -98,7 +99,7 @@ public class Auction extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
-    // todo : 회원 및 카테고리 정보 serviceDto로 저장해야 함
+    // todo : 회원 및 카테고리, 문의글 정보 serviceDto로 저장해야 함
     // 엔티티를 서비스에서 사용할 dto로 변경
     public AuctionServiceDto toServiceDto() {
 
@@ -118,6 +119,9 @@ public class Auction extends BaseTimeEntity {
             .startPrice(startPrice)
             .instantPrice(instantPrice)
             .endedAt(endedAt)
+            .bidList(bidList != null && !bidList.isEmpty() ? bidList.stream().map(Bid::toServiceDto)
+                .toList() : new ArrayList<>())
+            .createdAt(getCreatedAt())
             .build();
     }
 }
