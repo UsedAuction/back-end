@@ -63,6 +63,9 @@ public class Auction extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType; // 거래 방식
 
+    @Column
+    private String contactPlace; // 대면 거래 장소
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private DeliveryType deliveryType; // 택배비 타입
