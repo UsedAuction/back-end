@@ -1,5 +1,6 @@
 package com.ddang.usedauction.auction.dto;
 
+import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.validation.IsEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -31,6 +32,9 @@ public class AuctionCreateDto {
 
         @IsEnum(message = "올바른 거래 방법을 입력하세요. ex) contact, delivery, all")
         private TransactionType transactionType; // 거래 방법
+
+        @IsEnum(message = "올바른 택배비 타입을 입력하세요. ex) prepay, noprepay, nodelivery")
+        private DeliveryType deliveryType; // 택배비 타입
 
         @Size(max = 255, message = "거래 장소는 255자까지 입력 가능합니다.")
         private String contactPlace; // 거래 장소
