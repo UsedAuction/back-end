@@ -1,6 +1,6 @@
 package com.ddang.usedauction.image.domain;
 
-import com.ddang.usedauction.ask.domain.Ask;
+import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.image.dto.ImageServiceDto;
@@ -35,15 +35,15 @@ public class Image extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String imageUrl;
+    private String imageUrl; // 이미지 url
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ImageType imageType; // 이미지 타입
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
-    private Ask ask;
+    @JoinColumn(name = "answer_id")
+    private Answer answer; // 답변글
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id")
@@ -59,7 +59,7 @@ public class Image extends BaseTimeEntity {
             .id(id)
             .imageUrl(imageUrl)
             .imageType(imageType)
-            .ask(ask.toServiceDto())
+            .answer(answer.toServiceDto())
             .auction(auction.toServiceDto())
             .createdAt(getCreatedAt())
             .build();
