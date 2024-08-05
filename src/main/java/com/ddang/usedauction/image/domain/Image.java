@@ -35,7 +35,10 @@ public class Image extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String imageUrl; // 이미지 url
+    private String imageName; // s3에 저장된 이미지 이름
+
+    @Column(nullable = false)
+    private String imageUrl; // s3에 저장된 이미지 url
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
