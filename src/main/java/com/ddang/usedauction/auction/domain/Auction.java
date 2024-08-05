@@ -7,6 +7,7 @@ import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.member.domain.Member;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -121,6 +122,7 @@ public class Auction extends BaseTimeEntity {
             .productStatus(productStatus)
             .productDescription(productDescription)
             .transactionType(transactionType)
+            .contactPlace(contactPlace)
             .deliveryType(deliveryType)
             .deliveryPrice(deliveryPrice)
             .currentPrice(currentPrice)
