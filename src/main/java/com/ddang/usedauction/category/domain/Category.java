@@ -35,4 +35,15 @@ public class Category extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
+
+    // entity -> serviceDto
+    public CategoryServiceDto toServiceDto() {
+        
+        return CategoryServiceDto.builder()
+            .id(id)
+            .categoryName(categoryName)
+            .parentId(parentId)
+            .createdAt(getCreatedAt())
+            .build();
+    }
 }
