@@ -99,6 +99,9 @@ public class Auction extends BaseTimeEntity {
     @OneToMany(mappedBy = "auction", fetch = FetchType.LAZY)
     private List<Ask> askList; // 문의글 리스트
 
+    @OneToMany(mappedBy = "auction", fetch = FetchType.LAZY)
+    private List<Image> imageList; // 이미지 리스트
+
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
