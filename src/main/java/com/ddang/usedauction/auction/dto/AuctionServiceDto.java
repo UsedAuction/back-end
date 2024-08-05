@@ -36,6 +36,7 @@ public class AuctionServiceDto implements Serializable {
     private double productStatus; // 상품 상태
     private String productDescription; // 상품 설명
     private TransactionType transactionType; // 거래 방식
+    private String contactPlace; // 대면 거래 장소
     private DeliveryType deliveryType; // 택배비 타입
     private String deliveryPrice; // 택배비
     private long currentPrice; // 현재 입찰가
