@@ -51,5 +51,17 @@ public class Image extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
+
+    // entity -> serviceDto
+    public ImageServiceDto toServiceDto() {
+
+        return ImageServiceDto.builder()
+            .id(id)
+            .imageUrl(imageUrl)
+            .imageType(imageType)
+            .ask(ask.toServiceDto())
+            .auction(auction.toServiceDto())
+            .createdAt(getCreatedAt())
+            .build();
     }
 }
