@@ -2,12 +2,14 @@ package com.ddang.usedauction.auction.dto;
 
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
+import com.ddang.usedauction.bid.dto.BidServiceDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,10 +36,15 @@ public class AuctionServiceDto implements Serializable {
     private long currentPrice; // 현재 입찰가
     private long startPrice; // 입찰 시작가
     private long instantPrice; // 즉시 구매가
+    private List<BidServiceDto> bidList; // 입찰 리스트
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateDeserializer.class)
     private LocalDateTime endedAt; // 경매 마감일
 
-    //todo : 회원 및 카테고리 작업 완료 후 dto로 저장
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    private LocalDateTime createdAt; // 생성 날짜
+
+    //todo : 회원 및 카테고리, 문의글 작업 완료 후 dto로 저장
 }
