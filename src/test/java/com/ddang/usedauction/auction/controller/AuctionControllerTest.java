@@ -3,7 +3,9 @@ package com.ddang.usedauction.auction.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -109,6 +111,39 @@ class AuctionControllerTest {
             .build();
 
         memberId = "test";
+    }
+
+    @Test
+    @DisplayName("경매글 단건 조회 컨트롤러")
+    void getAuctionController() throws Exception {
+
+        when(auctionService.getAuction(anyLong())).thenReturn(auctionServiceDto);
+
+        mockMvc.perform(get("/api/auctions/1"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.data").exists());
+    }
+
+    @Test
+    @DisplayName("경매글 단건 조회 컨트롤러 실패 - url 경로 다름")
+    void getAuctionControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/auction/1"))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    @DisplayName("경매글 단건 조회 컨트롤러 실패 - pathVariable 유효성 검증 실패")
+    void getAuctionControllerFail2() throws Exception {
+
+        mockMvc.perform(get("/api/auctions/0"))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$[0].status").value(400));
     }
 
     @Test
