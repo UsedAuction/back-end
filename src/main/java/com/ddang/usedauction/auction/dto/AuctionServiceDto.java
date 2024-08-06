@@ -65,4 +65,33 @@ public class AuctionServiceDto implements Serializable {
             .title(title)
             .build();
     }
+
+    // 경매글 조회 시 response로 변경하는 메소드
+    public AuctionGetDto.Response toGetResponse() {
+
+        return AuctionGetDto.Response.builder()
+            .id(id)
+            .title(title)
+            .auctionState(auctionState)
+            .productName(productName)
+            .productColor(productColor)
+            .productStatus(productStatus)
+            .productDescription(productDescription)
+            .transactionType(transactionType)
+            .contactPlace(contactPlace)
+            .deliveryType(deliveryType)
+            .deliveryPrice(deliveryPrice)
+            .currentPrice(currentPrice)
+            .startPrice(startPrice)
+            .instantPrice(instantPrice)
+            .endedAt(endedAt)
+            .seller(seller)
+            .parentCategory(parentCategory)
+            .childCategory(childCategory)
+            .bidList(bidList)
+            .askList(askList)
+            .imageList(imageList)
+            .createdAt(createdAt)
+            .build();
+    }
 }
