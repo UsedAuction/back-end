@@ -139,7 +139,7 @@ public class Auction extends BaseTimeEntity {
             .seller(seller.toServiceDto())
             .parentCategory(parentCategory.toServiceDto())
             .childCategory(childCategory.toServiceDto())
-            .ask(askList != null && !askList.isEmpty() ? askList.stream().map(Ask::toServiceDto)
+            .askList(askList != null && !askList.isEmpty() ? askList.stream().map(Ask::toServiceDto)
                 .toList() : new ArrayList<>())
             .createdAt(getCreatedAt())
             .build();

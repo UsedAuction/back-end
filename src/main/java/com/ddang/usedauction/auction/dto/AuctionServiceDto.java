@@ -46,7 +46,7 @@ public class AuctionServiceDto implements Serializable {
     private MemberServiceDto seller; // 판매자
     private CategoryServiceDto parentCategory; // 대분류 카테고리
     private CategoryServiceDto childCategory; // 소분류 카테고리
-    private List<AskServiceDto> ask; // 문의글
+    private List<AskServiceDto> askList; // 문의글
     private List<ImageServiceDto> imageList; // 이미지 리스트
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
