@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +38,22 @@ public class AuctionService {
     private final MemberRepository memberRepository;
     private final ImageService imageService;
     private final RedisTemplate<String, AuctionServiceDto> auctionRedisTemplate;
+
+    /**
+     * 경매글 단건 조회
+     *
+     * @param auctionId 조회할 경매글 PK
+     * @return 조회된 경매글 serviceDto
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#auctionId", value = CacheName.AUCTION_CACHE_NAME)
+    public AuctionServiceDto getAuction(Long auctionId) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
+
+        return auction.toServiceDto();
+    }
 
     /**
      * 경매글 생성 서비스
