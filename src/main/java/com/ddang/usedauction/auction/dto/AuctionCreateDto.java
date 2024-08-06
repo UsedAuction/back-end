@@ -5,6 +5,7 @@ import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.validation.IsEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -61,6 +62,7 @@ public class AuctionCreateDto {
         private String productName; // 상품 이름
 
         @DecimalMin(value = "0.0", message = "상품 상태는 음수일 수 없습니다.")
+        @DecimalMax(value = "5.0", message = "상품 상태의 최대는 5.0입니다.")
         private double productStatus; // 상품 상태
 
         @Size(max = 255, message = "상품 색상은 255자까지 입력할 수 있습니다.")
