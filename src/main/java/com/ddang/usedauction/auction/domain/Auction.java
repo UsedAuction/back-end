@@ -108,6 +108,13 @@ public class Auction extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
+    // 연관관계인 이미지 엔티티 함께 저장하기 위한 메소드
+    public void addImageList(Image image) {
+
+        imageList = imageList == null ? new ArrayList<>() : imageList;
+        imageList.add(image);
+    }
+
     // 엔티티를 서비스에서 사용할 dto로 변경
     public AuctionServiceDto toServiceDto() {
 
