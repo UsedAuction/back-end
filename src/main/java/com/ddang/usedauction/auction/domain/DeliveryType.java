@@ -9,9 +9,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum DeliveryType {
 
-    PREPAY("prepay", "선불"),
-    NO_PREPAY("noprepay", "착불"),
-    NO_DELIVERY("nodelivery", "택배 안함");
+    PREPAY("PREPAY", "선불"),
+    NO_PREPAY("NOPREPAY", "착불"),
+    NO_DELIVERY("NODELIVERY", "택배 안함");
 
     private final String name;
     private final String description;

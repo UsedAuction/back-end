@@ -9,9 +9,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TransactionType {
 
-    CONTACT("contact", "대면 거래"),
-    DELIVERY("delivery", "택배"),
-    ALL("all", "모두 가능");
+    CONTACT("CONTACT", "대면 거래"),
+    DELIVERY("DELIVERY", "택배"),
+    ALL("ALL", "모두 가능");
 
     private final String name;
     private final String description;
