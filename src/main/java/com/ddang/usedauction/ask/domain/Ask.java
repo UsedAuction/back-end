@@ -3,7 +3,6 @@ package com.ddang.usedauction.ask.domain;
 import com.ddang.usedauction.ask.dto.AskServiceDto;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.config.BaseTimeEntity;
-import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,9 +46,6 @@ public class Ask extends BaseTimeEntity {
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
-    @OneToMany(mappedBy = "ask", fetch = FetchType.LAZY)
-    private List<Image> imageList;
-
     @Column
     private LocalDateTime deletedAt;
 
@@ -65,8 +58,6 @@ public class Ask extends BaseTimeEntity {
             .content(content)
             .writer(writer.toServiceDto())
             .auction(auction.toServiceDto())
-            .imageList(imageList != null && !imageList.isEmpty() ? imageList.stream()
-                .map(Image::toServiceDto).toList() : new ArrayList<>())
             .createdAt(getCreatedAt())
             .build();
     }
