@@ -157,6 +157,27 @@ class AuctionServiceTest {
     }
 
     @Test
+    @DisplayName("경매글 단건 조회")
+    void getAuction() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+
+        AuctionServiceDto auctionServiceDto = auctionService.getAuction(1L);
+
+        assertThat(auctionServiceDto.getTitle()).isEqualTo("title");
+    }
+
+    @Test
+    @DisplayName("경매글 단건 조회 실패 - 등록되지 않은 경매글")
+    void getAuctionFail1() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> auctionService.getAuction(1L)).isInstanceOf(
+            AuctionException.class);
+    }
+
+    @Test
     @DisplayName("경매글 생성")
     void createAuction() {
 
