@@ -1,5 +1,6 @@
 package com.ddang.usedauction.config;
 
+import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -10,6 +11,7 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -38,6 +40,18 @@ public class RedisConfig {
             .fromConnectionFactory(redisConnectionFactory)
             .cacheDefaults(configuration)
             .build();
+    }
+
+    @Bean
+    public RedisTemplate<String, AuctionServiceDto> redisTemplate(
+        RedisConnectionFactory redisConnectionFactory) {
+
+        RedisTemplate<String, AuctionServiceDto> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+
+        return redisTemplate;
     }
 
     @Bean
