@@ -9,8 +9,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum AuctionState {
 
-    CONTINUE("continue", "경매 진행 중"),
-    END("end", "경매 종료");
+    CONTINUE("CONTINUE", "경매 진행 중"),
+    END("END", "경매 종료");
 
     private final String name;
     private final String description;
