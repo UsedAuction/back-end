@@ -2,7 +2,6 @@ package com.ddang.usedauction.point.service;
 
 import static com.ddang.usedauction.point.type.PointType.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
@@ -10,11 +9,10 @@ import com.ddang.usedauction.member.Member;
 import com.ddang.usedauction.member.MemberException;
 import com.ddang.usedauction.member.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
-import com.ddang.usedauction.point.dto.PointBalanceDto;
-import com.ddang.usedauction.point.dto.PointHistoryDto;
+import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
+import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.exception.PointException;
 import com.ddang.usedauction.point.repository.PointRepository;
-import com.ddang.usedauction.point.type.PointType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +26,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -57,11 +54,11 @@ class PointServiceTest {
         given(memberRepository.findByEmail("test123@example.com")).willReturn(Optional.of(member));
 
         // when
-        PointBalanceDto pointBalanceDto = pointService.getPointBalance(userDetails);
+        PointBalanceServiceDto pointBalanceServiceDto = pointService.getPointBalance(userDetails);
 
         // then
-        assertNotNull(pointBalanceDto);
-        assertEquals(10000, pointBalanceDto.getPointAmount());
+        assertNotNull(pointBalanceServiceDto);
+        assertEquals(10000, pointBalanceServiceDto.getPointAmount());
     }
 
     @Test
@@ -109,7 +106,7 @@ class PointServiceTest {
             .willReturn(pointHistoryPage);
 
         //when
-        Page<PointHistoryDto> result = pointService.getPointList(userDetails, startDate, endDate, pageRequest);
+        Page<PointHistoryServiceDto> result = pointService.getPointList(userDetails, startDate, endDate, pageRequest);
 
         //then
         assertNotNull(pointHistoryPage);

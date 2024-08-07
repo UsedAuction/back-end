@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class PointBalanceDto {
+public class PointBalanceServiceDto {
 
     private int pointAmount;
 }

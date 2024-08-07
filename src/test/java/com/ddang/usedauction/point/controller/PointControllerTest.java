@@ -10,8 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ddang.usedauction.member.MemberException;
-import com.ddang.usedauction.point.dto.PointBalanceDto;
-import com.ddang.usedauction.point.dto.PointHistoryDto;
+import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
+import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.service.PointService;
 import java.time.LocalDate;
 import java.util.List;
@@ -44,11 +44,11 @@ class PointControllerTest {
     @DisplayName("포인트 잔액 조회 - 성공")
     void getPointBalanceSuccess() throws Exception {
         //given
-        PointBalanceDto pointBalanceDto = new PointBalanceDto(10000);
+        PointBalanceServiceDto pointBalanceServiceDto = new PointBalanceServiceDto(10000);
 
         //when
         when(pointService.getPointBalance(any(UserDetails.class)))
-            .thenReturn(pointBalanceDto);
+            .thenReturn(pointBalanceServiceDto);
 
         //then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
@@ -83,16 +83,16 @@ class PointControllerTest {
         LocalDate startDate = LocalDate.now().minusDays(3);
         LocalDate endDate = LocalDate.now();
         Pageable pageable = PageRequest.of(0, 10);
-        Page<PointHistoryDto> pointHistoryDtoPage = new PageImpl<>(
+        Page<PointHistoryServiceDto> pointHistoryDtoPage = new PageImpl<>(
             List.of(
-                PointHistoryDto.builder()
+                PointHistoryServiceDto.builder()
                     .id(1L)
                     .pointType(CHARGE)
                     .pointAmount(10000)
                     .curPointAmount(10000)
                     .memberId(1L)
                     .build(),
-                PointHistoryDto.builder()
+                PointHistoryServiceDto.builder()
                     .id(2L)
                     .pointType(USE)
                     .pointAmount(-2000)

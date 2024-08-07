@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class PointHistoryDto {
+public class PointHistoryServiceDto {
 
     private Long id;
     private PointType pointType;
@@ -20,8 +20,8 @@ public class PointHistoryDto {
     private int curPointAmount;
     private Long memberId;
 
-    public static PointHistoryDto fromPointHistory(PointHistory pointHistory) {
-        return PointHistoryDto.builder()
+    public static PointHistoryServiceDto fromPointHistory(PointHistory pointHistory) {
+        return PointHistoryServiceDto.builder()
             .id(pointHistory.getId())
             .pointType(pointHistory.getPointType())
             .pointAmount(pointHistory.getPointAmount())
