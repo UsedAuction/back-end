@@ -47,7 +47,6 @@ public class Answer extends BaseTimeEntity {
         return AnswerServiceDto.builder()
             .id(id)
             .content(content)
-            .ask(ask.toServiceDto())
             .createdAt(getCreatedAt())
             .build();
     }
