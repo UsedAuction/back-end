@@ -2,7 +2,6 @@ package com.ddang.usedauction.chat.domain.dto;
 
 import com.ddang.usedauction.Member.Member;
 import com.ddang.usedauction.chat.domain.entity.ChatMessage;
-import com.ddang.usedauction.chat.domain.entity.ChatRoom;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,21 +14,6 @@ public class ChatMessageSendDto {
     private Long senderId;
     private String message;
 
-    public ChatMessage toMessage() {
-      return ChatMessage.builder()
-          .chatRoom(ChatRoom.builder().id(roomId).build())
-          .sender(Member.builder().id(senderId).build())
-          .message(message)
-          .build();
-    }
-
-    public Response toResponse(Member member) {
-      return Response.builder()
-          .roomId(roomId)
-          .sender(member)
-          .message(message)
-          .build();
-    }
   }
 
   @Getter
