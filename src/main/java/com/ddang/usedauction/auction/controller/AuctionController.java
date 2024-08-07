@@ -60,9 +60,9 @@ public class AuctionController {
      */
     @GetMapping
     public ResponseEntity<GlobalApiResponse<Page<AuctionGetDto.Response>>> getAuctionListController(
-        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam(required = false) String word,
-        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam(required = false) String category,
-        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam(required = false) String sorted,
+        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam String word,
+        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam String category,
+        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam String sorted,
         @PageableDefault Pageable pageable) {
 
         Page<AuctionServiceDto> auctionList = auctionService.getAuctionList(word, category, sorted,
