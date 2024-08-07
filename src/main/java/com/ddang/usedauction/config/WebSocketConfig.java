@@ -20,11 +20,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
   /**
-   * 소켓 연결을 위한 엔드 포인트 지정 CORS를 피하기 위해 AllowedOriginPatterns "*"으로 지정 테스트를 위해 .withSockJS() 주석처리
+   * 소켓 연결을 위한 엔드포인트 지정, CORS를 피하기 위해 AllowedOriginPatterns "*"으로 지정 테스트를 위해 .withSockJS() 주석처리
    */
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/ws")
+    registry.addEndpoint("/chat-ws")
         .setAllowedOriginPatterns("*");
 //        .withSockJS();
   }
