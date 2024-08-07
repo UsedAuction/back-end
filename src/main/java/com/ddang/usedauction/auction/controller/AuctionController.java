@@ -7,9 +7,13 @@ import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.config.GlobalApiResponse;
 import com.ddang.usedauction.validation.IsImage;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +35,7 @@ public class AuctionController {
     private final AuctionService auctionService;
 
     /**
-     * 경매글 단건 조회
+     * 경매글 단건 조회 컨트롤러
      *
      * @param auctionId 조회할 경매글 PK
      * @return 성공 시 200 코드와 조회된 경매글 정보, 실패 시 에러코드와 에러메시지
@@ -43,6 +48,28 @@ public class AuctionController {
 
         return ResponseEntity.ok(
             GlobalApiResponse.toGlobalResponse(HttpStatus.OK, auction.toGetResponse()));
+    }
+
+    /**
+     * 경매글 리스트 조회 컨트롤러
+     *
+     * @param word     검색어
+     * @param category 카테고리
+     * @param sorted   정렬 방법
+     * @return 성공 시 200 코드와 페이징 처리된 경매글 리스트, 실패 시 에러코드와 에러메시지
+     */
+    @GetMapping
+    public ResponseEntity<GlobalApiResponse<Page<AuctionGetDto.Response>>> getAuctionListController(
+        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam(required = false) String word,
+        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam(required = false) String category,
+        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam(required = false) String sorted,
+        @PageableDefault Pageable pageable) {
+
+        Page<AuctionServiceDto> auctionList = auctionService.getAuctionList(word, category, sorted,
+            pageable);
+
+        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(HttpStatus.OK,
+            auctionList.map(AuctionServiceDto::toGetResponse)));
     }
 
     /**
