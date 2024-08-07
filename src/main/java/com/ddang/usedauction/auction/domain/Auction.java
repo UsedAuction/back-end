@@ -22,6 +22,7 @@ import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -108,6 +109,19 @@ public class Auction extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
+    // 경매에 참여한 회원의 수
+    public long getBidMemberCount() {
+
+        if (bidList == null || bidList.isEmpty()) {
+            return 0;
+        }
+
+        return bidList.stream()
+            .map(b -> b.getMember().getMemberId())
+            .collect(Collectors.toSet())
+            .size();
+    }
+
     // 연관관계인 이미지 엔티티 함께 저장하기 위한 메소드
     public void addImageList(Image image) {
 
@@ -134,6 +148,7 @@ public class Auction extends BaseTimeEntity {
             .startPrice(startPrice)
             .instantPrice(instantPrice)
             .endedAt(endedAt)
+            .memberCount(getBidMemberCount())
             .bidList(bidList != null && !bidList.isEmpty() ? bidList.stream().map(Bid::toServiceDto)
                 .toList() : new ArrayList<>())
             .seller(seller.toServiceDto())

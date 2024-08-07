@@ -42,6 +42,7 @@ public class AuctionServiceDto implements Serializable {
     private long currentPrice; // 현재 입찰가
     private long startPrice; // 입찰 시작가
     private long instantPrice; // 즉시 구매가
+    private long memberCount; // 경매에 참여한 회원 수
     private List<BidServiceDto> bidList; // 입찰 리스트
     private MemberServiceDto seller; // 판매자
     private CategoryServiceDto parentCategory; // 대분류 카테고리
@@ -84,6 +85,7 @@ public class AuctionServiceDto implements Serializable {
             .currentPrice(currentPrice)
             .startPrice(startPrice)
             .instantPrice(instantPrice)
+            .memberCount(memberCount)
             .endedAt(endedAt)
             .seller(seller)
             .parentCategory(parentCategory)

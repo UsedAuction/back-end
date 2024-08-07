@@ -40,6 +40,7 @@ public class AuctionGetDto {
         private long currentPrice; // 현재 입찰가
         private long startPrice; // 입찰 시작가
         private long instantPrice; // 즉시 구매가
+        private long memberCount; // 경매에 참여한 회원 수
 
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime endedAt; // 경매 마감일
