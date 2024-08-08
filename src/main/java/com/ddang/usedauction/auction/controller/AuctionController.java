@@ -7,7 +7,6 @@ import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.config.GlobalApiResponse;
 import com.ddang.usedauction.validation.IsImage;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -60,9 +59,9 @@ public class AuctionController {
      */
     @GetMapping
     public ResponseEntity<GlobalApiResponse<Page<AuctionGetDto.Response>>> getAuctionListController(
-        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam String word,
-        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam String category,
-        @NotNull(message = "검색어는 null일 수 없습니다.") @RequestParam String sorted,
+        @RequestParam(required = false) String word,
+        @RequestParam(required = false) String category,
+        @RequestParam(required = false) String sorted,
         @PageableDefault Pageable pageable) {
 
         Page<AuctionServiceDto> auctionList = auctionService.getAuctionList(word, category, sorted,
