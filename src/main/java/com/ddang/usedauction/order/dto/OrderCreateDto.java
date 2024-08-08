@@ -29,8 +29,8 @@ public class OrderCreateDto {
     @ToString
     public static class Response {
 
-        private Long orderId;
-        private Long memberId;
+        private Long orderId; // 주문 id
+        private Long memberId; // 회원 id
 
         // order 엔티티를 response dto로 변환
         public static Response fromEntity(Orders orders) {
