@@ -1,11 +1,15 @@
 package com.ddang.usedauction.order.domain;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.member.domain.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -25,8 +29,9 @@ public class Orders extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; // 주문 아이디
 
-    @Column(nullable = false)
-    private Long memberId; // 회원 아이디
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member; // 회원 아이디
 
     @Column(nullable = false)
     private String itemName; // 아이템명

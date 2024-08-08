@@ -143,7 +143,7 @@ public class PaymentService {
 
         // 요청으로 받은 값들을 String으로 변환
         String tidStr = String.valueOf(order.getTid());
-        String memberIdStr = String.valueOf(order.getMemberId());
+        String memberIdStr = String.valueOf(order.getMember().getId());
 
         // 카카오로 보낼 결제 승인 요청에 필요한 정보들 생성
         // header 설정

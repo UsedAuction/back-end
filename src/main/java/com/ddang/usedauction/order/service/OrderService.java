@@ -36,7 +36,7 @@ public class OrderService {
         String itemName = request.getPrice() + " 포인트";
 
         Orders order = Orders.builder()
-            .memberId(member.getId())
+            .member(member)
             .itemName(itemName)
             .price(request.getPrice())
             .build();

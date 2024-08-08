@@ -36,7 +36,7 @@ public class OrderCreateDto {
         public static Response fromEntity(Orders orders) {
             return Response.builder()
                 .orderId(orders.getId())
-                .memberId(orders.getMemberId())
+                .memberId(orders.getMember().getId())
                 .build();
         }
     }
