@@ -27,9 +27,10 @@ public class PointController {
     // 포인트 잔액 조회
     @GetMapping("")
     public ResponseEntity<?> getPointBalance(@AuthenticationPrincipal UserDetails userDetails) {
-        PointBalanceServiceDto pointBalanceServiceDto =
-            pointService.getPointBalance(userDetails);
-        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(HttpStatus.OK, pointBalanceServiceDto));
+        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(
+            HttpStatus.OK,
+            pointService.getPointBalance(userDetails)
+        ));
     }
 
     // 포인트 충전/사용 내역 조회
@@ -40,8 +41,9 @@ public class PointController {
         @RequestParam(value = "endDate") LocalDate endDate,
         Pageable pageable
     ) {
-        Page<PointHistoryServiceDto> pointHistoryDtoPage =
-            pointService.getPointList(userDetails, startDate, endDate, pageable);
-        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(HttpStatus.OK, pointHistoryDtoPage));
+        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(
+            HttpStatus.OK,
+            pointService.getPointList(userDetails, startDate, endDate, pageable)
+        ));
     }
 }
