@@ -66,4 +66,9 @@ public class Member extends BaseTimeEntity {
             .createdAt(getCreatedAt())
             .build();
     }
+
+    // 포인트 충전
+    public void addPoint(int point) {
+        this.point += point;
+    }
 }
