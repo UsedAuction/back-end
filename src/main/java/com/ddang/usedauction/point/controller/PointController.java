@@ -1,12 +1,9 @@
 package com.ddang.usedauction.point.controller;
 
 import com.ddang.usedauction.config.GlobalApiResponse;
-import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
-import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.service.PointService;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
