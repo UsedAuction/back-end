@@ -23,7 +23,7 @@ public class MemberServiceDto implements Serializable {
     private String passWord;
     private String email;
     private boolean siteAlarm;
-    private int point;
+    private long point;
     private String social;
     private String socialProviderId;
 

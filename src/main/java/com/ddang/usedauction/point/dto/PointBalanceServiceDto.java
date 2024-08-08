@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PointBalanceServiceDto {
 
-    private int pointAmount;
+    private long pointAmount;
 }
