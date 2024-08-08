@@ -1,5 +1,6 @@
 package com.ddang.usedauction.auction.controller;
 
+import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
@@ -19,6 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -94,5 +96,25 @@ public class AuctionController {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(
                 GlobalApiResponse.toGlobalResponse(HttpStatus.CREATED, auction.toCreateResponse()));
+    }
+
+    /**
+     * 구매 확정 컨트롤러
+     *
+     * @param auctionId  경매글 PK
+     * @param confirmDto 구매 확정 정보
+     * @return 성공 시 200 코드, 실패 시 에러코드와 에러메시지
+     */
+    @PostMapping("{auctionId}/confirm")
+    public ResponseEntity<GlobalApiResponse<?>> confirmAuctionController(
+        @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId,
+        @Valid @RequestBody
+        AuctionConfirmDto.Request confirmDto) {
+
+        String memberId = "test"; // todo : 토큰을 통해 조회
+
+        auctionService.confirmAuction(auctionId, memberId, confirmDto);
+
+        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(HttpStatus.OK, null));
     }
 }
