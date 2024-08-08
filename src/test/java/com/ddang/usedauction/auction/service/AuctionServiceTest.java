@@ -305,6 +305,10 @@ class AuctionServiceTest {
     @DisplayName("구매 확정")
     void confirmAuction() {
 
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END)
+            .build();
+
         when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(member));
         when(memberRepository.findById(any())).thenReturn(Optional.of(seller));
