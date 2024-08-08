@@ -1,5 +1,6 @@
 package com.ddang.usedauction.auction.service;
 
+import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
@@ -181,6 +182,7 @@ public class AuctionService {
      * @param memberId   회원 id
      * @param confirmDto 구매 확정 정보
      */
+    @RedissonLock("#auctionId")
     public void confirmAuction(Long auctionId, String memberId,
         AuctionConfirmDto.Request confirmDto) {
 
@@ -200,6 +202,11 @@ public class AuctionService {
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
             .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+
+        seller = seller.toBuilder()
+            .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
+            .build();
+        memberRepository.save(seller);
 
         PointHistory buyerPointHistory = PointHistory.builder()
             .curPointAmount(buyer.getPoint())
