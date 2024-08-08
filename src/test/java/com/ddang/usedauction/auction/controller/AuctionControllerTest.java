@@ -11,11 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.category.domain.Category;
+import com.ddang.usedauction.member.domain.Member;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -26,6 +29,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -52,6 +59,8 @@ class AuctionControllerTest {
     String createDto;
     AuctionServiceDto auctionServiceDto;
     String memberId;
+    Page<AuctionServiceDto> auctionPageList;
+    Pageable pageable;
 
     @BeforeEach
     void before() {
@@ -111,6 +120,37 @@ class AuctionControllerTest {
             .build();
 
         memberId = "test";
+
+        Member member = Member.builder()
+            .memberId("test")
+            .point(2000)
+            .email("test@naver.com")
+            .passWord("1234")
+            .siteAlarm(true)
+            .build();
+
+        Auction auction = Auction.builder()
+            .auctionState(AuctionState.CONTINUE)
+            .currentPrice(3000)
+            .productDescription("description")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.of(2024, 8, 9, 0, 0))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .childCategory(childCategory)
+            .seller(member)
+            .productColor("color")
+            .parentCategory(parentCategory)
+            .title("title")
+            .transactionType(TransactionType.ALL)
+            .build();
+
+        List<AuctionServiceDto> auctionList = List.of(auction.toServiceDto());
+        pageable = PageRequest.of(0, 10);
+        auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
     }
 
     @Test
@@ -144,6 +184,39 @@ class AuctionControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$[0].status").value(400));
+    }
+
+    @Test
+    @DisplayName("경매글 리스트 조회 컨트롤러")
+    void getAuctionListController() throws Exception {
+
+        when(auctionService.getAuctionList(any(), any(), any(), any())).thenReturn(auctionPageList);
+
+        mockMvc.perform(get("/api/auctions?word=&category=&sorted="))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.data").exists());
+    }
+
+    @Test
+    @DisplayName("경매글 리스트 조회 컨트롤러 실패 - url 경로 다름")
+    void getAuctionListControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/auction?word=&category=&sorted="))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    @DisplayName("경매글 리스트 조회 컨트롤러 실패 - param 입력 x")
+    void getAuctionListControllerFail2() throws Exception {
+
+        mockMvc.perform(get("/api/auctions?word=&category="))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(400));
     }
 
     @Test
