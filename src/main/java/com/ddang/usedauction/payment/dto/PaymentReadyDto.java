@@ -17,16 +17,16 @@ public class PaymentReadyDto {
     @Builder
     @ToString
     public static class Request {
-        private String cid;
-        private String partnerOrderId;
-        private String partnerUserId;
-        private String itemName;
-        private String quantity;
-        private String totalAmount;
-        private String taxFreeAmount;
-        private String approvalUrl;
-        private String cancelUrl;
-        private String failUrl;
+        private String cid; // 가맹점코드 (테스트용이라 "TC0ONETIME"로 고정)
+        private String partnerOrderId; // 주문id
+        private String partnerUserId; // 유저id
+        private String itemName; // 상품명(100포인트, 200포인트)
+        private String quantity; // 상품 수량
+        private String totalAmount; // 상품 가격
+        private String taxFreeAmount; // 상품 비과세 금액 (0으로 고정)
+        private String approvalUrl; // 결제 성공 시 redirect url
+        private String cancelUrl; // 결제 취소 시 redirect url
+        private String failUrl; // 결제 실패 시 redirect url
 
         //  map으로 변환
         public Map<String, String> toMap() {
