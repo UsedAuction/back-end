@@ -76,7 +76,7 @@ public class AuctionService {
         Page<Auction> auctionPageList = auctionRepository.findAllByOptions(word, category, sorted,
             pageable);
 
-        if (sorted.equals(VIEW)) { // 경메에 참여한 회원순으로 정렬해야하는 경우
+        if (sorted != null && sorted.equals(VIEW)) { // 경메에 참여한 회원순으로 정렬해야하는 경우
             List<AuctionServiceDto> auctionServiceDtoList = auctionPageList.stream()
                 .sorted(
                     (o1, o2) -> Math.toIntExact(o2.getBidMemberCount() - o1.getBidMemberCount()))

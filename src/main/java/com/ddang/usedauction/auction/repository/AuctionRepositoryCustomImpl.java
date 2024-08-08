@@ -76,6 +76,10 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
         final String LOW = "low";
         final String HIGH = "high";
 
+        if (sorted == null) {
+            sorted = "";
+        }
+
         return switch (sorted) {
             case DATE -> auction.endedAt.asc();
             case LOW -> auction.currentPrice.asc();
