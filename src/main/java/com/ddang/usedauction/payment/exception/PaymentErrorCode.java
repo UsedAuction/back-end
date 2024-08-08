@@ -8,11 +8,11 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum PaymentErrorCode {
 
-    INVALID_USER(HttpStatus.BAD_REQUEST, "동일한 유저가 아닙니다."),
-    PAYMENT_CANCEL(HttpStatus.BAD_REQUEST, "결제가 취소되었습니다."),
-    PAYMENT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "결제에 실패하였습니다.")
+    INVALID_USER(HttpStatus.BAD_REQUEST.value(), "동일한 유저가 아닙니다."),
+    PAYMENT_CANCEL(HttpStatus.BAD_REQUEST.value(), "결제가 취소되었습니다."),
+    PAYMENT_FAIL(HttpStatus.INTERNAL_SERVER_ERROR.value(), "결제에 실패하였습니다.")
     ;
 
-    private final HttpStatus httpStatus;
+    private final int status;
     private final String message;
 }
