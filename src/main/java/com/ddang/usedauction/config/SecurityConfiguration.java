@@ -1,4 +1,4 @@
-package com.ddang.usedauction.security;
+package com.ddang.usedauction.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,10 +21,11 @@ public class SecurityConfiguration {
             .httpBasic(HttpBasicConfigurer::disable)
             .csrf(CsrfConfigurer::disable)
             .headers(
-                headersConfigurer -> headersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
+                headersConfigurer -> headersConfigurer.frameOptions(
+                    HeadersConfigurer.FrameOptionsConfig::sameOrigin)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/*").permitAll()
+                .anyRequest().permitAll()
             );
 
         return http.build();
