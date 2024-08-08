@@ -1,6 +1,6 @@
 package com.ddang.usedauction.point.controller;
 
-import static com.ddang.usedauction.member.MemberErrorCode.MEMBER_NOT_FOUND;
+import static com.ddang.usedauction.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
 import static com.ddang.usedauction.point.type.PointType.CHARGE;
 import static com.ddang.usedauction.point.type.PointType.USE;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.ddang.usedauction.member.MemberException;
+import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
 import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.service.PointService;
@@ -65,7 +65,7 @@ class PointControllerTest {
         // given
         // when
         when(pointService.getPointBalance(any(UserDetails.class)))
-            .thenThrow(new MemberException(MEMBER_NOT_FOUND));
+            .thenThrow(new MemberException(NOT_FOUND_MEMBER));
 
         // then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
