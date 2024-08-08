@@ -17,16 +17,19 @@ public class PointHistory extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PointType pointType;
 
     // 충전 or 사용 포인트량
+    @Column(nullable = false)
     private int pointAmount;
 
     // 현재 보유 포인트량
+    @Column(nullable = false)
     private int curPointAmount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 }
