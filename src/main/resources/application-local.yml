@@ -18,7 +18,6 @@ spring:
         format_sql: true
         highlight_sql: true
         default_batch_fetch_size: 100
-    defer-datasource-initialization: true
 
   datasource:
     username: ${DB_USER_NAME} # 환경 변수
@@ -31,13 +30,13 @@ spring:
       enabled: true
       path: /h2-console
 
-  #  # redis
-  #  data:
-  #    redis:
-  #      port: 6379
-  #      host: localhost
-  #  cache:
-  #    type: redis
+  # redis
+  data:
+    redis:
+      port: 6379
+      host: localhost
+  cache:
+    type: redis
 
   #  # JWT 시크릿 키
   #  jwt:
@@ -50,16 +49,16 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
-## S3
-#aws:
-#  s3:
-#    bucket: ${S3_BUCKET_NAME}
-#    access-key: ${S3_ACCESS_KEY}
-#    secret-key: ${S3_SECRET_KEY}
-#  region:
-#    static: ap-northeast-2
-#  stack:
-#    auto: false
+# S3
+aws:
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+  region:
+    static: ap-northeast-2
+  stack:
+    auto: false
 
 # 로그
 logging:
