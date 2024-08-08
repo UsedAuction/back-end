@@ -33,6 +33,11 @@ spring:
   cache:
     type: redis
 
+# redisson
+redisson:
+  host: ${REDISSON_HOST}
+  port: ${REDISSON_PORT}
+
   #  # JWT 시크릿 키
   #  jwt:
   #    secret: ${JWT_SECRET} # 환경 변수
