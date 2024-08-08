@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum PointType {
 
     USE("USE", "사용"),
+    GET("GET", "판매 수익"),
     CHARGE("CHARGE", "충전");
 
     private final String name;

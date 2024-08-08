@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
-import com.ddang.usedauction.member.Member;
-import com.ddang.usedauction.member.MemberException;
-import com.ddang.usedauction.member.MemberRepository;
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.exception.MemberException;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
 import com.ddang.usedauction.point.dto.PointHistoryServiceDto;

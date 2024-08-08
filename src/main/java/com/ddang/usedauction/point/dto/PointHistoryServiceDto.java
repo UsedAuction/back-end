@@ -16,8 +16,8 @@ public class PointHistoryServiceDto {
 
     private Long id;
     private PointType pointType;
-    private int pointAmount;
-    private int curPointAmount;
+    private long pointAmount;
+    private long curPointAmount;
     private Long memberId;
 
     public static PointHistoryServiceDto fromPointHistory(PointHistory pointHistory) {

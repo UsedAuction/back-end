@@ -15,8 +15,8 @@ public interface PointRepository extends JpaRepository<PointHistory, Long> {
 
     @Query("SELECT p FROM point_history p " +
         "WHERE p.member.email =:username " +
-        "AND p.registerDate BETWEEN :startDate AND :endDate " +
-        "ORDER BY p.registerDate ASC")
+        "AND p.createdAt BETWEEN :startDate AND :endDate " +
+        "ORDER BY p.createdAt ASC")
     Page<PointHistory> findAllPoint(
         @Param("username") String username,
         @Param("startDate") LocalDate startDate,
