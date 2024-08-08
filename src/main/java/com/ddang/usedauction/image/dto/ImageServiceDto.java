@@ -1,7 +1,5 @@
 package com.ddang.usedauction.image.dto;
 
-import com.ddang.usedauction.answer.dto.AnswerServiceDto;
-import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.image.domain.ImageType;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -25,8 +23,8 @@ public class ImageServiceDto implements Serializable {
     private String imageUrl;
     private String imageName;
     private ImageType imageType;
-    private AnswerServiceDto answer;
-    private AuctionServiceDto auction;
+    private Long answerId;
+    private Long auctionId;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

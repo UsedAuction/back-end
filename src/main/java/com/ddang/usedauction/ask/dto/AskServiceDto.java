@@ -1,13 +1,13 @@
 package com.ddang.usedauction.ask.dto;
 
-import com.ddang.usedauction.auction.dto.AuctionServiceDto;
-import com.ddang.usedauction.member.dto.MemberServiceDto;
+import com.ddang.usedauction.answer.dto.AnswerServiceDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,8 +23,8 @@ public class AskServiceDto implements Serializable {
     private Long id;
     private String title;
     private String content;
-    private MemberServiceDto writer;
-    private AuctionServiceDto auction;
+    private String writerId;
+    private List<AnswerServiceDto> answerList;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

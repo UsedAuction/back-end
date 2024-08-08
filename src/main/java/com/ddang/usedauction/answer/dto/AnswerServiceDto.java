@@ -1,6 +1,5 @@
 package com.ddang.usedauction.answer.dto;
 
-import com.ddang.usedauction.ask.dto.AskServiceDto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -21,7 +20,6 @@ public class AnswerServiceDto implements Serializable {
 
     private Long id;
     private String content;
-    private AskServiceDto ask;
 
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

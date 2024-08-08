@@ -32,6 +32,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
@@ -71,6 +75,8 @@ class AuctionServiceTest {
     Image image;
     List<Image> uploadImageList;
     Auction auction;
+    Page<Auction> auctionPageList;
+    Pageable pageable;
 
     @BeforeEach
     void before() {
@@ -154,6 +160,43 @@ class AuctionServiceTest {
             .title("title")
             .transactionType(TransactionType.ALL)
             .build();
+
+        List<Auction> auctionList = List.of(auction);
+        pageable = PageRequest.of(0, 10);
+        auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
+    }
+
+    @Test
+    @DisplayName("경매글 단건 조회")
+    void getAuction() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+
+        AuctionServiceDto auctionServiceDto = auctionService.getAuction(1L);
+
+        assertThat(auctionServiceDto.getTitle()).isEqualTo("title");
+    }
+
+    @Test
+    @DisplayName("경매글 단건 조회 실패 - 등록되지 않은 경매글")
+    void getAuctionFail1() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> auctionService.getAuction(1L)).isInstanceOf(
+            AuctionException.class);
+    }
+
+    @Test
+    @DisplayName("경매글 리스트 조회")
+    void getAuctionList() {
+
+        when(auctionRepository.findAllByOptions(any(), any(), any(), any())).thenReturn(
+            auctionPageList);
+
+        Page<AuctionServiceDto> auctionList = auctionService.getAuctionList("", "", "", pageable);
+
+        assertThat(auctionList.getTotalElements()).isEqualTo(1);
     }
 
     @Test

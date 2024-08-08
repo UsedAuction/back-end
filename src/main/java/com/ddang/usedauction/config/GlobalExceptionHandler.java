@@ -19,6 +19,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -114,6 +115,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
             .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
                 "필수값인 RequestPart 값이 존재하지 않습니다."));
+    }
+
+    // 필수 RequestParam 값 존재하지 않을 경우 에러 핸들러
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    private ResponseEntity<GlobalApiResponse<String>> handleMissingServletRequestParameterException(
+        MissingServletRequestParameterException e) {
+
+        log.error("필수 RequestParam 값 존재하지 않은", e);
+
+        return ResponseEntity.badRequest()
+            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
+                "필수값인 RequestParam 값이 존재하지 않습니다."));
     }
 
     // unique 제약 조건 위반 exception 핸들러

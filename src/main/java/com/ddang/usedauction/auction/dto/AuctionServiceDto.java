@@ -8,9 +8,11 @@ import com.ddang.usedauction.bid.dto.BidServiceDto;
 import com.ddang.usedauction.category.dto.CategoryServiceDto;
 import com.ddang.usedauction.image.dto.ImageServiceDto;
 import com.ddang.usedauction.member.dto.MemberServiceDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -42,19 +44,22 @@ public class AuctionServiceDto implements Serializable {
     private long currentPrice; // 현재 입찰가
     private long startPrice; // 입찰 시작가
     private long instantPrice; // 즉시 구매가
+    private long memberCount; // 경매에 참여한 회원 수
     private List<BidServiceDto> bidList; // 입찰 리스트
     private MemberServiceDto seller; // 판매자
     private CategoryServiceDto parentCategory; // 대분류 카테고리
     private CategoryServiceDto childCategory; // 소분류 카테고리
-    private List<AskServiceDto> ask; // 문의글
+    private List<AskServiceDto> askList; // 문의글
     private List<ImageServiceDto> imageList; // 이미지 리스트
 
+    @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/seoul")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endedAt; // 경매 마감일
 
+    @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/seoul")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createdAt; // 생성 날짜
 
     // 경매 생성 완료 시 response로 변경하는 메소드
@@ -63,6 +68,36 @@ public class AuctionServiceDto implements Serializable {
         return AuctionCreateDto.Response.builder()
             .id(id)
             .title(title)
+            .build();
+    }
+
+    // 경매글 조회 시 response로 변경하는 메소드
+    public AuctionGetDto.Response toGetResponse() {
+
+        return AuctionGetDto.Response.builder()
+            .id(id)
+            .title(title)
+            .auctionState(auctionState)
+            .productName(productName)
+            .productColor(productColor)
+            .productStatus(productStatus)
+            .productDescription(productDescription)
+            .transactionType(transactionType)
+            .contactPlace(contactPlace)
+            .deliveryType(deliveryType)
+            .deliveryPrice(deliveryPrice)
+            .currentPrice(currentPrice)
+            .startPrice(startPrice)
+            .instantPrice(instantPrice)
+            .memberCount(memberCount)
+            .endedAt(endedAt)
+            .seller(seller)
+            .parentCategory(parentCategory)
+            .childCategory(childCategory)
+            .bidList(bidList)
+            .askList(askList)
+            .imageList(imageList)
+            .createdAt(createdAt)
             .build();
     }
 }

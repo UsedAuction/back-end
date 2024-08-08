@@ -22,6 +22,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,54 @@ public class AuctionService {
     private final MemberRepository memberRepository;
     private final ImageService imageService;
     private final RedisTemplate<String, AuctionServiceDto> auctionRedisTemplate;
+
+    /**
+     * 경매글 단건 조회
+     *
+     * @param auctionId 조회할 경매글 PK
+     * @return 조회된 경매글 serviceDto
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(key = "#auctionId", value = CacheName.AUCTION_CACHE_NAME)
+    public AuctionServiceDto getAuction(Long auctionId) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
+
+        return auction.toServiceDto();
+    }
+
+    /**
+     * 경매글 리스트 조회
+     *
+     * @param word     검색어
+     * @param category 카테고리
+     * @param sorted   정렬 방법
+     * @param pageable 페이징
+     * @return 페이징 처리된 경매 서비스 dto
+     */
+    @Transactional(readOnly = true)
+    public Page<AuctionServiceDto> getAuctionList(String word, String category, String sorted,
+        Pageable pageable) {
+
+        final String VIEW = "view";
+
+        Page<Auction> auctionPageList = auctionRepository.findAllByOptions(word, category, sorted,
+            pageable);
+
+        if (sorted != null && sorted.equals(VIEW)) { // 경메에 참여한 회원순으로 정렬해야하는 경우
+            List<AuctionServiceDto> auctionServiceDtoList = auctionPageList.stream()
+                .sorted(
+                    (o1, o2) -> Math.toIntExact(o2.getBidMemberCount() - o1.getBidMemberCount()))
+                .map(Auction::toServiceDto)
+                .toList();
+
+            return new PageImpl<>(auctionServiceDtoList, pageable,
+                auctionPageList.getTotalElements());
+        }
+
+        return auctionPageList.map(Auction::toServiceDto);
+    }
 
     /**
      * 경매글 생성 서비스
@@ -104,7 +156,9 @@ public class AuctionService {
 
         addImageList(images, auction);
 
-        AuctionServiceDto serviceDto = auctionRepository.save(auction).toServiceDto();
+        Auction savedAuction = auctionRepository.save(auction);
+
+        AuctionServiceDto serviceDto = savedAuction.toServiceDto();
         String auctionKey = CacheName.AUCTION_CACHE_NAME + "::" + serviceDto.getId();
         auctionRedisTemplate.opsForValue().set(auctionKey, serviceDto); // redis에 저장
 

@@ -52,8 +52,8 @@ public class Bid extends BaseTimeEntity {
         return BidServiceDto.builder()
             .id(id)
             .bidPrice(bidPrice)
-            .auction(auction.toServiceDto())
-            .member(member.toServiceDto())
+            .auctionId(auction.getId())
+            .memberId(member.getMemberId())
             .createdAt(getCreatedAt())
             .build();
     }

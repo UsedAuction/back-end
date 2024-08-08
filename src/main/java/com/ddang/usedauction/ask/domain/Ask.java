@@ -1,5 +1,6 @@
 package com.ddang.usedauction.ask.domain;
 
+import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.ask.dto.AskServiceDto;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.config.BaseTimeEntity;
@@ -12,7 +13,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,6 +50,9 @@ public class Ask extends BaseTimeEntity {
     @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction;
 
+    @OneToMany(mappedBy = "ask", fetch = FetchType.LAZY)
+    private List<Answer> answerList;
+
     @Column
     private LocalDateTime deletedAt;
 
@@ -56,8 +63,9 @@ public class Ask extends BaseTimeEntity {
             .id(id)
             .title(title)
             .content(content)
-            .writer(writer.toServiceDto())
-            .auction(auction.toServiceDto())
+            .writerId(writer.getMemberId())
+            .answerList(answerList != null && answerList.isEmpty() ? answerList.stream()
+                .map(Answer::toServiceDto).toList() : new ArrayList<>())
             .createdAt(getCreatedAt())
             .build();
     }
