@@ -1,6 +1,6 @@
 package com.ddang.usedauction.point.controller;
 
-import static com.ddang.usedauction.member.MemberErrorCode.MEMBER_NOT_FOUND;
+import static com.ddang.usedauction.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
 import static com.ddang.usedauction.point.type.PointType.CHARGE;
 import static com.ddang.usedauction.point.type.PointType.USE;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
 import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.service.PointService;
@@ -52,7 +53,7 @@ class PointControllerTest {
         //then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
             .andExpect(jsonPath("$.message").value("성공"))
             .andExpect(jsonPath("$.data.pointAmount").value(10000));
     }
@@ -64,13 +65,13 @@ class PointControllerTest {
         // given
         // when
         when(pointService.getPointBalance(any(UserDetails.class)))
-            .thenThrow(new MemberException(MEMBER_NOT_FOUND));
+            .thenThrow(new MemberException(NOT_FOUND_MEMBER));
 
         // then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
-            .andExpect(jsonPath("$.message").value("회원이 존재하지 않습니다."))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+            .andExpect(jsonPath("$.message").value("등록되지 않은 회원입니다."))
             .andExpect(jsonPath("$.data").doesNotExist());
     }
 
