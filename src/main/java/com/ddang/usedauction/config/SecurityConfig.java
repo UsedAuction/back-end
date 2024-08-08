@@ -24,7 +24,7 @@ public class SecurityConfig {
                 headersConfigurer -> headersConfigurer.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
+                .anyRequest().permitAll()
             );
 
         return http.build();
