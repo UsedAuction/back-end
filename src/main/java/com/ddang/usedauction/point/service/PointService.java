@@ -1,11 +1,11 @@
 package com.ddang.usedauction.point.service;
 
-import static com.ddang.usedauction.member.MemberErrorCode.MEMBER_NOT_FOUND;
 import static com.ddang.usedauction.point.exception.PointErrorCode.INVALID_DATE_RANGE;
 
-import com.ddang.usedauction.member.Member;
-import com.ddang.usedauction.member.MemberException;
-import com.ddang.usedauction.member.MemberRepository;
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.exception.MemberErrorCode;
+import com.ddang.usedauction.member.exception.MemberException;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
 import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.exception.PointException;
@@ -28,7 +28,7 @@ public class PointService {
     public PointBalanceServiceDto getPointBalance(UserDetails userDetails) {
         String username = userDetails.getUsername();
         Member member = memberRepository.findByEmail(username)
-            .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 
         return new PointBalanceServiceDto(member.getPoint());
     }
@@ -43,7 +43,7 @@ public class PointService {
 
         String username = userDetails.getUsername();
         memberRepository.findByEmail(username)
-            .orElseThrow(() -> new MemberException(MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
 
         return pointRepository.findAllPoint(username, startDate, endDate, pageable)
             .map(PointHistoryServiceDto::fromPointHistory);
