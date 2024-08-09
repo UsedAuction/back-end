@@ -56,15 +56,9 @@ public class PaymentService {
 
     // 결제 준비
     public PaymentReadyDto.Response ready (PaymentInfoDto.Request request) {
-//         아래 코드는 테스트 용이성을 위해 주석처리. 회원기능 구현 완료시 수정 예정
-//         (UserDetails userDetails, PaymentReadyDto.Request request) {
-
-//        String email = userDetails.getUsername();
-//        Member member = memberRepository.findByEmail(email)
-//            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
 
         Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER)); // TODO 토큰을 받아 처리하는 것으로 수정
 
         Orders order = orderRepository.findById(request.getOrderId())
             .orElseThrow(() -> new OrderException(NOT_FOUND_ORDER));
@@ -127,15 +121,9 @@ public class PaymentService {
 
     // 결제 승인
     public PaymentApproveDto.Response approve(String partnerOrderId, String pgToken) {
-//         아래 코드는 테스트 용이성을 위해 주석처리. 회원기능 구현 완료시 수정 예정
-//         (UserDetails userDetails, PaymentReadyDto.Request request) {
-
-//        String email = userDetails.getUsername();
-//        Member member = memberRepository.findByEmail(email)
-//            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
 
         Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER)); // TODO 토큰을 받아 처리하는 것으로 수정
 
         Long orderId = Long.valueOf(partnerOrderId);
         Orders order = orderRepository.findById(orderId)

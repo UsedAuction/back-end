@@ -7,8 +7,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,10 +29,9 @@ public class OrderController {
      */
     @PostMapping("/create")
     public ResponseEntity<GlobalApiResponse<?>> createOrder(
-//        @AuthenticationPrincipal UserDetails userDetails,
         @RequestBody @Valid OrderCreateDto.Request request
     ) {
-        OrderCreateDto.Response response = orderService.createOrder(request); // (userDetails, request);
+        OrderCreateDto.Response response = orderService.createOrder(request);
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(GlobalApiResponse.toGlobalResponse(HttpStatus.CREATED, response));
