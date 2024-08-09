@@ -121,6 +121,10 @@ public class AuctionService {
             throw new AuctionException(AuctionErrorCode.END_DATE_IS_AFTER_7);
         }
 
+        if (createDto.getEndedAt().isBefore(LocalDateTime.now())) { // 경매 끝나는 날짜가 현재 날짜보다 이전인 경우
+            throw new AuctionException(AuctionErrorCode.END_DATE_IS_BEFORE_NOW);
+        }
+
         if (createDto.getInstantPrice()
             <= createDto.getStartPrice()) { // 즉시 구매가가 입찰 시작가보다 적거나 같은 경우
             throw new AuctionException(AuctionErrorCode.LOW_PRICE);
