@@ -2,6 +2,7 @@ package com.ddang.usedauction.auction.domain;
 
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
+import com.ddang.usedauction.auction.listener.AuctionEntityListener;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.BaseTimeEntity;
@@ -10,6 +11,7 @@ import com.ddang.usedauction.member.domain.Member;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -30,6 +32,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
+@EntityListeners(AuctionEntityListener.class)
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

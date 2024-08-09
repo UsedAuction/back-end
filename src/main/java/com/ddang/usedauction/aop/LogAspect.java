@@ -18,7 +18,8 @@ public class LogAspect {
     // 모든 메소드 포인트컷
     @Pointcut("execution(* com.ddang.usedauction..*(..)) "
         + "&& !execution(* com.ddang.usedauction.config..*(..)) "
-        + "&& !execution(* com.ddang.usedauction.validation..*(..))")
+        + "&& !execution(* com.ddang.usedauction.validation..*(..))"
+        + "&& !execution(* com.ddang.usedauction.util..*(..))")
     public void all() {
     }
 
