@@ -1,6 +1,7 @@
 package com.ddang.usedauction.auction;
 
 import com.ddang.usedauction.Member.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -24,7 +25,9 @@ public class Auction {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(nullable = false)
   private String title;
+
   private String description;
 
   @ManyToOne(fetch = FetchType.LAZY)
