@@ -4,6 +4,7 @@ import com.ddang.usedauction.auction.exception.AuctionException;
 import com.ddang.usedauction.category.exception.CategoryException;
 import com.ddang.usedauction.image.exception.ImageException;
 import com.ddang.usedauction.member.exception.MemberException;
+import com.ddang.usedauction.payment.exception.PaymentException;
 import com.ddang.usedauction.point.exception.PointException;
 import com.ddang.usedauction.transaction.exception.TransactionException;
 import jakarta.validation.ConstraintViolation;
@@ -207,6 +208,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
             .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
                 e.getTransactionErrorCode().getMessage()));
+    }
+  
+    // 결제 관련 에러 핸들러 -> 400 에러
+    @ExceptionHandler(PaymentException.class)
+    public ResponseEntity<?> paymentExceptionHandler(PaymentException e) {
+        log.error("PaymentException", e);
+
+        return ResponseEntity.badRequest()
+            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
+                e.getPaymentErrorCode().getMessage()));
     }
 
 //    // 예상하지 못한 에러 핸들러 -> 500 에러

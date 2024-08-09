@@ -53,7 +53,7 @@ class PointControllerTest {
         //then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.status").value(200))
+            .andExpect(jsonPath("$.status").value(HttpStatus.OK.value()))
             .andExpect(jsonPath("$.message").value("성공"))
             .andExpect(jsonPath("$.data.pointAmount").value(10000));
     }
@@ -69,9 +69,9 @@ class PointControllerTest {
 
         // then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
-            .andExpect(jsonPath("$.message").value("회원이 존재하지 않습니다."))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.status").value(HttpStatus.BAD_REQUEST.value()))
+            .andExpect(jsonPath("$.message").value("등록되지 않은 회원입니다."))
             .andExpect(jsonPath("$.data").doesNotExist());
     }
 
