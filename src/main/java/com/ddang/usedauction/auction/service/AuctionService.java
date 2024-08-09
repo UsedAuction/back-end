@@ -1,7 +1,9 @@
 package com.ddang.usedauction.auction.service;
 
+import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
+import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.auction.exception.AuctionErrorCode;
@@ -18,6 +20,12 @@ import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.point.domain.PointHistory;
+import com.ddang.usedauction.point.repository.PointRepository;
+import com.ddang.usedauction.point.type.PointType;
+import com.ddang.usedauction.transaction.domain.TransType;
+import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +47,8 @@ public class AuctionService {
     private final AuctionRepository auctionRepository;
     private final CategoryRepository categoryRepository;
     private final MemberRepository memberRepository;
+    private final TransactionRepository transactionRepository;
+    private final PointRepository pointRepository;
     private final ImageService imageService;
     private final RedisTemplate<String, AuctionServiceDto> auctionRedisTemplate;
 
@@ -163,6 +173,72 @@ public class AuctionService {
         auctionRedisTemplate.opsForValue().set(auctionKey, serviceDto); // redis에 저장
 
         return serviceDto;
+    }
+
+    /**
+     * 구매 확정 서비스
+     *
+     * @param auctionId  경매글 PK
+     * @param memberId   회원 id
+     * @param confirmDto 구매 확정 정보
+     */
+    @RedissonLock("#auctionId")
+    public void confirmAuction(Long auctionId, String memberId,
+        AuctionConfirmDto.Request confirmDto) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
+
+        if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
+            throw new AuctionException(AuctionErrorCode.CONTINUE_AUCTION);
+        }
+
+        Member buyer = memberRepository.findByMemberId(memberId)
+            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+
+        if (buyer.getPoint() < confirmDto.getPrice()) { // 회원의 포인트가 부족한 경우
+            throw new AuctionException(AuctionErrorCode.FAIL_CONFIRM_AUCTION_BY_BUYER);
+        }
+
+        Member seller = memberRepository.findById(confirmDto.getSellerId())
+            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+
+        seller = seller.toBuilder()
+            .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
+            .build();
+        memberRepository.save(seller);
+
+        PointHistory buyerPointHistory = PointHistory.builder()
+            .curPointAmount(buyer.getPoint())
+            .pointType(PointType.USE)
+            .pointAmount(confirmDto.getPrice())
+            .member(buyer)
+            .build();
+        pointRepository.save(buyerPointHistory); // 구매자 포인트 히스토리 저장
+
+        PointHistory sellerPointHistory = PointHistory.builder()
+            .curPointAmount(seller.getPoint())
+            .pointType(PointType.GET)
+            .pointAmount(confirmDto.getPrice())
+            .member(seller)
+            .build();
+        pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
+
+        Transaction buyerTransaction = Transaction.builder()
+            .auction(auction)
+            .member(buyer)
+            .price(confirmDto.getPrice())
+            .transType(TransType.BUY)
+            .build();
+        transactionRepository.save(buyerTransaction); // 구매자 거래 내역 저장
+
+        Transaction sellerTransaction = Transaction.builder()
+            .auction(auction)
+            .member(seller)
+            .price(confirmDto.getPrice())
+            .transType(TransType.SELL)
+            .build();
+        transactionRepository.save(sellerTransaction); // 판매자 거래 내역 저장
     }
 
     // 이미지 연관관계 경매와 함께 저장하기 위한 메소드

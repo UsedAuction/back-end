@@ -104,7 +104,8 @@ class PointControllerTest {
         );
 
         //when
-        when(pointService.getPointList(any(UserDetails.class), any(LocalDate.class), any(LocalDate.class),
+        when(pointService.getPointList(any(UserDetails.class), any(LocalDate.class),
+            any(LocalDate.class),
             any(Pageable.class)))
             .thenReturn(pointHistoryDtoPage);
 

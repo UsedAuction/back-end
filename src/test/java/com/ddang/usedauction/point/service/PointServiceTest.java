@@ -1,7 +1,10 @@
 package com.ddang.usedauction.point.service;
 
-import static com.ddang.usedauction.point.type.PointType.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static com.ddang.usedauction.point.type.PointType.CHARGE;
+import static com.ddang.usedauction.point.type.PointType.USE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
@@ -106,7 +109,8 @@ class PointServiceTest {
             .willReturn(pointHistoryPage);
 
         //when
-        Page<PointHistoryServiceDto> result = pointService.getPointList(userDetails, startDate, endDate, pageRequest);
+        Page<PointHistoryServiceDto> result = pointService.getPointList(userDetails, startDate,
+            endDate, pageRequest);
 
         //then
         assertNotNull(pointHistoryPage);

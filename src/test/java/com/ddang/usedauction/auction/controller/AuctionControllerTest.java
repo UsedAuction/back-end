@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -15,6 +16,7 @@ import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.category.domain.Category;
@@ -61,6 +63,7 @@ class AuctionControllerTest {
     String memberId;
     Page<AuctionServiceDto> auctionPageList;
     Pageable pageable;
+    AuctionConfirmDto.Request confirmDto;
 
     @BeforeEach
     void before() {
@@ -151,6 +154,11 @@ class AuctionControllerTest {
         List<AuctionServiceDto> auctionList = List.of(auction.toServiceDto());
         pageable = PageRequest.of(0, 10);
         auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
+
+        confirmDto = AuctionConfirmDto.Request.builder()
+            .price(2000)
+            .sellerId(1L)
+            .build();
     }
 
     @Test
@@ -313,5 +321,59 @@ class AuctionControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$[0].status").value(400));
+    }
+
+    @Test
+    @DisplayName("구매 확정 컨트롤러")
+    void confirmAuctionController() throws Exception {
+
+        mockMvc.perform(post("/api/auctions/1/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(confirmDto)))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.status").value(200));
+    }
+
+    @Test
+    @DisplayName("구매 확정 컨트롤러 실패 - url 경로 다름")
+    void confirmAuctionControllerFail1() throws Exception {
+
+        mockMvc.perform(post("/api/auction/1/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(confirmDto)))
+            .andDo(print())
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.status").value(404));
+    }
+
+    @Test
+    @DisplayName("구매 확정 컨트롤러 실패 - pathVariable 유효성 검사 실패")
+    void confirmAuctionControllerFail2() throws Exception {
+
+        mockMvc.perform(post("/api/auctions/0/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(confirmDto)))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$[0].status").value(400));
+    }
+
+    @Test
+    @DisplayName("구매 확정 컨트롤러 실패 - dto 유효성 검사 실패")
+    void confirmAuctionControllerFail3() throws Exception {
+
+        confirmDto = confirmDto.toBuilder()
+            .price(0)
+            .sellerId(0L)
+            .build();
+
+        mockMvc.perform(post("/api/auctions/0/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(confirmDto)))
+            .andDo(print())
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$[0].status").value(400))
+            .andExpect(jsonPath("$[1].status").value(400));
     }
 }

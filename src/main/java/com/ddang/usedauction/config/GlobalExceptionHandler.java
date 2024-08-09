@@ -6,6 +6,7 @@ import com.ddang.usedauction.image.exception.ImageException;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.payment.exception.PaymentException;
 import com.ddang.usedauction.point.exception.PointException;
+import com.ddang.usedauction.transaction.exception.TransactionException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
@@ -197,6 +198,18 @@ public class GlobalExceptionHandler {
                 e.getPointErrorCode().getMessage()));
     }
 
+    // 거래 관련 에러 핸들러
+    @ExceptionHandler(TransactionException.class)
+    public ResponseEntity<GlobalApiResponse<String>> handleTransactionException(
+        TransactionException e) {
+
+        log.error("거래 관련 exception", e);
+
+        return ResponseEntity.badRequest()
+            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
+                e.getTransactionErrorCode().getMessage()));
+    }
+  
     // 결제 관련 에러 핸들러 -> 400 에러
     @ExceptionHandler(PaymentException.class)
     public ResponseEntity<?> paymentExceptionHandler(PaymentException e) {

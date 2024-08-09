@@ -4,12 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.auction.exception.AuctionException;
@@ -23,6 +26,8 @@ import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.point.repository.PointRepository;
+import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +61,12 @@ class AuctionServiceTest {
     MemberRepository memberRepository;
 
     @MockBean
+    TransactionRepository transactionRepository;
+
+    @MockBean
+    PointRepository pointRepository;
+
+    @MockBean
     ImageService imageService;
 
     @MockBean
@@ -77,11 +88,14 @@ class AuctionServiceTest {
     Auction auction;
     Page<Auction> auctionPageList;
     Pageable pageable;
+    AuctionConfirmDto.Request confirmDto;
+    Member seller;
 
     @BeforeEach
     void before() {
 
         auctionService = new AuctionService(auctionRepository, categoryRepository, memberRepository,
+            transactionRepository, pointRepository,
             imageService, auctionRedisTemplate);
 
         when(auctionRedisTemplate.opsForValue()).thenReturn(valueOperations);
@@ -164,6 +178,19 @@ class AuctionServiceTest {
         List<Auction> auctionList = List.of(auction);
         pageable = PageRequest.of(0, 10);
         auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
+
+        confirmDto = AuctionConfirmDto.Request.builder()
+            .price(2000)
+            .sellerId(1L)
+            .build();
+
+        seller = Member.builder()
+            .memberId("seller")
+            .point(1000)
+            .email("seller@naver.com")
+            .passWord("1234")
+            .siteAlarm(true)
+            .build();
     }
 
     @Test
@@ -272,5 +299,76 @@ class AuctionServiceTest {
 
         assertThatThrownBy(() -> auctionService.createAuction(thumbnail, imageList, memberId,
             createDto)).isInstanceOf(CategoryException.class);
+    }
+
+    @Test
+    @DisplayName("구매 확정")
+    void confirmAuction() {
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END)
+            .build();
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(member));
+        when(memberRepository.findById(any())).thenReturn(Optional.of(seller));
+
+        auctionService.confirmAuction(1L, "test", confirmDto);
+
+        verify(pointRepository, times(2)).save(any());
+        verify(transactionRepository, times(2)).save(any());
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 경매글")
+    void confirmAuctionFail1() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
+            AuctionException.class);
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 회원")
+    void confirmAuctionFail2() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
+            MemberException.class);
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 진행중인 경매인 경우")
+    void confirmAuctionFail3() {
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+
+        assertThatThrownBy(
+            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
+            AuctionException.class);
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 구매자 포인트가 부족한 경우")
+    void confirmAuctionFail4() {
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END)
+            .build();
+        member = member.toBuilder()
+            .point(0)
+            .build();
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(member));
+
+        assertThatThrownBy(
+            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
+            AuctionException.class);
     }
 }

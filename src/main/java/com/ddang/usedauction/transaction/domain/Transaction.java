@@ -1,8 +1,8 @@
-package com.ddang.usedauction.point.domain;
+package com.ddang.usedauction.transaction.domain;
 
+import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.point.type.PointType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,28 +19,29 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
-@Entity(name = "point_history")
-public class PointHistory extends BaseTimeEntity {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder(toBuilder = true)
+public class Transaction extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
+    private long price; // 거래 가격
+
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PointType pointType; // 포인트 타입
-
-    @Column(nullable = false)
-    private long pointAmount; // 충전 or 사용 포인트량
-
-    @Column(nullable = false)
-    private long curPointAmount; // 현재 보유 포인트량
+    private TransType transType; // 거래 타입
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member; // 회원
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "auction_id", nullable = false)
+    private Auction auction; // 경매
 }

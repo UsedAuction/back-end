@@ -40,7 +40,7 @@ public class Member extends BaseTimeEntity {
     private boolean siteAlarm;
 
     @Column
-    private int point;
+    private long point;
 
     @Column
     private String social;
