@@ -65,3 +65,9 @@ logging:
           descriptor:
             sql: trace
   config: classpath:logback-spring.xml
+
+# 카카오페이 secretKey
+payment:
+  secret-key: ${PAY_SECRET_KEY}
+  ready: https://open-api.kakaopay.com/online/v1/payment/ready
+  approve: https://open-api.kakaopay.com/online/v1/payment/approve
