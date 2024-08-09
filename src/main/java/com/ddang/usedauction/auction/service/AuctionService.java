@@ -201,9 +201,9 @@ public class AuctionService {
         }
 
         List<Bid> bidList = auction.getBidList();
-        Bid bid = bidList.stream()
+        Bid bid = bidList != null ? bidList.stream()
             .max(Comparator.comparing(Bid::getBidPrice))
-            .orElse(null);
+            .orElse(null) : null;
 
         Member buyer = null; // 입찰자
         if (bid != null) {
