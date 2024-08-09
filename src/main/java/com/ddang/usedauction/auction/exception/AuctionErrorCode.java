@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum AuctionErrorCode {
 
+    ALREADY_END_AUCTION(HttpStatus.BAD_REQUEST.value(), "이미 종료된 경매입니다."),
     FAIL_CONFIRM_AUCTION_BY_BUYER(HttpStatus.BAD_REQUEST.value(), "구매 확정 실패 -> 회원 포인트가 부족합니다."),
     CONTINUE_AUCTION(HttpStatus.BAD_REQUEST.value(), "아직 경매가 진행중입니다."),
     LOW_PRICE(HttpStatus.BAD_REQUEST.value(), "즉시구매가는 입찰시작가보다 큰 수이어야 합니다."),
