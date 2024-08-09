@@ -9,6 +9,7 @@ import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.auction.exception.AuctionErrorCode;
 import com.ddang.usedauction.auction.exception.AuctionException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.exception.CategoryErrorCode;
 import com.ddang.usedauction.category.exception.CategoryException;
@@ -28,8 +29,12 @@ import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -177,6 +182,46 @@ public class AuctionService {
         auctionRedisTemplate.opsForValue().set(auctionKey, serviceDto); // redis에 저장
 
         return serviceDto;
+    }
+
+    /**
+     * 경매 종료 서비스
+     *
+     * @param auctionId 종료할 경매 PK
+     */
+    @RedissonLock("#auctionId")
+    @CacheEvict(key = "#auctionId", value = CacheName.AUCTION_CACHE_NAME)
+    public Map<String, Long> endAuction(Long auctionId) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
+
+        List<Bid> bidList = auction.getBidList();
+        Bid bid = bidList.stream()
+            .max(Comparator.comparing(Bid::getBidPrice))
+            .orElse(null);
+
+        Member buyer = null; // 입찰자
+        if (bid != null) {
+            Member member = bid.getMember();
+            member = member.toBuilder()
+                .point(member.getPoint() - bid.getBidPrice()) // 입찰자 포인트 차감
+                .build();
+
+            buyer = memberRepository.save(member);
+        }
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END) // 경매 종료 처리
+            .build();
+        Auction savedAuction = auctionRepository.save(auction);
+
+        Map<String, Long> auctionAndMemberMap = new HashMap<>();
+        auctionAndMemberMap.put("auction", savedAuction.getId());
+        auctionAndMemberMap.put("buyer", buyer != null ? buyer.getId() : null);
+        auctionAndMemberMap.put("seller", savedAuction.getSeller().getId());
+
+        return auctionAndMemberMap;
     }
 
     /**
