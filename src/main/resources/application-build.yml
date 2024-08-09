@@ -30,6 +30,8 @@ spring:
     redis:
       port: 6379
       host: ${REDIS_HOST}
+      auction:
+        expire-key: 'auction-item:'
   cache:
     type: redis
 
