@@ -4,12 +4,12 @@ import com.ddang.usedauction.chat.domain.dto.ChatMessageSendDto;
 import com.ddang.usedauction.chat.domain.dto.ChatRoomCreateDto;
 import com.ddang.usedauction.chat.service.ChatMessageService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
+import com.ddang.usedauction.chat.service.RedisPublisher;
 import com.ddang.usedauction.config.GlobalApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,14 +20,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ChatApiController {
 
-  private final SimpMessagingTemplate simpMessagingTemplate;
   private final ChatRoomService chatRoomService;
+  private final RedisPublisher redisPublisher;
   private final ChatMessageService chatMessageService;
 
   @MessageMapping("/chat/message")
   public ResponseEntity<GlobalApiResponse<?>> send(
       @RequestBody ChatMessageSendDto.Request message) {
-    simpMessagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+
+    redisPublisher.publish(chatRoomService.getTopic(message.getRoomId()), message);
+
     return ResponseEntity.status(HttpStatus.OK)
         .body(GlobalApiResponse.toGlobalResponse(HttpStatus.OK,
             chatMessageService.sendMessage(message)));
@@ -39,7 +41,7 @@ public class ChatApiController {
       @PathVariable(name = "memberId") Long memberId) {
     return ResponseEntity.status(HttpStatus.OK)
         .body(GlobalApiResponse.toGlobalResponse(HttpStatus.OK,
-            chatRoomService.getChatRoomList(memberId)));
+            chatRoomService.findChatRoomsByMemberId(memberId)));
   }
 
   /**
