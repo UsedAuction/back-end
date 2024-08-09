@@ -29,7 +29,6 @@ public class ChatMessageService {
    * 메시지 저장 Service
    *
    * @param message (roomId, senderId, message)
-   * @return
    */
   @Transactional
   public ChatMessageSendDto.Response sendMessage(ChatMessageSendDto.Request message) {
