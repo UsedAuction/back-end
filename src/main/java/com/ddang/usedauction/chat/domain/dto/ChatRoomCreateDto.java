@@ -3,6 +3,7 @@ package com.ddang.usedauction.chat.domain.dto;
 import com.ddang.usedauction.Member.MemberDto;
 import com.ddang.usedauction.auction.AuctionDto;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +16,7 @@ public class ChatRoomCreateDto {
   @AllArgsConstructor
   @NoArgsConstructor(access = AccessLevel.PROTECTED)
   @Builder
-  public static class Request {
+  public static class Request implements Serializable {
 
     private Long auctionId;
   }
@@ -24,7 +25,7 @@ public class ChatRoomCreateDto {
   @AllArgsConstructor
   @NoArgsConstructor(access = AccessLevel.PROTECTED)
   @Builder
-  public static class Response {
+  public static class Response implements Serializable {
 
     private Long id;
     private MemberDto.Response seller;

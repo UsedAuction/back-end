@@ -1,5 +1,6 @@
 package com.ddang.usedauction.Member;
 
+import java.io.Serializable;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,7 +8,8 @@ public class MemberDto {
 
   @Getter
   @Builder
-  public static class Response {
+  public static class Response implements Serializable {
+
     private Long id;
     private String memberId;
     private String email;
