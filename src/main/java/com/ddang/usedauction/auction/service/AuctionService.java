@@ -196,6 +196,10 @@ public class AuctionService {
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
 
+        if (auction.getAuctionState().equals(AuctionState.END)) { // 이미 종료된 경매인 경우
+            throw new AuctionException(AuctionErrorCode.ALREADY_END_AUCTION);
+        }
+
         List<Bid> bidList = auction.getBidList();
         Bid bid = bidList.stream()
             .max(Comparator.comparing(Bid::getBidPrice))
