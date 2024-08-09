@@ -18,7 +18,7 @@ spring:
         format_sql: true
         highlight_sql: true
         default_batch_fetch_size: 100
-    defer-datasource-initialization: true
+    defer-datasource-initialization: true # data.sql을 사용하기 위해 데이터소스 초기화를 지연시키는 설정
 
   datasource:
     username: ${DB_USER_NAME} # 환경 변수
