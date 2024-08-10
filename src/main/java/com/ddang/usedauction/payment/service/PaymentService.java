@@ -8,7 +8,6 @@ import static com.ddang.usedauction.payment.exception.PaymentErrorCode.PAYMENT_F
 import static com.ddang.usedauction.point.type.PointType.CHARGE;
 
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.order.domain.Orders;
 import com.ddang.usedauction.order.exception.OrderException;
@@ -25,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -55,7 +53,7 @@ public class PaymentService {
     private final PointRepository pointRepository;
 
     // 결제 준비
-    public PaymentReadyDto.Response ready (PaymentInfoDto.Request request) {
+    public PaymentReadyDto.Response ready(PaymentInfoDto.Request request) {
 
         Member member = memberRepository.findById(1L)
             .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER)); // TODO 토큰을 받아 처리하는 것으로 수정

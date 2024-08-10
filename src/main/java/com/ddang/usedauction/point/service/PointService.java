@@ -3,8 +3,6 @@ package com.ddang.usedauction.point.service;
 import static com.ddang.usedauction.point.exception.PointErrorCode.INVALID_DATE_RANGE;
 
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.member.exception.MemberErrorCode;
-import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
 import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
