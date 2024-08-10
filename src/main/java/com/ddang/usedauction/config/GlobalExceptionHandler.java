@@ -1,16 +1,12 @@
 package com.ddang.usedauction.config;
 
-import jakarta.validation.ConstraintViolation;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.NoSuchElementException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -26,124 +22,114 @@ public class GlobalExceptionHandler {
 
     // 404 에러 핸들러
     @ExceptionHandler(NoHandlerFoundException.class)
-    private ResponseEntity<GlobalApiResponse<?>> handleNotFoundException(
-        NoHandlerFoundException e) {
-
-        log.error("404 NotFound", e);
-
-        return new ResponseEntity<>(
-            GlobalApiResponse.toGlobalResponseFail(HttpStatus.NOT_FOUND, "요청한 페이지를 찾을 수 없습니다."),
-            HttpStatus.NOT_FOUND);
+    private ResponseEntity<String> handleNotFoundException(NoHandlerFoundException e) {
+        log.error("NoHandlerFoundException", e);
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(e.getMessage());
     }
 
     // 405 에러 핸들러
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    private ResponseEntity<GlobalApiResponse<?>> handleNotSupportedException(
-        HttpRequestMethodNotSupportedException e) {
-
-        log.error("405 NotSupported", e);
-
-        return new ResponseEntity<>(
-            GlobalApiResponse.toGlobalResponseFail(HttpStatus.METHOD_NOT_ALLOWED,
-                "해당 url을 지원하지 않습니다. HTTP Method(GET, PUT, POST, DELETE)가 정확한지 확인해주세요."),
-            HttpStatus.METHOD_NOT_ALLOWED);
+    private ResponseEntity<String> handleNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        log.error("HttpRequestMethodNotSupportedException", e);
+        return ResponseEntity
+            .status(HttpStatus.METHOD_NOT_ALLOWED)
+            .body(e.getMessage());
     }
 
     // 유효성 검증 에러 핸들러(requestBody) -> 400 에러
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    private ResponseEntity<List<GlobalApiResponse<?>>> handleValidException(
-        MethodArgumentNotValidException e) {
-
-        log.error("request 유효성 검사 실패", e);
-
-        List<GlobalApiResponse<?>> list = new ArrayList<>();
-        BindingResult bindingResult = e.getBindingResult();
-        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-        for (FieldError fieldError : fieldErrors) {
-            GlobalApiResponse<?> response = GlobalApiResponse.toGlobalResponseFail(
-                HttpStatus.BAD_REQUEST,
-                fieldError.getDefaultMessage());
-            list.add(response);
-        }
-
-        return ResponseEntity.badRequest().body(list);
+    private ResponseEntity<String> handleValidException(MethodArgumentNotValidException e) {
+        log.error("MethodArgumentNotValidException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
     // 유효성 검증 에러 핸들러(pathVariable, requestParam) -> 400 에러
     @ExceptionHandler(ConstraintViolationException.class)
-    private ResponseEntity<List<GlobalApiResponse<?>>> handleValidException2(
-        ConstraintViolationException e) {
-
-        log.error("pathVariable 또는 requestParam 유효성 검사 실패", e);
-
-        List<GlobalApiResponse<?>> list = new ArrayList<>();
-        Set<ConstraintViolation<?>> constraintViolations = e.getConstraintViolations();
-        for (ConstraintViolation<?> constraintViolation : constraintViolations) {
-            GlobalApiResponse<Object> response = GlobalApiResponse.toGlobalResponseFail(
-                HttpStatus.BAD_REQUEST,
-                constraintViolation.getMessage());
-            list.add(response);
-        }
-
-        return ResponseEntity.badRequest().body(list);
+    private ResponseEntity<String> handleValidException2(ConstraintViolationException e) {
+        log.error("ConstraintViolationException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
     // 필수 PathVariable 값 존재하지 않을 경우 에러 핸들러
     @ExceptionHandler(MissingPathVariableException.class)
-    private ResponseEntity<GlobalApiResponse<String>> handleMissingPathVariableException(
-        MissingPathVariableException e) {
-
-        log.error("필수 PathVariable 값 존재하지 않음", e);
-
-        return ResponseEntity.badRequest().body(
-            GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                "PathVariable 값은 필수값입니다."));
+    private ResponseEntity<String> handleMissingPathVariableException(MissingPathVariableException e) {
+        log.error("MissingPathVariableException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
     // 필수 RequestPart 값 존재하지 않을 경우 에러 핸들러
     @ExceptionHandler(MissingServletRequestPartException.class)
-    private ResponseEntity<GlobalApiResponse<String>> handleMissingServletRequestPartException(
-        MissingServletRequestPartException e) {
-
-        log.error("필수 RequestPart 값 존재하지 않음", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                "필수값인 RequestPart 값이 존재하지 않습니다."));
+    private ResponseEntity<String> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
+        log.error("MissingServletRequestPartException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
     // 필수 RequestParam 값 존재하지 않을 경우 에러 핸들러
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    private ResponseEntity<GlobalApiResponse<String>> handleMissingServletRequestParameterException(
-        MissingServletRequestParameterException e) {
-
-        log.error("필수 RequestParam 값 존재하지 않은", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                "필수값인 RequestParam 값이 존재하지 않습니다."));
+    private ResponseEntity<String> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
+        log.error("MissingServletRequestParameterException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
     // unique 제약 조건 위반 exception 핸들러
     @ExceptionHandler(DataIntegrityViolationException.class)
-    private ResponseEntity<GlobalApiResponse<String>> handleDataIntegrityViolationException(
-        DataIntegrityViolationException e) {
-
-        log.error("unique 제약 조건 위반", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                "unique 제약 조건에 위반된 요청입니다. 생성 또는 변경하려는 요청 중 중복된 값이 포함되어있습니다."));
+    private ResponseEntity<String> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.error("DataIntegrityViolationException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
     }
 
-//    // 예상하지 못한 에러 핸들러 -> 500 에러
-//    @ExceptionHandler(Exception.class)
-//    private ResponseEntity<GlobalApiResponse<?>> handleUnexpectedException(Exception e) {
-//
-//        log.error("예상하지 못한 에러", e);
-//
-//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.INTERNAL_SERVER_ERROR,
-//                "예상치 못한 에러가 발생했습니다. 서버 관리자에게 문의하세요. message = " + e.getMessage()));
-//    }
+    // 엔티티가 존재하지 않을때
+    @ExceptionHandler(EntityNotFoundException.class)
+    private ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
+        log.error("EntityNotFoundException", e);
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    private ResponseEntity<String> handleNoSuchElementException(NoSuchElementException e) {
+        log.error("NoSuchElementException", e);
+        return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    private ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("IllegalArgumentException", e);
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    private ResponseEntity<?> handleRuntimeException(RuntimeException e) {
+        log.error("RuntimeException", e);
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    private ResponseEntity<?> handleException(Exception e) {
+        log.error("Exception", e);
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(e.getMessage());
+    }
 }
