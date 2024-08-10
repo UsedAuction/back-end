@@ -1,5 +1,6 @@
 package com.ddang.usedauction.config;
 
+import com.ddang.usedauction.payment.exception.PaymentRequestTimeoutException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.NoSuchElementException;
@@ -19,6 +20,15 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+
+    // 결제 승인 요청을 보냈지만 응답을 받지 못했을 때 에러 핸들러
+    @ExceptionHandler(PaymentRequestTimeoutException.class)
+    private ResponseEntity<String> handlePaymentException(PaymentRequestTimeoutException e) {
+        log.error("PaymentException", e);
+        return ResponseEntity
+            .status(HttpStatus.REQUEST_TIMEOUT)
+            .body(e.getMessage());
+    }
 
     // 404 에러 핸들러
     @ExceptionHandler(NoHandlerFoundException.class)
