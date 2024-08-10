@@ -1,6 +1,5 @@
 package com.ddang.usedauction.answer.domain;
 
-import com.ddang.usedauction.answer.dto.AnswerServiceDto;
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import jakarta.persistence.Column;
@@ -40,14 +39,4 @@ public class Answer extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
-
-    // entity -> serviceDto
-    public AnswerServiceDto toServiceDto() {
-
-        return AnswerServiceDto.builder()
-            .id(id)
-            .content(content)
-            .createdAt(getCreatedAt())
-            .build();
-    }
 }

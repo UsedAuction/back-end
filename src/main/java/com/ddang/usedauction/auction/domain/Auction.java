@@ -1,7 +1,6 @@
 package com.ddang.usedauction.auction.domain;
 
 import com.ddang.usedauction.ask.domain.Ask;
-import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.BaseTimeEntity;
@@ -127,38 +126,5 @@ public class Auction extends BaseTimeEntity {
 
         imageList = imageList == null ? new ArrayList<>() : imageList;
         imageList.add(image);
-    }
-
-    // 엔티티를 서비스에서 사용할 dto로 변경
-    public AuctionServiceDto toServiceDto() {
-
-        return AuctionServiceDto.builder()
-            .id(id)
-            .title(title)
-            .auctionState(auctionState)
-            .productName(productName)
-            .productColor(productColor)
-            .productStatus(productStatus)
-            .productDescription(productDescription)
-            .transactionType(transactionType)
-            .contactPlace(contactPlace)
-            .deliveryType(deliveryType)
-            .deliveryPrice(deliveryPrice)
-            .currentPrice(currentPrice)
-            .startPrice(startPrice)
-            .instantPrice(instantPrice)
-            .endedAt(endedAt)
-            .memberCount(getBidMemberCount())
-            .bidList(bidList != null && !bidList.isEmpty() ? bidList.stream().map(Bid::toServiceDto)
-                .toList() : new ArrayList<>())
-            .seller(seller.toServiceDto())
-            .parentCategory(parentCategory.toServiceDto())
-            .childCategory(childCategory.toServiceDto())
-            .askList(askList != null && !askList.isEmpty() ? askList.stream().map(Ask::toServiceDto)
-                .toList() : new ArrayList<>())
-            .imageList(imageList != null && !imageList.isEmpty() ? imageList.stream()
-                .map(Image::toServiceDto).toList() : new ArrayList<>())
-            .createdAt(getCreatedAt())
-            .build();
     }
 }

@@ -4,16 +4,8 @@ import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
-import com.ddang.usedauction.auction.dto.AuctionCreateDto;
-import com.ddang.usedauction.auction.dto.AuctionServiceDto;
-import com.ddang.usedauction.auction.exception.AuctionErrorCode;
-import com.ddang.usedauction.auction.exception.AuctionException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
-import com.ddang.usedauction.category.domain.Category;
-import com.ddang.usedauction.category.exception.CategoryErrorCode;
-import com.ddang.usedauction.category.exception.CategoryException;
 import com.ddang.usedauction.category.repository.CategoryRepository;
-import com.ddang.usedauction.config.CacheName;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
@@ -26,18 +18,13 @@ import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -50,7 +37,6 @@ public class AuctionService {
     private final TransactionRepository transactionRepository;
     private final PointRepository pointRepository;
     private final ImageService imageService;
-    private final RedisTemplate<String, AuctionServiceDto> auctionRedisTemplate;
 
     /**
      * 경매글 단건 조회
@@ -60,12 +46,11 @@ public class AuctionService {
      */
     @Transactional(readOnly = true)
     @Cacheable(key = "#auctionId", value = CacheName.AUCTION_CACHE_NAME)
-    public AuctionServiceDto getAuction(Long auctionId) {
+    public Auction getAuction(Long auctionId) {
 
-        Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
-
-        return auction.toServiceDto();
+        return auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new RuntimeException(
+                "존재하지 않는 경매입니다.")); // 기본으로 제공되는 exception으로 사용
     }
 
     /**
@@ -78,7 +63,7 @@ public class AuctionService {
      * @return 페이징 처리된 경매 서비스 dto
      */
     @Transactional(readOnly = true)
-    public Page<AuctionServiceDto> getAuctionList(String word, String category, String sorted,
+    public Page<Auction> getAuctionList(String word, String category, String sorted,
         Pageable pageable) {
 
         final String VIEW = "view";

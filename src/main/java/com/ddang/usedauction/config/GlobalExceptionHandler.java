@@ -1,12 +1,5 @@
 package com.ddang.usedauction.config;
 
-import com.ddang.usedauction.auction.exception.AuctionException;
-import com.ddang.usedauction.category.exception.CategoryException;
-import com.ddang.usedauction.image.exception.ImageException;
-import com.ddang.usedauction.member.exception.MemberException;
-import com.ddang.usedauction.payment.exception.PaymentException;
-import com.ddang.usedauction.point.exception.PointException;
-import com.ddang.usedauction.transaction.exception.TransactionException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
@@ -141,83 +134,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
             .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
                 "unique 제약 조건에 위반된 요청입니다. 생성 또는 변경하려는 요청 중 중복된 값이 포함되어있습니다."));
-    }
-
-    // 회원 관련 에러 핸들러 -> 400 에러
-    @ExceptionHandler(MemberException.class)
-    private ResponseEntity<GlobalApiResponse<?>> handleMemberException(MemberException e) {
-
-        log.error("회원 관련 exception", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getMemberErrorCode().getMessage()));
-    }
-
-    // 경매 관련 에러 핸들러 -> 400 에러
-    @ExceptionHandler(AuctionException.class)
-    private ResponseEntity<GlobalApiResponse<?>> handleAuctionException(AuctionException e) {
-
-        log.error("경매 관련 exception", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getAuctionErrorCode().getMessage()));
-    }
-
-    // 카테고리 관련 에러 핸들러 -> 400 에러
-    @ExceptionHandler(CategoryException.class)
-    private ResponseEntity<GlobalApiResponse<?>> handleCategoryException(CategoryException e) {
-
-        log.error("카테고리 관련 exception", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getCategoryErrorCode().getMessage()));
-    }
-
-    // 이미지 관련 에러 핸들러 -> 400 에러
-    @ExceptionHandler(ImageException.class)
-    private ResponseEntity<GlobalApiResponse<?>> handleImageException(ImageException e) {
-
-        log.error("이미지 관련 exception", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getImageErrorCode().getMessage()));
-    }
-
-    // 포인트 관련 에러 핸들러 -> 400 에러
-    @ExceptionHandler(PointException.class)
-    public ResponseEntity<GlobalApiResponse<?>> pointExceptionHandler(PointException e) {
-
-        log.error("PointException", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getPointErrorCode().getMessage()));
-    }
-
-    // 거래 관련 에러 핸들러
-    @ExceptionHandler(TransactionException.class)
-    public ResponseEntity<GlobalApiResponse<String>> handleTransactionException(
-        TransactionException e) {
-
-        log.error("거래 관련 exception", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getTransactionErrorCode().getMessage()));
-    }
-  
-    // 결제 관련 에러 핸들러 -> 400 에러
-    @ExceptionHandler(PaymentException.class)
-    public ResponseEntity<?> paymentExceptionHandler(PaymentException e) {
-        log.error("PaymentException", e);
-
-        return ResponseEntity.badRequest()
-            .body(GlobalApiResponse.toGlobalResponseFail(HttpStatus.BAD_REQUEST,
-                e.getPaymentErrorCode().getMessage()));
     }
 
 //    // 예상하지 못한 에러 핸들러 -> 500 에러

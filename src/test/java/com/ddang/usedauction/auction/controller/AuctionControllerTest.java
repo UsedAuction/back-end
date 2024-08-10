@@ -17,7 +17,6 @@ import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
-import com.ddang.usedauction.auction.dto.AuctionServiceDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.member.domain.Member;
