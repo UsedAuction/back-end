@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
 import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
 import com.ddang.usedauction.point.service.PointService;

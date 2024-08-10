@@ -9,7 +9,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
