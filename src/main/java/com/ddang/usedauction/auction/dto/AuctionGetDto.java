@@ -1,12 +1,12 @@
 package com.ddang.usedauction.auction.dto;
 
-import com.ddang.usedauction.ask.dto.AskServiceDto;
+import com.ddang.usedauction.ask.dto.AskGetDto;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
-import com.ddang.usedauction.bid.dto.BidServiceDto;
+import com.ddang.usedauction.bid.dto.BidGetDto;
 import com.ddang.usedauction.category.dto.CategoryServiceDto;
-import com.ddang.usedauction.image.dto.ImageServiceDto;
+import com.ddang.usedauction.image.dto.ImageGetDto;
 import com.ddang.usedauction.member.dto.MemberServiceDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -48,9 +48,9 @@ public class AuctionGetDto {
         private MemberServiceDto seller; // 판매자
         private CategoryServiceDto parentCategory; // 대분류 카테고리
         private CategoryServiceDto childCategory; // 소분류 카테고리
-        private List<BidServiceDto> bidList; // 입찰 리스트
-        private List<AskServiceDto> askList; // 문의글 리스트
-        private List<ImageServiceDto> imageList; // 이미지 리스트
+        private List<BidGetDto.Response> bidList; // 입찰 리스트
+        private List<AskGetDto.Response> askList; // 문의글 리스트
+        private List<ImageGetDto.Response> imageList; // 이미지 리스트
 
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime createdAt; // 생성 날짜

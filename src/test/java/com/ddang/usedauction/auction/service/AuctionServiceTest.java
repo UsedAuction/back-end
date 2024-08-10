@@ -14,8 +14,6 @@ import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
-import com.ddang.usedauction.auction.dto.AuctionServiceDto;
-import com.ddang.usedauction.auction.exception.AuctionException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.exception.CategoryException;

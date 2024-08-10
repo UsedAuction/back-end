@@ -3,7 +3,6 @@ package com.ddang.usedauction.image.domain;
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.config.BaseTimeEntity;
-import com.ddang.usedauction.image.dto.ImageServiceDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -54,18 +53,4 @@ public class Image extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
-
-    // entity -> serviceDto
-    public ImageServiceDto toServiceDto() {
-
-        return ImageServiceDto.builder()
-            .id(id)
-            .imageUrl(imageUrl)
-            .imageName(imageName)
-            .imageType(imageType)
-            .answerId(answer != null ? answer.getId() : null)
-            .auctionId(auction != null ? auction.getId() : null)
-            .createdAt(getCreatedAt())
-            .build();
-    }
 }
