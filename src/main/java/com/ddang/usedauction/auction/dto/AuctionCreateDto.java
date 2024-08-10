@@ -1,5 +1,6 @@
 package com.ddang.usedauction.auction.dto;
 
+import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.validation.IsEnum;
@@ -83,5 +84,14 @@ public class AuctionCreateDto {
 
         private Long id;
         private String title; // 경매글 제목
+
+        // entity -> createResponse
+        public static AuctionCreateDto.Response from(Auction auction) {
+
+            return AuctionCreateDto.Response.builder()
+                .id(auction.getId())
+                .title(auction.getTitle())
+                .build();
+        }
     }
 }
