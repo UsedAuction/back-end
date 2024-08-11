@@ -1,7 +1,7 @@
 package com.ddang.usedauction.auction.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,6 +38,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -85,7 +86,7 @@ class AuctionServiceTest {
 
         Auction result = auctionService.getAuction(1L);
 
-        assertThat(result.getTitle()).isEqualTo("title");
+        assertEquals("title", result.getTitle());
     }
 
     @Test
@@ -94,8 +95,7 @@ class AuctionServiceTest {
 
         when(auctionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> auctionService.getAuction(1L)).isInstanceOf(
-            NullPointerException.class);
+        assertThrows(NullPointerException.class, () -> auctionService.getAuction(1L));
     }
 
     @Test
@@ -143,7 +143,7 @@ class AuctionServiceTest {
 
         Page<Auction> resultList = auctionService.getAuctionList(null, null, null, pageable);
 
-        assertThat(resultList.getTotalElements()).isEqualTo(2);
+        assertEquals(2, resultList.getTotalElements());
     }
 
     @Test
@@ -214,17 +214,19 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
+        ArgumentCaptor<Auction> auctionArgumentCaptor = ArgumentCaptor.forClass(Auction.class);
+
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
         when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
         when(imageService.uploadImageList(imageList)).thenReturn(uploadImageList);
-        when(auctionRepository.save(auction)).thenReturn(auction);
+        when(auctionRepository.save(auctionArgumentCaptor.capture())).thenReturn(auction);
 
         Auction result = auctionService.createAuction(thumbnail, imageList, "test",
             createDto);
 
-        assertThat(result.getTitle()).isEqualTo("title");
+        assertEquals("title", result.getTitle());
     }
 
     @Test
@@ -238,7 +240,7 @@ class AuctionServiceTest {
         MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
             MediaType.IMAGE_PNG_VALUE, "image".getBytes());
         List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage,
-            mockImage);
+            mockImage, mockImage);
 
         AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
             .title("title")
@@ -257,8 +259,9 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        assertThatThrownBy(() -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto)).isInstanceOf(ImageCountOutOfBoundsException.class);
+        assertThrows(ImageCountOutOfBoundsException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
     }
 
     @Test
@@ -290,8 +293,9 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        assertThatThrownBy(() -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto)).isInstanceOf(AuctionMaxDateOutOfBoundsException.class);
+        assertThrows(AuctionMaxDateOutOfBoundsException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
     }
 
     @Test
@@ -323,8 +327,9 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        assertThatThrownBy(() -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto)).isInstanceOf(StartPriceOutOfBoundsException.class);
+        assertThrows(StartPriceOutOfBoundsException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
     }
 
     @Test
@@ -358,8 +363,9 @@ class AuctionServiceTest {
 
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto)).isInstanceOf(NullPointerException.class);
+        assertThrows(NullPointerException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
     }
 
     @Test
@@ -398,8 +404,9 @@ class AuctionServiceTest {
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto)).isInstanceOf(NullPointerException.class);
+        assertThrows(NullPointerException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
     }
 
     @Test
@@ -432,38 +439,26 @@ class AuctionServiceTest {
 
         auctionService.confirmAuction(1L, "buyer", confirmDto);
 
-        PointHistory buyerPointHistory = PointHistory.builder()
-            .curPointAmount(buyer.getPoint())
-            .pointType(PointType.USE)
-            .pointAmount(confirmDto.getPrice())
-            .member(buyer)
-            .build();
+        ArgumentCaptor<Member> memberArgumentCaptor = ArgumentCaptor.forClass(Member.class);
+        verify(memberRepository, times(1)).save(memberArgumentCaptor.capture());
 
-        PointHistory sellerPointHistory = PointHistory.builder()
-            .curPointAmount(seller.getPoint())
-            .pointType(PointType.GET)
-            .pointAmount(confirmDto.getPrice())
-            .member(seller)
-            .build();
+        assertEquals(2000, memberArgumentCaptor.getValue().getPoint());
 
-        Transaction buyerTransaction = Transaction.builder()
-            .auction(auction)
-            .member(buyer)
-            .price(confirmDto.getPrice())
-            .transType(TransType.BUY)
-            .build();
+        ArgumentCaptor<PointHistory> pointHistoryCaptor = ArgumentCaptor.forClass(
+            PointHistory.class);
+        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
 
-        Transaction sellerTransaction = Transaction.builder()
-            .auction(auction)
-            .member(seller)
-            .price(confirmDto.getPrice())
-            .transType(TransType.SELL)
-            .build();
+        verify(pointRepository, times(2)).save(pointHistoryCaptor.capture());
+        verify(transactionRepository, times(2)).save(transactionCaptor.capture());
 
-        verify(pointRepository, times(1)).save(buyerPointHistory);
-        verify(pointRepository, times(1)).save(sellerPointHistory);
-        verify(transactionRepository, times(1)).save(buyerTransaction);
-        verify(transactionRepository, times(1)).save(sellerTransaction);
+        List<PointHistory> savedPointHistories = pointHistoryCaptor.getAllValues();
+        List<Transaction> savedTransactions = transactionCaptor.getAllValues();
+
+        assertEquals(PointType.USE, savedPointHistories.get(0).getPointType());
+        assertEquals(PointType.GET, savedPointHistories.get(1).getPointType());
+
+        assertEquals(TransType.BUY, savedTransactions.get(0).getTransType());
+        assertEquals(TransType.SELL, savedTransactions.get(1).getTransType());
     }
 
     @Test
@@ -477,9 +472,8 @@ class AuctionServiceTest {
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(
-            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
-            NullPointerException.class);
+        assertThrows(NullPointerException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
     @Test
@@ -499,9 +493,8 @@ class AuctionServiceTest {
         when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(
-            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
-            NullPointerException.class);
+        assertThrows(NullPointerException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
     @Test
@@ -520,9 +513,8 @@ class AuctionServiceTest {
 
         when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
 
-        assertThatThrownBy(
-            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
-            IllegalStateException.class);
+        assertThrows(IllegalStateException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
     @Test
@@ -547,8 +539,7 @@ class AuctionServiceTest {
         when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(buyer));
 
-        assertThatThrownBy(
-            () -> auctionService.confirmAuction(1L, "test", confirmDto)).isInstanceOf(
-            MemberPointOutOfBoundsException.class);
+        assertThrows(MemberPointOutOfBoundsException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 }

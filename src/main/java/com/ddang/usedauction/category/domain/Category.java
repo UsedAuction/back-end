@@ -1,6 +1,5 @@
 package com.ddang.usedauction.category.domain;
 
-import com.ddang.usedauction.category.dto.CategoryGetDto;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,15 +34,4 @@ public class Category extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt;
-
-    // entity -> serviceDto
-    public CategoryGetDto toServiceDto() {
-
-        return CategoryGetDto.builder()
-            .id(id)
-            .categoryName(categoryName)
-            .parentId(parentId)
-            .createdAt(getCreatedAt())
-            .build();
-    }
 }

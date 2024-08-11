@@ -165,7 +165,7 @@ public class AuctionService {
      * @param memberId   회원 id
      * @param confirmDto 구매 확정 정보
      */
-    @RedissonLock("#auctionId")
+    @RedissonLock("#memberId")
     public void confirmAuction(Long auctionId, String memberId,
         AuctionConfirmDto.Request confirmDto) {
 
