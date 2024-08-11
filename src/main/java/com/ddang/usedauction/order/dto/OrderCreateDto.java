@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 public class OrderCreateDto {
 
@@ -15,7 +14,6 @@ public class OrderCreateDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
     @Builder
-    @ToString
     public static class Request {
 
         @Min(value = 1, message = "상품가격은 1이상이어야 합니다.")
@@ -26,14 +24,13 @@ public class OrderCreateDto {
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor
     @Builder
-    @ToString
     public static class Response {
 
         private Long orderId; // 주문 id
         private Long memberId; // 회원 id
 
-        // order 엔티티를 response dto로 변환
-        public static Response fromEntity(Orders orders) {
+        // dto로 변환
+        public static Response from(Orders orders) {
             return Response.builder()
                 .orderId(orders.getId())
                 .memberId(orders.getMember().getId())

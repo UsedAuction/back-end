@@ -1,23 +1,18 @@
 package com.ddang.usedauction.payment.service;
 
-import static com.ddang.usedauction.member.exception.MemberErrorCode.NOT_FOUND_MEMBER;
-import static com.ddang.usedauction.order.exception.OrderErrorCode.NOT_FOUND_ORDER;
-import static com.ddang.usedauction.payment.exception.PaymentErrorCode.INVALID_USER;
-import static com.ddang.usedauction.payment.exception.PaymentErrorCode.NOT_EQUAL_PAYMENT_AMOUNT;
-import static com.ddang.usedauction.payment.exception.PaymentErrorCode.PAYMENT_FAIL;
 import static com.ddang.usedauction.point.type.PointType.CHARGE;
 
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.order.domain.Orders;
-import com.ddang.usedauction.order.exception.OrderException;
 import com.ddang.usedauction.order.repository.OrderRepository;
 import com.ddang.usedauction.payment.dto.PaymentApproveDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
-import com.ddang.usedauction.payment.exception.PaymentException;
+import com.ddang.usedauction.payment.exception.PaymentRequestTimeoutException;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,19 +51,19 @@ public class PaymentService {
     public PaymentReadyDto.Response ready(PaymentInfoDto.Request request) {
 
         Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER)); // TODO 토큰을 받아 처리하는 것으로 수정
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정
 
         Orders order = orderRepository.findById(request.getOrderId())
-            .orElseThrow(() -> new OrderException(NOT_FOUND_ORDER));
+            .orElseThrow(() -> new EntityNotFoundException("주문내역이 존재하지 않습니다."));
 
         // 로그인한 유저와 요청으로 받은 유저의 id가 동일한지 비교
         if (!member.getId().equals(request.getMemberId())) {
-            throw new PaymentException(INVALID_USER);
+            throw new IllegalArgumentException("동일한 유저가 아닙니다.");
         }
 
         // db에 저장된 금액과 입력받은 금액이 동일한지 비교
         if (order.getPrice() != request.getPrice()) {
-            throw new PaymentException(NOT_EQUAL_PAYMENT_AMOUNT);
+            throw new IllegalArgumentException("요청 금액과 저장된 금액이 일치하지 않습니다.");
         }
 
         // 요청으로 받은 값들을 String으로 변환
@@ -121,11 +116,11 @@ public class PaymentService {
     public PaymentApproveDto.Response approve(String partnerOrderId, String pgToken) {
 
         Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new MemberException(NOT_FOUND_MEMBER)); // TODO 토큰을 받아 처리하는 것으로 수정
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정
 
         Long orderId = Long.valueOf(partnerOrderId);
         Orders order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new OrderException(NOT_FOUND_ORDER));
+            .orElseThrow(() -> new EntityNotFoundException("주문내역이 존재하지 않습니다."));
 
         // 요청으로 받은 값들을 String으로 변환
         String tidStr = String.valueOf(order.getTid());
@@ -161,7 +156,7 @@ public class PaymentService {
 
         // 응답이 없을경우 결제 실패
         if (response == null) {
-            throw new PaymentException(PAYMENT_FAIL);
+            throw new PaymentRequestTimeoutException("결제 승인 응답을 받지 못했습니다.");
         }
 
         // 회원 포인트 충전

@@ -1,14 +1,11 @@
 package com.ddang.usedauction.point.service;
 
-import static com.ddang.usedauction.point.exception.PointErrorCode.INVALID_DATE_RANGE;
-
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
-import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
-import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
-import com.ddang.usedauction.point.exception.PointException;
+import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,27 +20,26 @@ public class PointService {
     private final PointRepository pointRepository;
 
     // 포인트 잔액 조회
-    public PointBalanceServiceDto getPointBalance(UserDetails userDetails) {
+    public long getPointBalance(UserDetails userDetails) {
         String username = userDetails.getUsername();
         Member member = memberRepository.findByEmail(username)
-            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        return new PointBalanceServiceDto(member.getPoint());
+        return member.getPoint();
     }
 
     // 포인트 충전/사용 내역 조회
-    public Page<PointHistoryServiceDto> getPointList(
+    public Page<PointHistory> getPointList(
         UserDetails userDetails, LocalDate startDate, LocalDate endDate, Pageable pageable
     ) {
         if (endDate.isBefore(startDate)) {
-            throw new PointException(INVALID_DATE_RANGE);
+            throw new IllegalArgumentException("종료일은 시작일보다 빠를 수 없습니다.");
         }
 
         String username = userDetails.getUsername();
         memberRepository.findByEmail(username)
-            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        return pointRepository.findAllPoint(username, startDate, endDate, pageable)
-            .map(PointHistoryServiceDto::fromPointHistory);
+        return pointRepository.findAllPoint(username, startDate, endDate, pageable);
     }
 }
