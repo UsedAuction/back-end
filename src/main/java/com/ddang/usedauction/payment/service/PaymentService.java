@@ -87,9 +87,9 @@ public class PaymentService {
             .quantity("1")
             .totalAmount(priceStr)
             .taxFreeAmount("0")
-            .approvalUrl("http://localhost:8080/payment/success?partner_order_id=" + orderIdStr)
-            .cancelUrl("http://localhost:8080/payment/cancel")
-            .failUrl("http://localhost:8080/payment/fail")
+            .approvalUrl("http://localhost:8080/api/members/payment/approve?partner_order_id=" + orderIdStr)
+            .cancelUrl("http://localhost:8080/api/members/payment/cancel")
+            .failUrl("http://localhost:8080/api/members/payment/fail")
             .build();
 
         // paymentRequest를 map으로 변환
