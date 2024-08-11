@@ -1,6 +1,8 @@
 package com.ddang.usedauction.payment.controller;
 
 import com.ddang.usedauction.payment.dto.PaymentApproveDto;
+import com.ddang.usedauction.payment.dto.PaymentCancelDto;
+import com.ddang.usedauction.payment.dto.PaymentFailDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
 import com.ddang.usedauction.payment.service.PaymentService;
@@ -54,11 +56,27 @@ public class PaymentController {
      * @param pgToken 결제 준비 완료후 결제 인증(faceID 등 본인인증)을 통과하면 카카오쪽에서 pgToken을 응답으로 줌
      * @return 성공 시 200 코드와 결제 정보(아이템명, 수량 등), 실패 시 에러코드와 에러메시지
      */
-    @PostMapping("/approve")
+    @GetMapping("/approve")
     public ResponseEntity<PaymentApproveDto.Response> paymentApprove(
         @RequestParam("partner_order_id") String partnerOrderId,
         @RequestParam("pg_token") String pgToken
     ) {
         return ResponseEntity.ok(paymentService.approve(partnerOrderId, pgToken));
+    }
+
+    /**
+     * 결제 취소
+     */
+    @GetMapping("/cancel")
+    public ResponseEntity<PaymentCancelDto.Response> paymentCancel() {
+        return ResponseEntity.ok(new PaymentCancelDto.Response("결제를 취소했습니다."));
+    }
+
+    /**
+     * 결제 실패
+     */
+    @GetMapping("/fail")
+    public ResponseEntity<PaymentFailDto.Response> paymentFail() {
+        return ResponseEntity.ok(new PaymentFailDto.Response("결제가 실패되었습니다."));
     }
 }
