@@ -1,16 +1,18 @@
 package com.ddang.usedauction.auction.dto;
 
 import com.ddang.usedauction.ask.dto.AskGetDto;
+import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.bid.dto.BidGetDto;
-import com.ddang.usedauction.category.dto.CategoryServiceDto;
+import com.ddang.usedauction.category.dto.CategoryGetDto;
 import com.ddang.usedauction.image.dto.ImageGetDto;
-import com.ddang.usedauction.member.dto.MemberServiceDto;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,14 +47,47 @@ public class AuctionGetDto {
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime endedAt; // 경매 마감일
 
-        private MemberServiceDto seller; // 판매자
-        private CategoryServiceDto parentCategory; // 대분류 카테고리
-        private CategoryServiceDto childCategory; // 소분류 카테고리
+        private MemberGetDto.Response seller; // 판매자
+        private CategoryGetDto.Response parentCategory; // 대분류 카테고리
+        private CategoryGetDto.Response childCategory; // 소분류 카테고리
         private List<BidGetDto.Response> bidList; // 입찰 리스트
         private List<AskGetDto.Response> askList; // 문의글 리스트
         private List<ImageGetDto.Response> imageList; // 이미지 리스트
 
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime createdAt; // 생성 날짜
+
+        // entity -> getResponse
+        public static AuctionGetDto.Response from(Auction auction) {
+
+            return Response.builder()
+                .id(auction.getId())
+                .title(auction.getTitle())
+                .auctionState(auction.getAuctionState())
+                .productName(auction.getProductName())
+                .productColor(auction.getProductColor())
+                .productStatus(auction.getProductStatus())
+                .productDescription(auction.getProductDescription())
+                .transactionType(auction.getTransactionType())
+                .contactPlace(auction.getContactPlace())
+                .deliveryType(auction.getDeliveryType())
+                .deliveryPrice(auction.getDeliveryPrice())
+                .currentPrice(auction.getCurrentPrice())
+                .startPrice(auction.getStartPrice())
+                .instantPrice(auction.getInstantPrice())
+                .memberCount(auction.getBidMemberCount())
+                .endedAt(auction.getEndedAt())
+                .seller(MemberGetDto.Response.from(auction.getSeller()))
+                .parentCategory(CategoryGetDto.Response.from(auction.getParentCategory()))
+                .bidList(auction.getBidList() != null && !auction.getBidList().isEmpty()
+                    ? auction.getBidList().stream().map(BidGetDto.Response::from).toList()
+                    : new ArrayList<>())
+                .askList(auction.getAskList() != null && !auction.getAskList().isEmpty()
+                    ? auction.getAskList().stream().map(AskGetDto.Response::from).toList()
+                    : new ArrayList<>())
+                .imageList(auction.getImageList().stream().map(ImageGetDto.Response::from).toList())
+                .createdAt(auction.getCreatedAt())
+                .build();
+        }
     }
 }

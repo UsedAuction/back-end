@@ -1,7 +1,7 @@
 package com.ddang.usedauction.member.domain;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
-import com.ddang.usedauction.member.dto.MemberServiceDto;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -52,9 +52,9 @@ public class Member extends BaseTimeEntity {
     private LocalDateTime deletedAt;
 
     // entity -> serviceDto
-    public MemberServiceDto toServiceDto() {
+    public MemberGetDto toServiceDto() {
 
-        return MemberServiceDto.builder()
+        return MemberGetDto.builder()
             .id(id)
             .memberId(memberId)
             .passWord(passWord)
