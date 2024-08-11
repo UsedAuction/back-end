@@ -5,7 +5,7 @@ import com.ddang.usedauction.chat.domain.dto.ChatRoomCreateDto;
 import com.ddang.usedauction.chat.service.ChatMessageService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.chat.service.RedisPublisher;
-import com.ddang.usedauction.config.GlobalApiResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,35 +25,32 @@ public class ChatApiController {
   private final ChatMessageService chatMessageService;
 
   @MessageMapping("/chat/message")
-  public ResponseEntity<GlobalApiResponse<?>> send(
+  public ResponseEntity<ChatMessageSendDto.Response> send(
       @RequestBody ChatMessageSendDto.Request message) {
 
     redisPublisher.publish(chatRoomService.getTopic(message.getRoomId()), message);
 
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(GlobalApiResponse.toGlobalResponse(HttpStatus.OK,
-            chatMessageService.sendMessage(message)));
+    return ResponseEntity.status(HttpStatus.CREATED)
+        .body(ChatMessageSendDto.Response.from(chatMessageService.sendMessage(message)));
   }
 
   // TODO JWT 정보로 회원정보 받기
   @GetMapping("/api/rooms/{memberId}")
-  public ResponseEntity<GlobalApiResponse<?>> getChatRoomList(
-      @PathVariable(name = "memberId") Long memberId) {
+  public ResponseEntity<List<ChatRoomCreateDto.Response>> getChatRoomList(
+      @PathVariable("memberId") Long memberId) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(GlobalApiResponse.toGlobalResponse(HttpStatus.OK,
-            chatRoomService.findChatRoomsByMemberId(memberId)));
+        .body(chatRoomService.findChatRoomsByMemberId(memberId));
   }
 
   /**
    * 임시로 만든 API - 채팅방 생성
    */
-  @PostMapping("api/rooms/post/{memberId}")
-  public ResponseEntity<GlobalApiResponse<ChatRoomCreateDto.Response>> createChatRoom(
+  @PostMapping("api/rooms/{memberId}")
+  public ResponseEntity<ChatRoomCreateDto.Response> createChatRoom(
       @PathVariable(name = "memberId") Long memberId,
       @RequestBody ChatRoomCreateDto.Request request) {
     return ResponseEntity.status(HttpStatus.OK)
-        .body(GlobalApiResponse.toGlobalResponse(HttpStatus.OK,
-            chatRoomService.createChatRoom(memberId, request)));
+        .body(chatRoomService.createChatRoom(memberId, request));
 
   }
 }

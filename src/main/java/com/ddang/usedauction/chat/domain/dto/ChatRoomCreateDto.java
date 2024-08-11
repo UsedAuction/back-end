@@ -32,12 +32,12 @@ public class ChatRoomCreateDto {
     private MemberDto.Response buyer;
     private AuctionDto.Response auction;
 
-    public static Response of(ChatRoom chatRoom) {
+    public static Response from(ChatRoom chatRoom) {
       return Response.builder()
           .id(chatRoom.getId())
-          .seller(MemberDto.Response.of(chatRoom.getSeller()))
-          .buyer(MemberDto.Response.of(chatRoom.getBuyer()))
-          .auction(AuctionDto.Response.of(chatRoom.getAuction()))
+          .seller(MemberDto.Response.from(chatRoom.getSeller()))
+          .buyer(MemberDto.Response.from(chatRoom.getBuyer()))
+          .auction(AuctionDto.Response.from(chatRoom.getAuction()))
           .build();
     }
   }

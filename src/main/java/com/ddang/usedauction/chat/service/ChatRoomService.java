@@ -2,18 +2,13 @@ package com.ddang.usedauction.chat.service;
 
 import com.ddang.usedauction.Member.Member;
 import com.ddang.usedauction.Member.MemberRepository;
-import com.ddang.usedauction.Member.exception.MemberErrorCode;
-import com.ddang.usedauction.Member.exception.MemberException;
 import com.ddang.usedauction.auction.Auction;
 import com.ddang.usedauction.auction.AuctionRepository;
-import com.ddang.usedauction.auction.exception.AuctionErrorCode;
-import com.ddang.usedauction.auction.exception.AuctionException;
 import com.ddang.usedauction.chat.domain.dto.ChatRoomCreateDto;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
-import com.ddang.usedauction.chat.exception.ChatErrorCode;
-import com.ddang.usedauction.chat.exception.ChatException;
 import com.ddang.usedauction.chat.repository.ChatRoomRepository;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,42 +50,37 @@ public class ChatRoomService {
 
   public ChatRoomCreateDto.Response createChatRoom(Long memberId, ChatRoomCreateDto.Request dto) {
     if (chatRoomRepository.existsByAuctionId(dto.getAuctionId())) {
-      throw new ChatException(ChatErrorCode.ALREADY_EXISTS_CHATROOM);
+      throw new IllegalStateException("이미 존재하는 채팅방입니다.");
     }
 
     Member buyer = memberRepository.findById(memberId)
-        .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+        .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
     Auction auction = auctionRepository.findById(dto.getAuctionId())
-        .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
+        .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 경매입니다."));
 
-    ChatRoom chatRoom = ChatRoom.builder()
+    ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
         .seller(auction.getMember())
         .buyer(buyer)
         .auction(auction)
-        .build();
-    chatRoomRepository.save(chatRoom);
+        .build());
+
+    opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getId().toString(),
+        ChatRoomCreateDto.Response.from(chatRoom));
 
     createTopic(chatRoom.getId().toString());
 
-    opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getId().toString(),
-        ChatRoomCreateDto.Response.of(chatRoom));
-
-    return ChatRoomCreateDto.Response.of(chatRoomRepository.save(chatRoom));
+    return ChatRoomCreateDto.Response.from(chatRoom);
   }
 
   public List<ChatRoomCreateDto.Response> findChatRoomsByMemberId(Long memberId) {
     Member member = memberRepository.findById(memberId)
-        .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+        .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
     return opsHashChatRoom.values(CHAT_ROOMS).stream()
         .filter(chatRoom -> chatRoom.getSeller().getId().equals(memberId) ||
             chatRoom.getBuyer().getId().equals(memberId))
         .collect(Collectors.toList());
-  }
-
-  public ChatRoomCreateDto.Response findRoomById(Long roomId) {
-    return opsHashChatRoom.get(CHAT_ROOMS, roomId);
   }
 
   public void enterChatRoom(Long roomId) {
