@@ -33,8 +33,8 @@ public class ImageGetDto {
                 .imageUrl(image.getImageUrl())
                 .imageName(image.getImageName())
                 .imageType(image.getImageType())
-                .answerId(image.getAnswer().getId())
-                .auctionId(image.getAuction().getId())
+                .answerId(image.getAnswer() != null ? image.getAnswer().getId() : null)
+                .auctionId(image.getAuction() != null ? image.getAuction().getId() : null)
                 .createdAt(image.getCreatedAt())
                 .build();
         }
