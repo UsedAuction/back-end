@@ -9,7 +9,8 @@ import com.ddang.usedauction.order.repository.OrderRepository;
 import com.ddang.usedauction.payment.dto.PaymentApproveDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
-import com.ddang.usedauction.payment.exception.PaymentRequestTimeoutException;
+import com.ddang.usedauction.payment.exception.PaymentReadyException;
+import com.ddang.usedauction.payment.exception.PaymentApproveException;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -98,12 +100,17 @@ public class PaymentService {
         // header, body 하나로 합치기
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
-        // restTemplate.postForObject(요청 보낼 url, 헤더+바디, 응답을 매핑할 dto)
-        // postForObject: post 요청을 보내고 응답받은 json을 java 객체로 변환
-        // (요청 보낼 url, 헤더+바디, 응답을 매핑할 dto)
-        PaymentReadyDto.Response response = restTemplate.postForObject(
-            READY_URL, requestEntity, PaymentReadyDto.Response.class
-        );
+        // 결제 준비 요청하기
+        // postForObject(요청 보낼 url, 헤더+바디, 응답을 매핑할 dto)
+        // post 요청을 보내고 응답받은 json을 java 객체로 변환
+        PaymentReadyDto.Response response = null;
+        try {
+            response = restTemplate.postForObject(
+                READY_URL, requestEntity, PaymentReadyDto.Response.class
+            );
+        } catch (RestClientException e) {
+            throw new PaymentReadyException("결제 준비 요청에 대한 응답이 없습니다.");
+        }
 
         // order 테이블에 tid 저장
         order.setTid(response.getTid());
@@ -148,15 +155,13 @@ public class PaymentService {
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
         // 결제 승인 요청하기
-        // postForObject: post 요청을 보내고 응답받은 json을 java 객체로 변환
-        // (요청 보낼 url, 헤더+바디, 응답을 매핑할 dto)
-        PaymentApproveDto.Response response = restTemplate.postForObject(
-            APPROVE_URL, requestEntity, PaymentApproveDto.Response.class
-        );
-
-        // 응답이 없을경우 결제 실패
-        if (response == null) {
-            throw new PaymentRequestTimeoutException("결제 승인 응답을 받지 못했습니다.");
+        PaymentApproveDto.Response response = null;
+        try {
+            response = restTemplate.postForObject(
+                APPROVE_URL, requestEntity, PaymentApproveDto.Response.class
+            );
+        } catch (RestClientException e) {
+            throw new PaymentApproveException("결제 승인 요청에 대한 응답이 없습니다.");
         }
 
         // 회원 포인트 충전
