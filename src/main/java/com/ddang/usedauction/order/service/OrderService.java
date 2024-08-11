@@ -14,7 +14,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     // 주문 생성
-    public OrderCreateDto.Response createOrder(OrderCreateDto.Request request) {
+    public Orders createOrder(OrderCreateDto.Request request) {
 
         Member member = Member.builder()
             .id(1L)
@@ -30,6 +30,6 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        return OrderCreateDto.Response.fromEntity(order);
+        return order;
     }
 }

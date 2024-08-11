@@ -1,6 +1,6 @@
 package com.ddang.usedauction.order.controller;
 
-import com.ddang.usedauction.config.GlobalApiResponse;
+import com.ddang.usedauction.order.domain.Orders;
 import com.ddang.usedauction.order.dto.OrderCreateDto;
 import com.ddang.usedauction.order.service.OrderService;
 import jakarta.validation.Valid;
@@ -28,12 +28,12 @@ public class OrderController {
      * @return 성공 시 200 코드와 주문id, 실패 시 에러코드와 에러메시지
      */
     @PostMapping("/create")
-    public ResponseEntity<GlobalApiResponse<?>> createOrder(
+    public ResponseEntity<OrderCreateDto.Response> createOrder(
         @RequestBody @Valid OrderCreateDto.Request request
     ) {
-        OrderCreateDto.Response response = orderService.createOrder(request);
+        Orders order = orderService.createOrder(request);
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(GlobalApiResponse.toGlobalResponse(HttpStatus.CREATED, response));
+            .body(OrderCreateDto.Response.from(order));
     }
 }

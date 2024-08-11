@@ -1,6 +1,5 @@
 package com.ddang.usedauction.payment.controller;
 
-import com.ddang.usedauction.config.GlobalApiResponse;
 import com.ddang.usedauction.payment.dto.PaymentApproveDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
@@ -8,7 +7,6 @@ import com.ddang.usedauction.payment.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,13 +33,10 @@ public class PaymentController {
      * @return 성공 시 200 코드와 결제 승인에 필요한 정보(tid, redirect_url 등), 실패 시 에러코드와 에러메시지
      */
     @PostMapping("/ready")
-    public ResponseEntity<?> paymentReady(
+    public ResponseEntity<PaymentReadyDto.Response> paymentReady(
         @RequestBody @Valid PaymentInfoDto.Request request
     ) {
-        PaymentReadyDto.Response response = paymentService.ready(request);
-        log.info("response: {}", response);
-
-        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(HttpStatus.OK, response));
+        return ResponseEntity.ok(paymentService.ready(request));
     }
 
     /**
@@ -59,13 +54,10 @@ public class PaymentController {
      * @return 성공 시 200 코드와 결제 정보(아이템명, 수량 등), 실패 시 에러코드와 에러메시지
      */
     @PostMapping("/approve")
-    public ResponseEntity<?> paymentApprove(
+    public ResponseEntity<PaymentApproveDto.Response> paymentApprove(
         @RequestParam("partnerOrderId") String partnerOrderId,
         @RequestParam("pgToken") String pgToken
     ) {
-        PaymentApproveDto.Response response = paymentService.approve(partnerOrderId, pgToken);
-        log.info("response: {}", response);
-
-        return ResponseEntity.ok(GlobalApiResponse.toGlobalResponse(HttpStatus.OK, response));
+        return ResponseEntity.ok(paymentService.approve(partnerOrderId, pgToken));
     }
 }
