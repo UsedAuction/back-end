@@ -1,6 +1,7 @@
 package com.ddang.usedauction.auction.controller;
 
 
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
@@ -15,9 +16,16 @@ import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.category.domain.Category;
+import com.ddang.usedauction.config.SecurityConfig;
+import com.ddang.usedauction.image.domain.Image;
+import com.ddang.usedauction.image.domain.ImageType;
+import com.ddang.usedauction.member.domain.Member;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,10 +37,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@WebMvcTest(AuctionController.class)
+@WebMvcTest({AuctionController.class, SecurityConfig.class})
 class AuctionControllerTest {
 
     @Autowired
@@ -44,13 +53,67 @@ class AuctionControllerTest {
     @MockBean
     private AuctionService auctionService;
 
+    Auction auction;
+
+    @BeforeEach
+    void setup() {
+
+        Category parentCategory = Category.builder()
+            .id(1L)
+            .categoryName("category1")
+            .build();
+
+        Category childCategory = Category.builder()
+            .id(2L)
+            .categoryName("category2")
+            .build();
+
+        Member member = Member.builder()
+            .id(1L)
+            .memberId("test")
+            .build();
+
+        Image image = Image.builder()
+            .id(1L)
+            .imageName("image1")
+            .imageType(ImageType.THUMBNAIL)
+            .imageUrl("url1")
+            .build();
+
+        Image image2 = Image.builder()
+            .id(2L)
+            .imageName("image1")
+            .imageType(ImageType.NORMAL)
+            .imageUrl("url1")
+            .build();
+
+        List<Image> imageList = List.of(image, image2);
+
+        auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(1000)
+            .productDescription("설명")
+            .transactionType(TransactionType.ALL)
+            .productColor("color")
+            .childCategory(childCategory)
+            .parentCategory(parentCategory)
+            .seller(member)
+            .imageList(imageList)
+            .build();
+    }
+
     @Test
     @DisplayName("경매글 단건 조회 컨트롤러")
+    @WithAnonymousUser
     void getAuctionController() throws Exception {
-
-        Auction auction = Auction.builder()
-            .title("title")
-            .build();
 
         when(auctionService.getAuction(1L)).thenReturn(auction);
 
@@ -71,6 +134,7 @@ class AuctionControllerTest {
 
     @Test
     @DisplayName("경매글 단건 조회 컨트롤러 실패 - pathVariable 유효성 검증 실패")
+    @WithAnonymousUser
     void getAuctionControllerFail2() throws Exception {
 
         mockMvc.perform(get("/api/auctions/0"))
@@ -82,10 +146,6 @@ class AuctionControllerTest {
     @DisplayName("경매글 리스트 조회 컨트롤러")
     void getAuctionListController() throws Exception {
 
-        Auction auction = Auction.builder()
-            .title("title")
-            .build();
-
         List<Auction> auctionList = List.of(auction);
         Pageable pageable = PageRequest.of(0, 10);
         Page<Auction> auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
@@ -95,7 +155,7 @@ class AuctionControllerTest {
         mockMvc.perform(get("/api/auctions"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].title").value("title"));
+            .andExpect(jsonPath("$.content[0].title").value("title"));
     }
 
     @Test
@@ -111,34 +171,12 @@ class AuctionControllerTest {
     @DisplayName("경매글 생성 컨트롤러")
     void createAuctionController() throws Exception {
 
-        Auction auction = Auction.builder()
-            .title("title")
-            .build();
-
-        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+        MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumbnail.png",
             MediaType.IMAGE_PNG_VALUE,
-            "thumbnail".getBytes());
+            "thumbnail".getBytes(StandardCharsets.UTF_8));
 
-        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+        MockMultipartFile mockImage = new MockMultipartFile("imageList", "image.png",
             MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-        List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage);
-
-        String createRequest = "{\n"
-            + "    \"title\": \"test\",\n"
-            + "    \"contactPlace\": \"place\",\n"
-            + "    \"deliveryPrice\": \"price\",\n"
-            + "    \"deliveryType\": \"prepay\",\n"
-            + "    \"endedAt\": \"2024-08-09 00:00\",\n"
-            + "    \"instantPrice\": 4000,\n"
-            + "    \"productName\": \"name\",\n"
-            + "    \"productStatus\": 3.5,\n"
-            + "    \"startPrice\": 3000,\n"
-            + "    \"productDescription\": \"설명\",\n"
-            + "    \"transactionType\": \"all\",\n"
-            + "    \"productColor\": \"color\",\n"
-            + "    \"childCategoryId\": 2,\n"
-            + "    \"parentCategoryId\": 1\n"
-            + "}";
 
         AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
             .title("title")
@@ -149,7 +187,7 @@ class AuctionControllerTest {
             .instantPrice(4000)
             .productName("name")
             .productStatus(3.5)
-            .startPrice(1000)
+            .startPrice(3000)
             .productDescription("설명")
             .transactionType(TransactionType.ALL)
             .productColor("color")
@@ -157,17 +195,19 @@ class AuctionControllerTest {
             .parentCategoryId(1L)
             .build();
 
-        when(auctionService.createAuction(thumbnail, imageList, "test", createDto)).thenReturn(
-            auction);
+        when(auctionService.createAuction(
+            argThat(arg -> arg.getName().equals("thumbnail")),
+            argThat(arg -> arg.get(0).getName().equals("imageList")),
+            argThat(arg -> arg.equals("test")),
+            argThat(arg -> arg.getTitle().equals("title")))).thenReturn(auction);
 
-        mockMvc.perform(multipart("/api/auctions")
+        mockMvc.perform(MockMvcRequestBuilders
+                .multipart("/api/auctions")
                 .file(thumbnail)
                 .file(mockImage)
-                .file(mockImage)
-                .file(mockImage)
                 .file(new MockMultipartFile("createDto", "", "application/json",
-                    createRequest.getBytes()))
-                .contentType(MediaType.MULTIPART_FORM_DATA)
+                    objectMapper.writeValueAsString(createDto).getBytes(StandardCharsets.UTF_8)))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isCreated())
@@ -185,22 +225,22 @@ class AuctionControllerTest {
         MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
             MediaType.IMAGE_PNG_VALUE, "image".getBytes());
 
-        String createRequest = "{\n"
-            + "    \"title\": \"test\",\n"
-            + "    \"contactPlace\": \"place\",\n"
-            + "    \"deliveryPrice\": \"price\",\n"
-            + "    \"deliveryType\": \"prepay\",\n"
-            + "    \"endedAt\": \"2024-08-09 00:00\",\n"
-            + "    \"instantPrice\": 4000,\n"
-            + "    \"productName\": \"name\",\n"
-            + "    \"productStatus\": 3.5,\n"
-            + "    \"startPrice\": 3000,\n"
-            + "    \"productDescription\": \"설명\",\n"
-            + "    \"transactionType\": \"all\",\n"
-            + "    \"productColor\": \"color\",\n"
-            + "    \"childCategoryId\": 2,\n"
-            + "    \"parentCategoryId\": 1\n"
-            + "}";
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(3000)
+            .productDescription("설명")
+            .transactionType(TransactionType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
 
         mockMvc.perform(multipart("/api/auction")
                 .file(thumbnail)
@@ -208,7 +248,7 @@ class AuctionControllerTest {
                 .file(mockImage)
                 .file(mockImage)
                 .file(new MockMultipartFile("createDto", "", "application/json",
-                    createRequest.getBytes()))
+                    objectMapper.writeValueAsString(createDto).getBytes()))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -222,29 +262,29 @@ class AuctionControllerTest {
         MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
             MediaType.IMAGE_PNG_VALUE, "image".getBytes());
 
-        String createRequest = "{\n"
-            + "    \"title\": \"test\",\n"
-            + "    \"contactPlace\": \"place\",\n"
-            + "    \"deliveryPrice\": \"price\",\n"
-            + "    \"deliveryType\": \"prepay\",\n"
-            + "    \"endedAt\": \"2024-08-09 00:00\",\n"
-            + "    \"instantPrice\": 4000,\n"
-            + "    \"productName\": \"name\",\n"
-            + "    \"productStatus\": 3.5,\n"
-            + "    \"startPrice\": 3000,\n"
-            + "    \"productDescription\": \"설명\",\n"
-            + "    \"transactionType\": \"all\",\n"
-            + "    \"productColor\": \"color\",\n"
-            + "    \"childCategoryId\": 2,\n"
-            + "    \"parentCategoryId\": 1\n"
-            + "}";
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(3000)
+            .productDescription("설명")
+            .transactionType(TransactionType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
 
         mockMvc.perform(multipart("/api/auctions")
                 .file(mockImage)
                 .file(mockImage)
                 .file(mockImage)
                 .file(new MockMultipartFile("createDto", "", "application/json",
-                    createRequest.getBytes()))
+                    objectMapper.writeValueAsString(createDto).getBytes()))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -262,22 +302,22 @@ class AuctionControllerTest {
         MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
             MediaType.IMAGE_PNG_VALUE, "image".getBytes());
 
-        String createRequest = "{\n"
-            + "    \"title\": \"test\",\n"
-            + "    \"contactPlace\": \"place\",\n"
-            + "    \"deliveryPrice\": \"price\",\n"
-            + "    \"deliveryType\": \"prepay\",\n"
-            + "    \"endedAt\": \"2024-08-09 00:00\",\n"
-            + "    \"instantPrice\": 4000,\n"
-            + "    \"productName\": \"name\",\n"
-            + "    \"productStatus\": 3.5,\n"
-            + "    \"startPrice\": 3000,\n"
-            + "    \"productDescription\": \"설명\",\n"
-            + "    \"transactionType\": \"all\",\n"
-            + "    \"productColor\": \"color\",\n"
-            + "    \"childCategoryId\": 2,\n"
-            + "    \"parentCategoryId\": 1\n"
-            + "}";
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(3000)
+            .productDescription("설명")
+            .transactionType(TransactionType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
 
         mockMvc.perform(multipart("/api/auctions")
                 .file(thumbnail)
@@ -285,7 +325,7 @@ class AuctionControllerTest {
                 .file(mockImage)
                 .file(mockImage)
                 .file(new MockMultipartFile("createDto", "", "application/json",
-                    createRequest.getBytes()))
+                    objectMapper.writeValueAsString(createDto).getBytes()))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
@@ -303,22 +343,22 @@ class AuctionControllerTest {
         MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
             MediaType.IMAGE_PNG_VALUE, "image".getBytes());
 
-        String createRequest = "{\n"
-            + "    \"title\": \"test\",\n"
-            + "    \"contactPlace\": \"place\",\n"
-            + "    \"deliveryPrice\": \"price\",\n"
-            + "    \"deliveryType\": \"prepay\",\n"
-            + "    \"endedAt\": \"2024-08-09 00:00\",\n"
-            + "    \"instantPrice\": 4000,\n"
-            + "    \"productName\": \"name\",\n"
-            + "    \"productStatus\": 3.5,\n"
-            + "    \"startPrice\": 3000,\n"
-            + "    \"productDescription\": \"설명\",\n"
-            + "    \"transactionType\": \"all\",\n"
-            + "    \"productColor\": \"color\",\n"
-            + "    \"childCategoryId\": 2,\n"
-            + "    \"parentCategoryId\": 1\n"
-            + "}";
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(3000)
+            .productDescription("설명")
+            .transactionType(TransactionType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
 
         mockMvc.perform(multipart("/api/auctions")
                 .file(thumbnail)
@@ -326,7 +366,7 @@ class AuctionControllerTest {
                 .file(mockImage)
                 .file(mockImage)
                 .file(new MockMultipartFile("createDto", "", "application/json",
-                    createRequest.getBytes()))
+                    objectMapper.writeValueAsString(createDto).getBytes()))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .accept(MediaType.APPLICATION_JSON))
             .andDo(print())
