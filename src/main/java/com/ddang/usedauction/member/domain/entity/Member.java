@@ -1,8 +1,11 @@
 package com.ddang.usedauction.member.domain.entity;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.member.domain.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,6 +43,10 @@ public class Member extends BaseTimeEntity {
 
   @Column
   private long point;
+
+  @Column
+  @Enumerated(EnumType.STRING)
+  private Role role;
 
   @Column
   private String social;
