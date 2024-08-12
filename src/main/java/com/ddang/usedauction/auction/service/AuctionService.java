@@ -60,7 +60,7 @@ public class AuctionService {
     public Auction getAuction(Long auctionId) {
 
         return auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
     }
 
     /**
@@ -133,13 +133,13 @@ public class AuctionService {
         }
 
         Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 카테고리입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 카테고리입니다."));
 
         Category childCategory = categoryRepository.findById(createDto.getChildCategoryId())
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 카테고리입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 카테고리입니다."));
 
         Auction auction = Auction.builder()
             .title(createDto.getTitle())
@@ -229,21 +229,21 @@ public class AuctionService {
         AuctionConfirmDto.Request confirmDto) {
 
         Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
         if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
             throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
         }
 
         Member buyer = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (buyer.getPoint() < confirmDto.getPrice()) { // 회원의 포인트가 부족한 경우
             throw new MemberPointOutOfBoundsException(buyer.getPoint(), confirmDto.getPrice());
         }
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         seller = seller.toBuilder()
             .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
