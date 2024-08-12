@@ -13,7 +13,7 @@ spring:
     database-platform: H2
     hibernate:
       ddl-auto: create
-    database:
+    database: h2
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
@@ -21,6 +21,7 @@ spring:
         format_sql: true
         highlight_sql: true
         default_batch_fetch_size: 100
+    defer-datasource-initialization: true # data.sql을 사용하기 위해 데이터소스 초기화를 지연시키는 설정
 
   h2:
     console:
@@ -30,17 +31,24 @@ spring:
     password: ${DB_PWD} # 환경 변수
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:test
+    
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  # redis
+  data:
+    redis:
+      port: 6379
+      host: localhost
+      auction:
+        expire-key: 'auction-item:'
+  cache:
+    type: redis
 
-  sql:
-    init:
-      mode: always
-    # redis
-    data:
-      redis:
-        port: 6379
-        host: localhost
-    cache:
-      type: redis
+redisson:
+  host: localhost
+  port: 6379
 
   #  # JWT 시크릿 키
   #  jwt:
@@ -53,16 +61,16 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
-## S3
-#aws:
-#  s3:
-#    bucket: ${S3_BUCKET_NAME}
-#    access-key: ${S3_ACCESS_KEY}
-#    secret-key: ${S3_SECRET_KEY}
-#  region:
-#    static: ap-northeast-2
-#  stack:
-#    auto: false
+# S3
+aws:
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+  region:
+    static: ap-northeast-2
+  stack:
+    auto: false
 
 # 로그
 logging:
@@ -74,3 +82,9 @@ logging:
           descriptor:
             sql: trace
   config: classpath:logback-spring.xml
+
+# 카카오페이 secretKey
+payment:
+  secret-key: ${PAY_SECRET_KEY}
+  ready: https://open-api.kakaopay.com/online/v1/payment/ready
+  approve: https://open-api.kakaopay.com/online/v1/payment/approve

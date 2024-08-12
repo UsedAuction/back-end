@@ -25,13 +25,20 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST}:3306/usedauction?characterEncoding=UTF-8
 
-  #  # redis
-  #  data:
-  #    redis:
-  #      port: 6379
-  #      host: ${REDIS_HOST}
-  #  cache:
-  #    type: redis
+  # redis
+  data:
+    redis:
+      port: 6379
+      host: ${REDIS_HOST}
+      auction:
+        expire-key: 'auction-item:'
+  cache:
+    type: redis
+
+# redisson
+redisson:
+  host: ${REDISSON_HOST}
+  port: ${REDISSON_PORT}
 
   #  # JWT 시크릿 키
   #  jwt:
@@ -44,16 +51,16 @@ spring:
       max-file-size: 20MB
       max-request-size: 20MB
 
-## S3
-#aws:
-#  s3:
-#    bucket: ${S3_BUCKET_NAME}
-#    access-key: ${S3_ACCESS_KEY}
-#    secret-key: ${S3_SECRET_KEY}
-#  region:
-#    static: ap-northeast-2
-#  stack:
-#    auto: false
+# S3
+aws:
+  s3:
+    bucket: ${S3_BUCKET_NAME}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+  region:
+    static: ap-northeast-2
+  stack:
+    auto: false
 
 # 로그
 logging:
@@ -65,3 +72,9 @@ logging:
           descriptor:
             sql: trace
   config: classpath:logback-spring.xml
+
+# 카카오페이 secretKey
+payment:
+  secret-key: ${PAY_SECRET_KEY}
+  ready: https://open-api.kakaopay.com/online/v1/payment/ready
+  approve: https://open-api.kakaopay.com/online/v1/payment/approve
