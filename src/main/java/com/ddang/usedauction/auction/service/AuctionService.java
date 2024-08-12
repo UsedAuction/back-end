@@ -210,10 +210,10 @@ public class AuctionService {
      * 구매 확정 서비스
      *
      * @param auctionId  경매글 PK
-     * @param memberId   회원 id
+     * @param memberId   구매자 아이디
      * @param confirmDto 구매 확정 정보
      */
-    @RedissonLock("#memberId")
+    @RedissonLock("#confirmDto.sellerId")
     public void confirmAuction(Long auctionId, String memberId,
         AuctionConfirmDto.Request confirmDto) {
 
