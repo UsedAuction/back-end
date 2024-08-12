@@ -1,5 +1,6 @@
 package com.ddang.usedauction.payment.dto;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -54,6 +55,6 @@ public class PaymentReadyDto {
 
         private String tid; // 결제 고유 번호
         private String next_redirect_pc_url; // 요청한 클라이언트가 PC 웹일 경우 카카오톡으로 결제 요청 메시지(TMS)를 보내기 위한 사용자 정보 입력 화면 Redirect URL
-        private String created_at; // 결제준비를 요청한 시간
+        private LocalDateTime created_at; // 결제준비를 요청한 시간
     }
 }
