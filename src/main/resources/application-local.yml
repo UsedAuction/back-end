@@ -39,6 +39,8 @@ spring:
       host: localhost
       auction:
         expire-key: 'auction-item:'
+      confirm:
+        expire-key: 'auction-confirm:'
   cache:
     type: redis
 
