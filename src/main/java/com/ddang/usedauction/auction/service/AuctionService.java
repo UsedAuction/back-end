@@ -201,6 +201,7 @@ public class AuctionService {
         auctionAndMemberMap.put("auction", savedAuction.getId());
         auctionAndMemberMap.put("buyer", buyer != null ? buyer.getId() : null);
         auctionAndMemberMap.put("seller", savedAuction.getSeller().getId());
+        auctionAndMemberMap.put("price", bid != null ? bid.getBidPrice() : 0);
 
         return auctionAndMemberMap;
     }
