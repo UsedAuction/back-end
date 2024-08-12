@@ -1,7 +1,7 @@
 package com.ddang.usedauction.chat.domain.dto;
 
-import com.ddang.usedauction.Member.Member;
 import com.ddang.usedauction.chat.domain.entity.ChatMessage;
+import com.ddang.usedauction.member.domain.Member;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

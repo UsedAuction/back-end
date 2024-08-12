@@ -1,7 +1,7 @@
 package com.ddang.usedauction.chat.domain.entity;
 
-import com.ddang.usedauction.Member.Member;
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.member.domain.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;

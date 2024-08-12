@@ -1,12 +1,12 @@
 package com.ddang.usedauction.chat.service;
 
-import com.ddang.usedauction.Member.Member;
-import com.ddang.usedauction.Member.MemberRepository;
 import com.ddang.usedauction.chat.domain.dto.ChatMessageSendDto;
 import com.ddang.usedauction.chat.domain.entity.ChatMessage;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
 import com.ddang.usedauction.chat.repository.ChatMessageRepository;
 import com.ddang.usedauction.chat.repository.ChatRoomRepository;
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,8 +1,8 @@
 package com.ddang.usedauction.chat.domain.dto;
 
-import com.ddang.usedauction.Member.MemberDto;
-import com.ddang.usedauction.auction.AuctionDto;
+import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -28,16 +28,16 @@ public class ChatRoomCreateDto {
   public static class Response implements Serializable {
 
     private Long id;
-    private MemberDto.Response seller;
-    private MemberDto.Response buyer;
-    private AuctionDto.Response auction;
+    private MemberGetDto.Response seller;
+    private MemberGetDto.Response buyer;
+    private AuctionGetDto.Response auction;
 
     public static Response from(ChatRoom chatRoom) {
       return Response.builder()
           .id(chatRoom.getId())
-          .seller(MemberDto.Response.from(chatRoom.getSeller()))
-          .buyer(MemberDto.Response.from(chatRoom.getBuyer()))
-          .auction(AuctionDto.Response.from(chatRoom.getAuction()))
+          .seller(MemberGetDto.Response.from(chatRoom.getSeller()))
+          .buyer(MemberGetDto.Response.from(chatRoom.getBuyer()))
+          .auction(AuctionGetDto.Response.from(chatRoom.getAuction()))
           .build();
     }
   }

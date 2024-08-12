@@ -1,12 +1,12 @@
 package com.ddang.usedauction.chat.service;
 
-import com.ddang.usedauction.Member.Member;
-import com.ddang.usedauction.Member.MemberRepository;
-import com.ddang.usedauction.auction.Auction;
-import com.ddang.usedauction.auction.AuctionRepository;
+import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.chat.domain.dto.ChatRoomCreateDto;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
 import com.ddang.usedauction.chat.repository.ChatRoomRepository;
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
@@ -58,9 +58,8 @@ public class ChatRoomService {
 
     Auction auction = auctionRepository.findById(dto.getAuctionId())
         .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 경매입니다."));
-
     ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
-        .seller(auction.getMember())
+        .seller(auction.getSeller())
         .buyer(buyer)
         .auction(auction)
         .build());
