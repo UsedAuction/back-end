@@ -20,5 +20,13 @@ public class AuctionConfirmDto {
 
         @Positive(message = "PK값은 0 또는 음수일 수 없습니다.")
         private Long sellerId; // 판매자 PK
+
+        public static AuctionConfirmDto.Request of(long price, Long sellerId) {
+
+            return AuctionConfirmDto.Request.builder()
+                .price(price)
+                .sellerId(sellerId)
+                .build();
+        }
     }
 }
