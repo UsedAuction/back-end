@@ -101,7 +101,7 @@ public class AuctionController {
      * @param confirmDto 구매 확정 정보
      * @return 성공 시 200 코드, 실패 시 에러코드와 에러메시지
      */
-    @PostMapping("{auctionId}/confirm")
+    @PostMapping("/{auctionId}/confirm")
     public ResponseEntity<String> confirmAuctionController(
         @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId,
         @Valid @RequestBody
@@ -112,5 +112,22 @@ public class AuctionController {
         auctionService.confirmAuction(auctionId, memberId, confirmDto);
 
         return ResponseEntity.ok("구매 확정 완료");
+    }
+
+    /**
+     * 즉시 구매 컨트롤러
+     *
+     * @param auctionId 즉시 구매할 경매글 PK
+     * @return 성공 시 200 코드, 실패 시 에러코드와 에러메시지
+     */
+    @PostMapping("/{auctionId}")
+    public ResponseEntity<String> instantPurchaseAuctionController(
+        @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId) {
+
+        String memberId = "test"; // todo: 토큰을 통해 조회
+
+        auctionService.instantPurchaseAuction(auctionId, memberId);
+
+        return ResponseEntity.ok("즉시 구매 성공");
     }
 }
