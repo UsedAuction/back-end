@@ -120,6 +120,18 @@ public class AuctionService {
                 createDto.getInstantPrice());
         }
 
+        // 직거래가 가능한 경우이지만 직거래 장소가 없는 경우
+        if (!createDto.getTransactionType().equals(TransactionType.DELIVERY)
+            && !StringUtils.hasText(createDto.getContactPlace())) {
+            throw new IllegalArgumentException("거래 장소를 입력해주세요.");
+        }
+
+        // 택배 거래가 가능하지만 택베비가 없는 경우
+        if (!createDto.getDeliveryType().equals(DeliveryType.NO_DELIVERY) && !StringUtils.hasText(
+            createDto.getDeliveryPrice())) {
+            throw new IllegalArgumentException("택배비를 입력해주세요.");
+        }
+
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
 
