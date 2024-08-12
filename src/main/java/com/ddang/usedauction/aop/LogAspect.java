@@ -39,13 +39,13 @@ public class LogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         String className = joinPoint.getTarget().getClass().getSimpleName();
-        log.info("[{}] {}메소드 실행", className, method.getName());
+        log.debug("[{}] {}메소드 실행", className, method.getName());
 
         Object[] args = joinPoint.getArgs();
         for (Object arg : args) {
             if (arg != null) {
-                log.info("type = {}", arg.getClass().getSimpleName());
-                log.info("value = {}", arg);
+                log.debug("type = {}", arg.getClass().getSimpleName());
+                log.debug("value = {}", arg);
             }
         }
     }

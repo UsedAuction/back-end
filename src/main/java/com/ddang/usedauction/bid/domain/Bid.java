@@ -1,7 +1,6 @@
 package com.ddang.usedauction.bid.domain;
 
 import com.ddang.usedauction.auction.domain.Auction;
-import com.ddang.usedauction.bid.dto.BidServiceDto;
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.member.domain.Member;
 import jakarta.persistence.Column;
@@ -45,16 +44,4 @@ public class Bid extends BaseTimeEntity {
 
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
-
-    // 입찰 엔티티를 서비스에서 사용할 dto로 변경
-    public BidServiceDto toServiceDto() {
-
-        return BidServiceDto.builder()
-            .id(id)
-            .bidPrice(bidPrice)
-            .auctionId(auction.getId())
-            .memberId(member.getMemberId())
-            .createdAt(getCreatedAt())
-            .build();
-    }
 }

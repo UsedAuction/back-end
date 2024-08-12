@@ -32,17 +32,15 @@ public class PointHistory extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PointType pointType;
+    private PointType pointType; // 포인트 타입
 
-    // 충전 or 사용 포인트량
     @Column(nullable = false)
-    private long pointAmount;
+    private long pointAmount; // 충전 or 사용 포인트량
 
-    // 현재 보유 포인트량
     @Column(nullable = false)
-    private long curPointAmount;
+    private long curPointAmount; // 현재 보유 포인트량
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
-    private Member member;
+    private Member member; // 회원
 }

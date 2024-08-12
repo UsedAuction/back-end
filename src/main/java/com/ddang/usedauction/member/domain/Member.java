@@ -1,7 +1,6 @@
 package com.ddang.usedauction.member.domain;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
-import com.ddang.usedauction.member.dto.MemberServiceDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -51,19 +50,8 @@ public class Member extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt;
 
-    // entity -> serviceDto
-    public MemberServiceDto toServiceDto() {
-
-        return MemberServiceDto.builder()
-            .id(id)
-            .memberId(memberId)
-            .passWord(passWord)
-            .email(email)
-            .siteAlarm(siteAlarm)
-            .point(point)
-            .social(social)
-            .socialProviderId(socialProviderId)
-            .createdAt(getCreatedAt())
-            .build();
+    // 포인트 충전
+    public void addPoint(int point) {
+        this.point += point;
     }
 }

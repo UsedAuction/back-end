@@ -18,6 +18,7 @@ spring:
         format_sql: true
         highlight_sql: true
         default_batch_fetch_size: 100
+    defer-datasource-initialization: true # data.sql을 사용하기 위해 데이터소스 초기화를 지연시키는 설정
 
   datasource:
     username: ${DB_USER_NAME} # 환경 변수
@@ -76,3 +77,9 @@ logging:
           descriptor:
             sql: trace
   config: classpath:logback-spring.xml
+
+# 카카오페이 secretKey
+payment:
+  secret-key: ${PAY_SECRET_KEY}
+  ready: https://open-api.kakaopay.com/online/v1/payment/ready
+  approve: https://open-api.kakaopay.com/online/v1/payment/approve

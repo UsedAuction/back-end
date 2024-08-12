@@ -38,10 +38,10 @@ public class Transaction extends BaseTimeEntity {
     private TransType transType; // 거래 타입
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member; // 회원
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "auction_id")
+    @JoinColumn(name = "auction_id", nullable = false)
     private Auction auction; // 경매
 }

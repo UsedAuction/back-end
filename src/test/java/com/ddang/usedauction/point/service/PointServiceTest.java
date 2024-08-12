@@ -9,16 +9,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
-import com.ddang.usedauction.point.dto.PointBalanceServiceDto;
-import com.ddang.usedauction.point.dto.PointHistoryServiceDto;
-import com.ddang.usedauction.point.exception.PointException;
 import com.ddang.usedauction.point.repository.PointRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -48,97 +45,96 @@ class PointServiceTest {
     @DisplayName("포인트 잔액 조회 - 성공")
     void getPointBalanceSuccess() {
         //given
-        UserDetails userDetails = new User("test123@example.com", "123456", new ArrayList<>());
-
+        UserDetails userDetails = new User("test123@example.com", "123qwe!@#", new ArrayList<>());
         Member member = Member.builder()
-            .point(10000)
+            .email(userDetails.getUsername())
+            .point(10000L)
             .build();
 
-        given(memberRepository.findByEmail("test123@example.com")).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(userDetails.getUsername())).willReturn(Optional.of(member));
 
         // when
-        PointBalanceServiceDto pointBalanceServiceDto = pointService.getPointBalance(userDetails);
+        long pointBalance = pointService.getPointBalance(userDetails);
 
         // then
-        assertNotNull(pointBalanceServiceDto);
-        assertEquals(10000, pointBalanceServiceDto.getPointAmount());
+        assertEquals(10000L, pointBalance);
     }
 
     @Test
     @DisplayName("포인트 잔액 조회 - 실패(회원이 존재하지 않음)")
     void getPointBalanceFail_MemberNotFound() {
         //given
-        UserDetails userDetails = new User("test123@example.com", "123456", new ArrayList<>());
-        given(memberRepository.findByEmail("test123@example.com")).willReturn(Optional.empty());
+        UserDetails userDetails = new User("test123@example.com", "123qwe!@#", new ArrayList<>());
+
+        given(memberRepository.findByEmail(userDetails.getUsername())).willReturn(Optional.empty());
 
         // when
         // then
-        assertThrows(MemberException.class, () -> pointService.getPointBalance(userDetails));
+        assertThrows(NoSuchElementException.class, () -> pointService.getPointBalance(userDetails));
     }
 
     @Test
     @DisplayName("포인트 충전/사용 내역 조회 - 성공")
     void getPointListSuccess() {
         //given
-        UserDetails userDetails = new User("test123@example.com", "123456", new ArrayList<>());
+        UserDetails userDetails = new User("test123@example.com", "123qwe!@#", new ArrayList<>());
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().plusDays(7);
         PageRequest pageRequest = PageRequest.of(0, 10);
-
         Member member = Member.builder()
             .id(1L)
+            .email(userDetails.getUsername())
             .build();
-        given(memberRepository.findByEmail("test123@example.com")).willReturn(Optional.of(member));
+
+        given(memberRepository.findByEmail(userDetails.getUsername())).willReturn(Optional.of(member));
 
         List<PointHistory> pointHistoryList = new ArrayList<>();
         pointHistoryList.add(PointHistory.builder()
             .pointType(CHARGE)
-            .pointAmount(5000)
-            .curPointAmount(10000)
+            .pointAmount(5000L)
+            .curPointAmount(10000L)
             .member(member)
             .build());
         pointHistoryList.add(PointHistory.builder()
             .pointType(USE)
-            .pointAmount(3000)
-            .curPointAmount(7000)
+            .pointAmount(3000L)
+            .curPointAmount(7000L)
             .member(member)
             .build());
 
-        Page<PointHistory> pointHistoryPage = new PageImpl<>(pointHistoryList, pageRequest, 2);
-        given(pointRepository.findAllPoint("test123@example.com", startDate, endDate, pageRequest))
-            .willReturn(pointHistoryPage);
+        given(pointRepository.findAllPoint(userDetails.getUsername(), startDate, endDate, pageRequest))
+            .willReturn(new PageImpl<>(pointHistoryList, pageRequest, 2));
 
         //when
-        Page<PointHistoryServiceDto> result = pointService.getPointList(userDetails, startDate,
-            endDate, pageRequest);
+        Page<PointHistory> pointHistoryPage = pointService.getPointList(userDetails, startDate, endDate, pageRequest);
 
         //then
         assertNotNull(pointHistoryPage);
-        assertEquals(2, result.getTotalElements());
+        assertEquals(2, pointHistoryPage.getTotalElements());
 
-        assertEquals(CHARGE, result.getContent().get(0).getPointType());
-        assertEquals(5000, result.getContent().get(0).getPointAmount());
-        assertEquals(10000, result.getContent().get(0).getCurPointAmount());
-        assertEquals(1, result.getContent().get(0).getMemberId());
+        assertEquals(CHARGE, pointHistoryPage.getContent().get(0).getPointType());
+        assertEquals(5000L, pointHistoryPage.getContent().get(0).getPointAmount());
+        assertEquals(10000L, pointHistoryPage.getContent().get(0).getCurPointAmount());
+        assertEquals(1, pointHistoryPage.getContent().get(0).getMember().getId());
 
-        assertEquals(USE, result.getContent().get(1).getPointType());
-        assertEquals(3000, result.getContent().get(1).getPointAmount());
-        assertEquals(7000, result.getContent().get(1).getCurPointAmount());
-        assertEquals(1, result.getContent().get(1).getMemberId());
+        assertEquals(USE, pointHistoryPage.getContent().get(1).getPointType());
+        assertEquals(3000L, pointHistoryPage.getContent().get(1).getPointAmount());
+        assertEquals(7000L, pointHistoryPage.getContent().get(1).getCurPointAmount());
+        assertEquals(1, pointHistoryPage.getContent().get(1).getMember().getId());
     }
 
     @Test
     @DisplayName("포인트 충전/사용 내역 조회 - 실패(종료일이 시작일보다 이전인 경우)")
     void getPointListFail_InvalidDateRange() {
         //given
-        UserDetails userDetails = new User("test123@example.com", "123456", new ArrayList<>());
+        UserDetails userDetails = new User("test123@example.com", "123qwe!@#", new ArrayList<>());
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().minusDays(7);
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         //when
         //then
-        assertThrows(PointException.class, () ->
+        assertThrows(IllegalArgumentException.class, () ->
             pointService.getPointList(userDetails, startDate, endDate, pageRequest)
         );
     }
@@ -147,16 +143,16 @@ class PointServiceTest {
     @DisplayName("포인트 충전/사용 내역 조회 - 실패(회원이 존재하지 않음)")
     void getPointListFail_MemberNotFound() {
         //given
-        UserDetails userDetails = new User("test123@example.com", "123456", new ArrayList<>());
+        UserDetails userDetails = new User("test123@example.com", "123qwe!@#", new ArrayList<>());
         LocalDate startDate = LocalDate.now();
         LocalDate endDate = LocalDate.now().plusDays(7);
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // when
-        when(memberRepository.findByEmail("test123@example.com")).thenReturn(Optional.empty());
+        when(memberRepository.findByEmail(userDetails.getUsername())).thenReturn(Optional.empty());
 
         // then
-        assertThrows(MemberException.class, () ->
+        assertThrows(NoSuchElementException.class, () ->
             pointService.getPointList(userDetails, startDate, endDate, pageRequest)
         );
     }

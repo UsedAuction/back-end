@@ -5,8 +5,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
-import com.ddang.usedauction.image.exception.ImageErrorCode;
-import com.ddang.usedauction.image.exception.ImageException;
+import com.ddang.usedauction.image.exception.ImageDeleteFailException;
+import com.ddang.usedauction.image.exception.ImageUploadFailException;
 import com.ddang.usedauction.image.repository.ImageRepository;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,11 +87,11 @@ public class ImageService {
         try {
             amazonS3Client.deleteObject(bucket, fileName);
         } catch (Exception e) {
-            throw new ImageException(ImageErrorCode.FAIL_DELETE_IMAGE);
+            throw new ImageDeleteFailException();
         }
 
         Image image = imageRepository.findByImageName(fileName)
-            .orElseThrow(() -> new ImageException(ImageErrorCode.NOT_FOUND_IMAGE));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 이미지입니다."));
 
         image = image.toBuilder()
             .deletedAt(LocalDateTime.now())
@@ -123,7 +123,7 @@ public class ImageService {
                 new PutObjectRequest(bucket, imageName, inputStream, null).withCannedAcl(
                     CannedAccessControlList.PublicRead));
         } catch (IOException e) {
-            throw new ImageException(ImageErrorCode.FAIL_UPLOAD_IMAGE);
+            throw new ImageUploadFailException();
         }
 
         return amazonS3Client.getUrl(bucket, imageName).toString();
