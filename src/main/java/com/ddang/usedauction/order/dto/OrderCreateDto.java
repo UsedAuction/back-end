@@ -1,7 +1,7 @@
 package com.ddang.usedauction.order.dto;
 
 import com.ddang.usedauction.order.domain.Orders;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ public class OrderCreateDto {
     @Builder
     public static class Request {
 
-        @Min(value = 1, message = "상품가격은 1이상이어야 합니다.")
+        @Positive(message = "상품가격은 1이상이어야 합니다.")
         private int price; // 상품가격
     }
 
