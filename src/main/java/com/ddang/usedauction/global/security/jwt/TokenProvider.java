@@ -1,10 +1,14 @@
 package com.ddang.usedauction.global.security.jwt;
 
+import com.ddang.usedauction.global.security.jwt.exception.CustomJwtException;
+import com.ddang.usedauction.global.security.jwt.exception.JwtErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -91,6 +95,24 @@ public class TokenProvider {
           .getBody();
     } catch (ExpiredJwtException e) {
       throw new JwtException("만료되거나 유효하지 않은 토큰입니다.");
+    }
+  }
+
+  public boolean validateToken(String token) {
+    try {
+      Jwts.parserBuilder()
+          .setSigningKey(key)
+          .build()
+          .parseClaimsJws(token);
+      return true;
+    } catch (SecurityException | MalformedJwtException e) {
+      throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
+    } catch (ExpiredJwtException e) {
+      throw new CustomJwtException(JwtErrorCode.EXPIRED_TOKEN);
+    } catch (UnsupportedJwtException e) {
+      throw new CustomJwtException(JwtErrorCode.UNSUPPORTED_TOKEN);
+    } catch (IllegalArgumentException e) {
+      throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
     }
   }
 }
