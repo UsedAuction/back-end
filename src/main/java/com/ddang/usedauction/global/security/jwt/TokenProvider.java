@@ -2,6 +2,8 @@ package com.ddang.usedauction.global.security.jwt;
 
 import com.ddang.usedauction.global.security.jwt.exception.CustomJwtException;
 import com.ddang.usedauction.global.security.jwt.exception.JwtErrorCode;
+import com.ddang.usedauction.token.domain.entity.JwtToken;
+import com.ddang.usedauction.token.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -42,6 +44,8 @@ public class TokenProvider {
 
   private Key key;
 
+  private final RefreshTokenService refreshTokenService;
+
   @PostConstruct
   public void init() {
     this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
@@ -62,6 +66,8 @@ public class TokenProvider {
         .setExpiration(new Date(now + refreshExpiration))
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
+
+    refreshTokenService.save(email, accessToken, refreshToken);
 
     return JwtToken.builder()
         .grantType("Bearer")
