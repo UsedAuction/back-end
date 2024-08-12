@@ -319,6 +319,8 @@ public class AuctionService {
             .point(buyer.getPoint() - auction.getInstantPrice()) // 즉시 구매 가격만큼 포인트 차감
             .build();
         memberRepository.save(buyer);
+
+        // todo: 경매 종료 알림(판매자 및 낙찰자) 및 채팅방 생성
     }
 
     // 이미지 연관관계 경매와 함께 저장하기 위한 메소드
