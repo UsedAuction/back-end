@@ -10,6 +10,7 @@ import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.StartPriceOutOfBoundsException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
 import com.ddang.usedauction.image.domain.Image;
@@ -24,7 +25,11 @@ import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -156,6 +161,48 @@ public class AuctionService {
         addImageList(images, auction);
 
         return auctionRepository.save(auction);
+    }
+
+    /**
+     * 경매 종료 서비스
+     *
+     * @param auctionId 종료할 경매 PK
+     */
+    public Map<String, Long> endAuction(Long auctionId) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        if (auction.getAuctionState().equals(AuctionState.END)) { // 이미 종료된 경매인 경우
+            throw new IllegalStateException("현재 경매가 아직 진행중입니다.");
+        }
+
+        List<Bid> bidList = auction.getBidList();
+        Bid bid = bidList != null ? bidList.stream()
+            .max(Comparator.comparing(Bid::getBidPrice))
+            .orElse(null) : null;
+
+        Member buyer = null; // 입찰자
+        if (bid != null) {
+            Member member = bid.getMember();
+            member = member.toBuilder()
+                .point(member.getPoint() - bid.getBidPrice()) // 입찰자 포인트 차감
+                .build();
+
+            buyer = memberRepository.save(member);
+        }
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END) // 경매 종료 처리
+            .build();
+        Auction savedAuction = auctionRepository.save(auction);
+
+        Map<String, Long> auctionAndMemberMap = new HashMap<>();
+        auctionAndMemberMap.put("auction", savedAuction.getId());
+        auctionAndMemberMap.put("buyer", buyer != null ? buyer.getId() : null);
+        auctionAndMemberMap.put("seller", savedAuction.getSeller().getId());
+
+        return auctionAndMemberMap;
     }
 
     /**

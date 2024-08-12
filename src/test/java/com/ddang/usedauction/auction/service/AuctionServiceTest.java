@@ -34,6 +34,7 @@ import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -541,5 +542,36 @@ class AuctionServiceTest {
 
         assertThrows(MemberPointOutOfBoundsException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
+    }
+
+    @Test
+    @DisplayName("경매 종료")
+    void endAuction() {
+
+        auction = auction.toBuilder()
+            .id(1L)
+            .build();
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(auctionRepository.save(any())).thenReturn(auction);
+
+        Map<String, Long> auctionAndMemberMap = auctionService.endAuction(1L);
+
+        assertThat(auctionAndMemberMap.get("auction")).isEqualTo(1);
+        assertThat(auctionAndMemberMap.get("buyer")).isNull();
+    }
+
+    @Test
+    @DisplayName("경매 종료 실패 - 이미 종료된 경매")
+    void endAuctionFail1() {
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END)
+            .build();
+
+        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+
+        assertThatThrownBy(() -> auctionService.endAuction(1L)).isInstanceOf(
+            AuctionException.class);
     }
 }
