@@ -1,6 +1,7 @@
 package com.ddang.usedauction.auction.service;
 
 import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.repository.AuctionRedisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,5 +16,12 @@ public class AuctionRedisService {
     public void createWithExpire(Auction auction, long expireSecond) {
 
         auctionRedisRepository.saveAuctionWithExpire(auction.getId(), expireSecond);
+    }
+
+    // 자동 구매 확정을 위한 bucket 생성 서비스
+    public void createAutoConfirm(Long auctionId, String buyerId, long price, Long sellerId) {
+
+        auctionRedisRepository.saveAuctionAutoConfirm(auctionId, buyerId,
+            AuctionConfirmDto.Request.of(price, sellerId));
     }
 }
