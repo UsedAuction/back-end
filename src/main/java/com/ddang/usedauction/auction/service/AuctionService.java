@@ -3,6 +3,8 @@ package com.ddang.usedauction.auction.service;
 import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
+import com.ddang.usedauction.auction.domain.DeliveryType;
+import com.ddang.usedauction.auction.domain.TransactionType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
@@ -35,10 +37,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AuctionService {
 
@@ -59,7 +61,7 @@ public class AuctionService {
     public Auction getAuction(Long auctionId) {
 
         return auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
     }
 
     /**
@@ -101,6 +103,7 @@ public class AuctionService {
      * @param createDto 경매글 작성 정보
      * @return 작성된 경매글의 serviceDto
      */
+    @Transactional
     public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
         String memberId, AuctionCreateDto.Request createDto) {
 
@@ -119,14 +122,26 @@ public class AuctionService {
                 createDto.getInstantPrice());
         }
 
+        // 직거래가 가능한 경우이지만 직거래 장소가 없는 경우
+        if (!createDto.getTransactionType().equals(TransactionType.DELIVERY)
+            && !StringUtils.hasText(createDto.getContactPlace())) {
+            throw new IllegalArgumentException("거래 장소를 입력해주세요.");
+        }
+
+        // 택배 거래가 가능하지만 택베비가 없는 경우
+        if (!createDto.getDeliveryType().equals(DeliveryType.NO_DELIVERY) && !StringUtils.hasText(
+            createDto.getDeliveryPrice())) {
+            throw new IllegalArgumentException("택배비를 입력해주세요.");
+        }
+
         Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 카테고리입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 카테고리입니다."));
 
         Category childCategory = categoryRepository.findById(createDto.getChildCategoryId())
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 카테고리입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 카테고리입니다."));
 
         Auction auction = Auction.builder()
             .title(createDto.getTitle())
@@ -167,13 +182,14 @@ public class AuctionService {
      *
      * @param auctionId 종료할 경매 PK
      */
+    @Transactional
     public Map<String, Long> endAuction(Long auctionId) {
 
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
         if (auction.getAuctionState().equals(AuctionState.END)) { // 이미 종료된 경매인 경우
-            throw new IllegalStateException("현재 경매가 아직 진행중입니다.");
+            throw new IllegalStateException("현재 경매가 이미 종료되었습니다.");
         }
 
         List<Bid> bidList = auction.getBidList();
@@ -217,7 +233,7 @@ public class AuctionService {
         AuctionConfirmDto.Request confirmDto) {
 
         Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
         if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
             throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
@@ -227,7 +243,7 @@ public class AuctionService {
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
-            .orElseThrow(() -> new NullPointerException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         seller = seller.toBuilder()
             .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
@@ -265,6 +281,42 @@ public class AuctionService {
             .transType(TransType.SELL)
             .build();
         transactionRepository.save(sellerTransaction); // 판매자 거래 내역 저장
+    }
+
+    /**
+     * 즉시 구매 서비스
+     *
+     * @param auctionId 즉시 구매할 경매글의 PK
+     * @param memberId  구매자 아이디
+     */
+    @RedissonLock("#auctionId")
+    public void instantPurchaseAuction(Long auctionId, String memberId) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        Member buyer = memberRepository.findByMemberId(memberId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
+            throw new IllegalStateException("이미 종료된 경매입니다.");
+        }
+
+        if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
+            throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
+        }
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END) // 경매 종료 처리
+            .build();
+        auctionRepository.save(auction);
+
+        buyer = buyer.toBuilder()
+            .point(buyer.getPoint() - auction.getInstantPrice()) // 즉시 구매 가격만큼 포인트 차감
+            .build();
+        memberRepository.save(buyer);
+
+        // todo: 경매 종료 알림(판매자 및 낙찰자) 및 채팅방 생성
     }
 
     // 이미지 연관관계 경매와 함께 저장하기 위한 메소드

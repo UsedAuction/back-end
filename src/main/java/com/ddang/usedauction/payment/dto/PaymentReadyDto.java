@@ -1,5 +1,6 @@
 package com.ddang.usedauction.payment.dto;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -38,9 +39,9 @@ public class PaymentReadyDto {
             map.put("quantity", "1");
             map.put("total_amount", this.totalAmount);
             map.put("tax_free_amount", "0");
-            map.put("approval_url", "http://localhost:8080/payment/success?partner_order_id=" + this.partnerOrderId);
-            map.put("cancel_url", "http://localhost:8080/payment/cancel");
-            map.put("fail_url", "http://localhost:8080/payment/fail");
+            map.put("approval_url", "http://localhost:8080/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
+            map.put("cancel_url", "http://localhost:8080/api/members/payment/cancel");
+            map.put("fail_url", "http://localhost:8080/api/members/payment/fail");
             return map;
         }
     }
@@ -54,6 +55,6 @@ public class PaymentReadyDto {
 
         private String tid; // 결제 고유 번호
         private String next_redirect_pc_url; // 요청한 클라이언트가 PC 웹일 경우 카카오톡으로 결제 요청 메시지(TMS)를 보내기 위한 사용자 정보 입력 화면 Redirect URL
-        private String created_at; // 결제준비를 요청한 시간
+        private LocalDateTime created_at; // 결제준비를 요청한 시간
     }
 }

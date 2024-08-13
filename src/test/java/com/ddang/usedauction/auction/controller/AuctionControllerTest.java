@@ -436,4 +436,31 @@ class AuctionControllerTest {
             .andDo(print())
             .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("즉시 구매 컨트롤러")
+    void instancePurchaseAuctionController() throws Exception {
+
+        mockMvc.perform(post("/api/auctions/1"))
+            .andDo(print())
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("즉시 구매 컨트롤러 실패 - url 경로 다름")
+    void instancePurchaseAuctionControllerFail1() throws Exception {
+
+        mockMvc.perform(post("/api/auction/1"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("즉시 구매 컨트롤러 실패 - PathVariable 유효성 검증 실패")
+    void instancePurchaseAuctionControllerFail2() throws Exception {
+
+        mockMvc.perform(post("/api/auctions/0"))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
 }

@@ -3,6 +3,7 @@ package com.ddang.usedauction.auction.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,6 +36,7 @@ import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -96,7 +98,7 @@ class AuctionServiceTest {
 
         when(auctionRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(NullPointerException.class, () -> auctionService.getAuction(1L));
+        assertThrows(NoSuchElementException.class, () -> auctionService.getAuction(1L));
     }
 
     @Test
@@ -364,7 +366,7 @@ class AuctionServiceTest {
 
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
-        assertThrows(NullPointerException.class,
+        assertThrows(NoSuchElementException.class,
             () -> auctionService.createAuction(thumbnail, imageList, "test",
                 createDto));
     }
@@ -405,7 +407,7 @@ class AuctionServiceTest {
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(NullPointerException.class,
+        assertThrows(NoSuchElementException.class,
             () -> auctionService.createAuction(thumbnail, imageList, "test",
                 createDto));
     }
@@ -473,7 +475,7 @@ class AuctionServiceTest {
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(NullPointerException.class,
+        assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
@@ -494,7 +496,7 @@ class AuctionServiceTest {
         when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
 
-        assertThrows(NullPointerException.class,
+        assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
@@ -548,30 +550,177 @@ class AuctionServiceTest {
     @DisplayName("경매 종료")
     void endAuction() {
 
-        auction = auction.toBuilder()
+        Member member1 = Member.builder()
             .id(1L)
+            .point(2000)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
-        when(auctionRepository.save(any())).thenReturn(auction);
+        Member member2 = Member.builder()
+            .id(2L)
+            .point(2000)
+            .build();
+
+        Member seller = Member.builder()
+            .id(3L)
+            .point(0)
+            .build();
+
+        Bid bid1 = Bid.builder()
+            .id(1L)
+            .member(member1)
+            .bidPrice(1000)
+            .build();
+
+        Bid bid2 = Bid.builder()
+            .id(2L)
+            .member(member2)
+            .bidPrice(2000)
+            .build();
+
+        List<Bid> bidList = List.of(bid1, bid2);
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .auctionState(AuctionState.CONTINUE)
+            .bidList(bidList)
+            .seller(seller)
+            .build();
+
+        Member afterMember2 = member2.toBuilder()
+            .point(0)
+            .build();
+
+        Auction afterAuction = auction.toBuilder()
+            .auctionState(AuctionState.END)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.save(argThat(arg -> arg.getId().equals(2L)))).thenReturn(
+            afterMember2);
+        when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
+            afterAuction);
 
         Map<String, Long> auctionAndMemberMap = auctionService.endAuction(1L);
 
-        assertThat(auctionAndMemberMap.get("auction")).isEqualTo(1);
-        assertThat(auctionAndMemberMap.get("buyer")).isNull();
+        assertEquals(1, auctionAndMemberMap.get("auction"));
+        assertEquals(2, auctionAndMemberMap.get("buyer"));
+    }
+
+    @Test
+    @DisplayName("경매 종료 실패 - 존재하지 않는 경매")
+    void endAuctionFail1() {
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> auctionService.endAuction(1L));
     }
 
     @Test
     @DisplayName("경매 종료 실패 - 이미 종료된 경매")
-    void endAuctionFail1() {
+    void endAuctionFail2() {
 
-        auction = auction.toBuilder()
+        Auction auction = Auction.builder()
             .auctionState(AuctionState.END)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
 
-        assertThatThrownBy(() -> auctionService.endAuction(1L)).isInstanceOf(
-            AuctionException.class);
+        assertThrows(IllegalStateException.class, () -> auctionService.endAuction(1L));
+    }
+
+    @Test
+    @DisplayName("즉시 구매")
+    void instantPurchaseAuction() {
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(2000)
+            .build();
+
+        Member buyer = Member.builder()
+            .memberId("buyer")
+            .point(2000)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+
+        auctionService.instantPurchaseAuction(1L, "buyer");
+
+        verify(auctionRepository).save(
+            argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
+        verify(memberRepository).save(argThat(arg -> arg.getPoint() == 0));
+    }
+
+    @Test
+    @DisplayName("즉시 구매 실패 - 존재하지 않는 경매")
+    void instantPurchaseAuctionFail1() {
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+    }
+
+    @Test
+    @DisplayName("즉시 구매 실패 - 존재하지 않는 회원")
+    void instantPurchaseAuctionFail2() {
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(2000)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+    }
+
+    @Test
+    @DisplayName("즉시 구매 실패 - 이미 종료된 경매")
+    void instantPurchaseAuctionFail3() {
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .auctionState(AuctionState.END)
+            .instantPrice(2000)
+            .build();
+
+        Member buyer = Member.builder()
+            .memberId("buyer")
+            .point(2000)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+
+        assertThrows(IllegalStateException.class,
+            () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+    }
+
+    @Test
+    @DisplayName("즉시 구매 실패 - 구매자의 포인트가 부족한 경우")
+    void instantPurchaseAuctionFail4() {
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(2000)
+            .build();
+
+        Member buyer = Member.builder()
+            .memberId("buyer")
+            .point(1000)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+
+        assertThrows(MemberPointOutOfBoundsException.class,
+            () -> auctionService.instantPurchaseAuction(1L, "buyer"));
     }
 }
