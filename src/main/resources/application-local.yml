@@ -9,33 +9,36 @@ spring:
 
   # 데이터베이스
   jpa:
+    database-platform: H2
     hibernate:
       ddl-auto: create
     database: h2
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
         show_sql: true
         format_sql: true
         highlight_sql: true
         default_batch_fetch_size: 100
     defer-datasource-initialization: true # data.sql을 사용하기 위해 데이터소스 초기화를 지연시키는 설정
 
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   datasource:
     username: ${DB_USER_NAME} # 환경 변수
     password: ${DB_PWD} # 환경 변수
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:test
 
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
   # redis
   data:
     redis:
       port: 6379
       host: localhost
+      auction:
+        expire-key: 'auction-item:'
   cache:
     type: redis
 

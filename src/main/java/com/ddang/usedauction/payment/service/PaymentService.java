@@ -50,7 +50,7 @@ public class PaymentService {
     private final PointRepository pointRepository;
 
     // 결제 준비
-    public PaymentReadyDto.Response ready (PaymentInfoDto.Request request) {
+    public PaymentReadyDto.Response ready(PaymentInfoDto.Request request) {
 
         Member member = memberRepository.findById(1L)
             .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정

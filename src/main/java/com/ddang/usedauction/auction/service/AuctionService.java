@@ -4,13 +4,18 @@ import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
+import com.ddang.usedauction.auction.dto.AuctionCreateDto;
+import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
+import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
+import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
+import com.ddang.usedauction.auction.exception.StartPriceOutOfBoundsException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.bid.domain.Bid;
+import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.member.exception.MemberErrorCode;
-import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
@@ -18,13 +23,20 @@ import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -45,12 +57,10 @@ public class AuctionService {
      * @return 조회된 경매글 serviceDto
      */
     @Transactional(readOnly = true)
-    @Cacheable(key = "#auctionId", value = CacheName.AUCTION_CACHE_NAME)
     public Auction getAuction(Long auctionId) {
 
         return auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new RuntimeException(
-                "존재하지 않는 경매입니다.")); // 기본으로 제공되는 exception으로 사용
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
     }
 
     /**
@@ -72,17 +82,15 @@ public class AuctionService {
             pageable);
 
         if (sorted != null && sorted.equals(VIEW)) { // 경메에 참여한 회원순으로 정렬해야하는 경우
-            List<AuctionServiceDto> auctionServiceDtoList = auctionPageList.stream()
+            List<Auction> auctionList = auctionPageList.stream()
                 .sorted(
                     (o1, o2) -> Math.toIntExact(o2.getBidMemberCount() - o1.getBidMemberCount()))
-                .map(Auction::toServiceDto)
                 .toList();
 
-            return new PageImpl<>(auctionServiceDtoList, pageable,
-                auctionPageList.getTotalElements());
+            return new PageImpl<>(auctionList, pageable, auctionPageList.getTotalElements());
         }
 
-        return auctionPageList.map(Auction::toServiceDto);
+        return auctionPageList;
     }
 
     /**
@@ -94,31 +102,32 @@ public class AuctionService {
      * @param createDto 경매글 작성 정보
      * @return 작성된 경매글의 serviceDto
      */
-    public AuctionServiceDto createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
+    public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
         String memberId, AuctionCreateDto.Request createDto) {
 
         if (imageList != null && imageList.size() > 5) { // 썸네일 포함 6개 초과인 경우
-            throw new AuctionException(AuctionErrorCode.TOO_MANY_IMAGE);
+            throw new ImageCountOutOfBoundsException(imageList.size() + 1);
         }
 
         if (createDto.getEndedAt()
             .isAfter(LocalDateTime.now().plusDays(7))) { // 경매 끝나는 날짜가 일주일 초과되는 경우
-            throw new AuctionException(AuctionErrorCode.END_DATE_IS_AFTER_7);
+            throw new AuctionMaxDateOutOfBoundsException();
         }
 
         if (createDto.getInstantPrice()
             <= createDto.getStartPrice()) { // 즉시 구매가가 입찰 시작가보다 적거나 같은 경우
-            throw new AuctionException(AuctionErrorCode.LOW_PRICE);
+            throw new StartPriceOutOfBoundsException(createDto.getStartPrice(),
+                createDto.getInstantPrice());
         }
 
         Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
 
         Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
-            .orElseThrow(() -> new CategoryException(CategoryErrorCode.NOT_FOUND_CATEGORY));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 카테고리입니다."));
 
         Category childCategory = categoryRepository.findById(createDto.getChildCategoryId())
-            .orElseThrow(() -> new CategoryException(CategoryErrorCode.NOT_FOUND_CATEGORY));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 카테고리입니다."));
 
         Auction auction = Auction.builder()
             .title(createDto.getTitle())
@@ -151,13 +160,49 @@ public class AuctionService {
 
         addImageList(images, auction);
 
+        return auctionRepository.save(auction);
+    }
+
+    /**
+     * 경매 종료 서비스
+     *
+     * @param auctionId 종료할 경매 PK
+     */
+    public Map<String, Long> endAuction(Long auctionId) {
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        if (auction.getAuctionState().equals(AuctionState.END)) { // 이미 종료된 경매인 경우
+            throw new IllegalStateException("현재 경매가 아직 진행중입니다.");
+        }
+
+        List<Bid> bidList = auction.getBidList();
+        Bid bid = bidList != null ? bidList.stream()
+            .max(Comparator.comparing(Bid::getBidPrice))
+            .orElse(null) : null;
+
+        Member buyer = null; // 입찰자
+        if (bid != null) {
+            Member member = bid.getMember();
+            member = member.toBuilder()
+                .point(member.getPoint() - bid.getBidPrice()) // 입찰자 포인트 차감
+                .build();
+
+            buyer = memberRepository.save(member);
+        }
+
+        auction = auction.toBuilder()
+            .auctionState(AuctionState.END) // 경매 종료 처리
+            .build();
         Auction savedAuction = auctionRepository.save(auction);
 
-        AuctionServiceDto serviceDto = savedAuction.toServiceDto();
-        String auctionKey = CacheName.AUCTION_CACHE_NAME + "::" + serviceDto.getId();
-        auctionRedisTemplate.opsForValue().set(auctionKey, serviceDto); // redis에 저장
+        Map<String, Long> auctionAndMemberMap = new HashMap<>();
+        auctionAndMemberMap.put("auction", savedAuction.getId());
+        auctionAndMemberMap.put("buyer", buyer != null ? buyer.getId() : null);
+        auctionAndMemberMap.put("seller", savedAuction.getSeller().getId());
 
-        return serviceDto;
+        return auctionAndMemberMap;
     }
 
     /**
@@ -167,26 +212,26 @@ public class AuctionService {
      * @param memberId   회원 id
      * @param confirmDto 구매 확정 정보
      */
-    @RedissonLock("#auctionId")
+    @RedissonLock("#memberId")
     public void confirmAuction(Long auctionId, String memberId,
         AuctionConfirmDto.Request confirmDto) {
 
         Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new AuctionException(AuctionErrorCode.NOT_FOUND_AUCTION));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 경매입니다."));
 
         if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
-            throw new AuctionException(AuctionErrorCode.CONTINUE_AUCTION);
+            throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
         }
 
         Member buyer = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 회원입니다."));
 
         if (buyer.getPoint() < confirmDto.getPrice()) { // 회원의 포인트가 부족한 경우
-            throw new AuctionException(AuctionErrorCode.FAIL_CONFIRM_AUCTION_BY_BUYER);
+            throw new MemberPointOutOfBoundsException(buyer.getPoint(), confirmDto.getPrice());
         }
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
-            .orElseThrow(() -> new MemberException(MemberErrorCode.NOT_FOUND_MEMBER));
+            .orElseThrow(() -> new NullPointerException("존재하지 않는 회원입니다."));
 
         seller = seller.toBuilder()
             .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가

@@ -1,5 +1,6 @@
 package com.ddang.usedauction.image.dto;
 
+import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -23,5 +24,19 @@ public class ImageGetDto {
         private Long answerId;
         private Long auctionId;
         private LocalDateTime createdAt;
+
+        // entity -> getResponse
+        public static ImageGetDto.Response from(Image image) {
+
+            return Response.builder()
+                .id(image.getId())
+                .imageUrl(image.getImageUrl())
+                .imageName(image.getImageName())
+                .imageType(image.getImageType())
+                .answerId(image.getAnswer() != null ? image.getAnswer().getId() : null)
+                .auctionId(image.getAuction() != null ? image.getAuction().getId() : null)
+                .createdAt(image.getCreatedAt())
+                .build();
+        }
     }
 }
