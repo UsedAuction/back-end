@@ -32,6 +32,8 @@ spring:
       host: ${REDIS_HOST}
       auction:
         expire-key: 'auction-item:'
+      confirm:
+        expire-key: 'auction-confirm:'
   cache:
     type: redis
 

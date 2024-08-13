@@ -9,7 +9,6 @@ import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
-import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.StartPriceOutOfBoundsException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.domain.Bid;
@@ -217,6 +216,7 @@ public class AuctionService {
         auctionAndMemberMap.put("auction", savedAuction.getId());
         auctionAndMemberMap.put("buyer", buyer != null ? buyer.getId() : null);
         auctionAndMemberMap.put("seller", savedAuction.getSeller().getId());
+        auctionAndMemberMap.put("price", bid != null ? bid.getBidPrice() : 0);
 
         return auctionAndMemberMap;
     }
@@ -225,10 +225,10 @@ public class AuctionService {
      * 구매 확정 서비스
      *
      * @param auctionId  경매글 PK
-     * @param memberId   회원 id
+     * @param memberId   구매자 아이디
      * @param confirmDto 구매 확정 정보
      */
-    @Transactional
+    @RedissonLock("#confirmDto.sellerId")
     public void confirmAuction(Long auctionId, String memberId,
         AuctionConfirmDto.Request confirmDto) {
 
@@ -241,10 +241,6 @@ public class AuctionService {
 
         Member buyer = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
-
-        if (buyer.getPoint() < confirmDto.getPrice()) { // 회원의 포인트가 부족한 경우
-            throw new MemberPointOutOfBoundsException(buyer.getPoint(), confirmDto.getPrice());
-        }
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
