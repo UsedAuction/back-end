@@ -1,5 +1,6 @@
 package com.ddang.usedauction.config;
 
+import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import com.ddang.usedauction.payment.exception.PaymentApproveException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
@@ -175,6 +176,16 @@ public class GlobalExceptionHandler {
       
         return ResponseEntity
             .status(HttpStatus.REQUEST_TIMEOUT)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(NotificationBadRequestException.class)
+    private ResponseEntity<String> handleNotificationBadRequestException(NotificationBadRequestException e) {
+
+        log.error("NotificationBadRequestException", e);
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
             .body(e.getMessage());
     }
 
