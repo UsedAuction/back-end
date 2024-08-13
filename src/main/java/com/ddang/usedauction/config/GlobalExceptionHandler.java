@@ -5,7 +5,6 @@ import com.ddang.usedauction.payment.exception.PaymentApproveException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
 import com.ddang.usedauction.image.exception.ImageDeleteFailException;
 import com.ddang.usedauction.image.exception.ImageUploadFailException;
-import com.ddang.usedauction.payment.exception.PaymentRequestTimeoutException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
