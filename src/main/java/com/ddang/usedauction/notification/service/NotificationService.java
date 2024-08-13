@@ -1,5 +1,9 @@
 package com.ddang.usedauction.notification.service;
 
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.notification.domain.Notification;
+import com.ddang.usedauction.notification.domain.NotificationType;
+import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
@@ -58,5 +62,27 @@ public class NotificationService {
             emitterRepository.deleteById(emitterId);
             throw new NotificationBadRequestException("전송 실패");
         }
+    }
+
+    // 알림 전송
+    public void send(Member member, NotificationType notificationType, String content) {
+        Notification notification = notificationRepository.save(createNotification(member, notificationType, content));
+
+        String email = member.getEmail();
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithEmail(email);
+        emitters.forEach(
+            (key, emitter) -> {
+                emitterRepository.saveEventCache(key, notification);
+                sendNotification(emitter, key, NotificationDto.Response.from(notification));
+            }
+        );
+    }
+
+    private Notification createNotification(Member member, NotificationType notificationType, String content) {
+        return Notification.builder()
+            .content(content)
+            .notificationType(notificationType)
+            .member(member)
+            .build();
     }
 }
