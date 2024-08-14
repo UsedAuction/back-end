@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -13,9 +12,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.domain.Notification;
 import com.ddang.usedauction.notification.domain.NotificationType;
-import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
@@ -23,6 +22,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,6 +42,9 @@ class NotificationServiceTest {
     @Mock
     private EmitterRepository emitterRepository;
 
+    @Mock
+    private MemberRepository memberRepository;
+
     @InjectMocks
     private NotificationService notificationService;
 
@@ -48,14 +52,16 @@ class NotificationServiceTest {
     @DisplayName("알림 구독 - 성공")
     void subscribeSuccess() {
         //given
-        long memberId = 1L;
+        Member member = Member.builder()
+            .id(1L)
+            .build();
         String lastEventId = "123";
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
         given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
 
         //when
-        SseEmitter resultEmitter = notificationService.subscribe(memberId, lastEventId);
+        SseEmitter resultEmitter = notificationService.subscribe(member.getId(), lastEventId);
 
         //then
         assertNotNull(resultEmitter);
@@ -67,7 +73,9 @@ class NotificationServiceTest {
     @DisplayName("알림 구독 - 실패 (emitterRepository 저장 실패)")
     void subscribeFail_emitterRepositorySave() {
         //given
-        long memberId = 1L;
+        Member member = Member.builder()
+            .id(1L)
+            .build();
         String lastEventId = "123";
 
         given(emitterRepository.save(anyString(), any(SseEmitter.class)))
@@ -75,14 +83,16 @@ class NotificationServiceTest {
 
         //when
         //then
-        assertThrows(RuntimeException.class, () -> notificationService.subscribe(memberId, lastEventId));
+        assertThrows(RuntimeException.class, () -> notificationService.subscribe(member.getId(), lastEventId));
     }
 
     @Test
     @DisplayName("알림 구독 - 실패 (sendNotification 예외 발생)")
     void subscribeFail_sendNotification() throws IOException {
         //given
-        long memberId = 1L;
+        Member member = Member.builder()
+            .id(1L)
+            .build();
         String lastEventId = "123";
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
@@ -93,7 +103,7 @@ class NotificationServiceTest {
 
         // when
         NotificationBadRequestException e = assertThrows(NotificationBadRequestException.class, () -> {
-            notificationService.subscribe(memberId, lastEventId);
+            notificationService.subscribe(member.getId(), lastEventId);
         });
 
         // then
@@ -105,18 +115,20 @@ class NotificationServiceTest {
     @DisplayName("알림 구독 - 실패 (findAllEventCacheStartWithMemberId 조회 실패)")
     void subscribeFail_findAllEventCacheStartWithMemberId() {
         //given
-        long memberId = 1L;
+        Member member = Member.builder()
+            .id(1L)
+            .build();
         String lastEventId = "123";
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
         given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
-        given(emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(memberId)))
+        given(emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(member.getId())))
             .willThrow(new RuntimeException("findAllEventCacheStartWithMemberId 실패"));
 
         //when
         //then
         RuntimeException e = assertThrows(RuntimeException.class,
-            () -> notificationService.subscribe(memberId, lastEventId));
+            () -> notificationService.subscribe(member.getId(), lastEventId));
         assertEquals("findAllEventCacheStartWithMemberId 실패", e.getMessage());
     }
 
@@ -124,7 +136,9 @@ class NotificationServiceTest {
     @DisplayName("알림 전송 - 성공")
     void sendSuccess() {
         //given
-        Member member = mock(Member.class);
+        Member member = Member.builder()
+            .id(1L)
+            .build();
         NotificationType notificationType = NotificationType.DONE;
         String content = "경매가 종료되었습니다.";
 
@@ -132,12 +146,6 @@ class NotificationServiceTest {
             .content(content)
             .notificationType(notificationType)
             .member(member)
-            .build();
-
-        NotificationDto.Request request = NotificationDto.Request.builder()
-            .member(member)
-            .content(content)
-            .notificationType(notificationType)
             .build();
 
         Map<String, SseEmitter> emitters = new HashMap<>();
@@ -146,24 +154,48 @@ class NotificationServiceTest {
         emitters.put("1_1", sseEmitter1);
         emitters.put("1_2", sseEmitter2);
 
-        given(member.getId()).willReturn(1L);
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
         given(emitterRepository.findAllEmitterStartWithMemberId("1")).willReturn(emitters);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         //when
-        notificationService.send(request);
+        notificationService.send(member.getId(), content, notificationType);
 
         //then
         verify(notificationRepository, times(1)).save(any(Notification.class));
         verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
-        verify(emitterRepository, times(2)).saveEventCache(anyString(), eq(notification));
+        verify(emitterRepository, times(2)).saveEventCache(anyString(), any(Notification.class));
+        verify(memberRepository, times(1)).findById(1L);
     }
 
     @Test
-    @DisplayName("알림 전송 - 실패")
-    void sendFail() throws IOException {
+    @DisplayName("알림 전송 - 실패 (memberRepository 회원 조회 실패)")
+    void sendFail_memberRepository() {
         //given
-        Member member = mock(Member.class);
+        Long memberId = 1L;
+        NotificationType notificationType = NotificationType.DONE;
+        String content = "경매가 종료되었습니다.";
+
+        given(memberRepository.findById(memberId)).willReturn(Optional.empty());
+
+        //when
+        NoSuchElementException e = assertThrows(NoSuchElementException.class,
+            () -> notificationService.send(memberId, content, notificationType));
+
+        //then
+        assertEquals("존재하지 않는 회원입니다.", e.getMessage());
+        verify(notificationRepository, times(0)).save(any(Notification.class));
+        verify(emitterRepository, times(0)).findAllEmitterStartWithMemberId("1");
+        verify(emitterRepository, times(0)).saveEventCache(anyString(), any(Notification.class));
+    }
+
+    @Test
+    @DisplayName("알림 전송 - 실패 (findAllEmitterStartWithMemberId 찾기 실패)")
+    void sendFail_findAllEmitterStartWithMemberId() {
+        //given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
         NotificationType notificationType = NotificationType.DONE;
         String content = "경매가 종료되었습니다.";
 
@@ -173,18 +205,78 @@ class NotificationServiceTest {
             .member(member)
             .build();
 
-        NotificationDto.Request request = NotificationDto.Request.builder()
-            .member(member)
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(notificationRepository.save(any(Notification.class))).willReturn(notification);
+        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()))).willThrow(new RuntimeException("찾기 실패"));
+
+        //when
+        RuntimeException e = assertThrows(RuntimeException.class,
+            () -> notificationService.send(member.getId(), content, notificationType));
+
+        //then
+        assertEquals("찾기 실패", e.getMessage());
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
+        verify(emitterRepository, times(0)).saveEventCache(anyString(), any(Notification.class));
+    }
+
+    @Test
+    @DisplayName("알림 전송 - 실패 (saveEventCache 저장 실패)")
+    void sendFail_saveEventCache() {
+        //given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+        NotificationType notificationType = NotificationType.DONE;
+        String content = "경매가 종료되었습니다.";
+
+        Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
+            .member(member)
             .build();
 
         SseEmitter emitter = mock(SseEmitter.class);
         Map<String, SseEmitter> emitters = Collections.singletonMap("1_1234", emitter);
 
-        given(member.getId()).willReturn(1L);
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(notificationRepository.save(any(Notification.class))).willReturn(notification);
+        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()))).willReturn(emitters);
+        doThrow(new RuntimeException("저장 실패")).when(emitterRepository).saveEventCache(anyString(), any(Notification.class));
+
+        //when
+        RuntimeException e = assertThrows(RuntimeException.class,
+            () -> notificationService.send(member.getId(), content, notificationType));
+
+        //then
+        assertEquals("저장 실패", e.getMessage());
+        verify(notificationRepository, times(1)).save(any(Notification.class));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
+        verify(emitterRepository, times(1)).saveEventCache(anyString(), any(Notification.class));
+    }
+
+    @Test
+    @DisplayName("알림 전송 - 실패 (sendNotification 예외 발생)")
+    void sendFail_sendNotification() throws IOException {
+        //given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+        NotificationType notificationType = NotificationType.DONE;
+        String content = "경매가 종료되었습니다.";
+
+        Notification notification = Notification.builder()
+            .content(content)
+            .notificationType(notificationType)
+            .member(member)
+            .build();
+
+        SseEmitter emitter = mock(SseEmitter.class);
+        Map<String, SseEmitter> emitters = Collections.singletonMap("1_1234", emitter);
+
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
         given(emitterRepository.findAllEmitterStartWithMemberId("1")).willReturn(emitters);
+        given(memberRepository.findById(1L)).willReturn(Optional.of(member));
 
         doThrow(new IOException("전송 실패")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
 
@@ -192,7 +284,7 @@ class NotificationServiceTest {
 
         //when
         NotificationBadRequestException e = assertThrows(NotificationBadRequestException.class, () -> {
-            notificationService.send(request);
+            notificationService.send(member.getId(), content, notificationType);
         });
 
         // then
@@ -200,34 +292,8 @@ class NotificationServiceTest {
         verify(emitterRepository, times(1)).deleteById(emitterIdCaptor.capture());
         verify(notificationRepository, times(1)).save(any(Notification.class));
         verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
-        verify(emitterRepository, times(1)).saveEventCache(anyString(), eq(notification));
+        verify(emitterRepository, times(1)).saveEventCache(anyString(), any(Notification.class));
         verify(emitterRepository, times(1)).deleteById("1_1234");
-    }
-
-    @Test
-    @DisplayName("알림 전송 - 실패 (notificationRepository 저장 실패)")
-    void sendFail_notificationRepository() {
-        //given
-        Member member = mock(Member.class);
-        NotificationType notificationType = NotificationType.DONE;
-        String content = "경매가 종료되었습니다.";
-
-        NotificationDto.Request request = NotificationDto.Request.builder()
-            .member(member)
-            .content(content)
-            .notificationType(notificationType)
-            .build();
-
-        given(notificationRepository.save(any(Notification.class))).willThrow(new RuntimeException("저장 실패"));
-
-        //when
-        RuntimeException e = assertThrows(RuntimeException.class,
-            () -> notificationService.send(request));
-
-        //then
-        assertEquals("저장 실패", e.getMessage());
-        verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(emitterRepository, times(0)).findAllEmitterStartWithMemberId("1");
-        verify(emitterRepository, times(0)).saveEventCache(anyString(), any(Notification.class));
+        verify(memberRepository, times(1)).findById(1L);
     }
 }
