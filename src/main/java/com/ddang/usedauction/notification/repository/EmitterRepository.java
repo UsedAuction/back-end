@@ -28,17 +28,17 @@ public class EmitterRepository {
         eventCache.put(eventCacheId, event);
     }
 
-    // 해당 email과 관련된 모든 emitter 찾기
-    public Map<String, SseEmitter> findAllEmitterStartWithEmail(String email) {
+    // 해당 memberId와 관련된 모든 emitter 찾기
+    public Map<String, SseEmitter> findAllEmitterStartWithMemberId(String memberId) {
         return emitters.entrySet().stream()
-            .filter(entry -> entry.getKey().startsWith(email))
+            .filter(entry -> entry.getKey().startsWith(memberId))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    // 해당 email과 관련된 모든 이벤트 찾기
-    public Map<String, Object> findAllEventCacheStartWithEmail(String email) {
+    // 해당 memberId와 관련된 모든 이벤트 찾기
+    public Map<String, Object> findAllEventCacheStartWithMemberId(String memberId) {
         return eventCache.entrySet().stream()
-            .filter(entry -> entry.getKey().startsWith(email))
+            .filter(entry -> entry.getKey().startsWith(memberId))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

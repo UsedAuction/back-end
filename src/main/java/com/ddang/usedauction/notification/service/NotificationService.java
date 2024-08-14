@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -26,10 +25,9 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
 
     // 알림 구독
-    public SseEmitter subscribe(UserDetails userDetails, String lastEventId) {
+    public SseEmitter subscribe(long memberId, String lastEventId) {
 
-        String email = userDetails.getUsername(); // TODO: email 대신 id로 수정
-        String emitterId = email + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
+        String emitterId = memberId + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
         SseEmitter sseEmitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         // 콜백
@@ -38,11 +36,12 @@ public class NotificationService {
         sseEmitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
         // 503 에러방지를 위한 더미 이벤트 전송
-        sendNotification(sseEmitter, emitterId, "더미 이벤트 전송 완료 / 회원이메일: " + email);
+        sendNotification(sseEmitter, emitterId, "더미 이벤트 전송 완료 / 회원 id: " + memberId);
 
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
-            Map<String, Object> cacheEvents = emitterRepository.findAllEventCacheStartWithEmail(email);
+            Map<String, Object> cacheEvents = emitterRepository.findAllEventCacheStartWithMemberId(
+                String.valueOf(memberId));
             cacheEvents.entrySet().stream()
                 .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                 .forEach(entry -> sendNotification(sseEmitter, entry.getKey(), entry.getValue()));
@@ -66,10 +65,11 @@ public class NotificationService {
 
     // 알림 전송
     public void send(Member member, NotificationType notificationType, String content) {
+
         Notification notification = notificationRepository.save(createNotification(member, notificationType, content));
 
-        String email = member.getEmail();
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithEmail(email);
+        String memberId = String.valueOf(member.getId());
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(memberId);
         emitters.forEach(
             (key, emitter) -> {
                 emitterRepository.saveEventCache(key, notification);

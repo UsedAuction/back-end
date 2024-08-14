@@ -22,15 +22,14 @@ public class NotificationController {
     /**
      * 알림 구독
      *
-     * @param userDetails 유저 정보
      * @param lastEventId 마지막 이벤트 id
      * @return 성공 시 200 코드와 sseEmitter, 실패 시 에러코드와 에러메시지
      */
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(
-        @AuthenticationPrincipal UserDetails userDetails,
         @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId
     ) {
-        return ResponseEntity.ok(notificationService.subscribe(userDetails, lastEventId));
+        long memberId = 1L; // TODO: 토큰 사용으로 수정
+        return ResponseEntity.ok(notificationService.subscribe(memberId, lastEventId));
     }
 }
