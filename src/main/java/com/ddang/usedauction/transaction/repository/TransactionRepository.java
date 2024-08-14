@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, Long>,
+    TransactionRepositoryCustom {
 
     @Query("select t from Transaction t where t.buyer.id = :buyerId and t.auction.id = :auctionId")
     Optional<Transaction> findByBuyerId(Long buyerId, Long auctionId); // 구매자 PK와 경매 PK로 거래 내역 조회
