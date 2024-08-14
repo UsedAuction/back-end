@@ -1,5 +1,7 @@
 package com.ddang.usedauction.auction.service;
 
+import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
+
 import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
@@ -19,6 +21,7 @@ import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.service.NotificationService;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.point.type.PointType;
@@ -51,6 +54,7 @@ public class AuctionService {
     private final TransactionRepository transactionRepository;
     private final PointRepository pointRepository;
     private final ImageService imageService;
+    private final NotificationService notificationService;
 
     /**
      * 경매글 단건 조회
@@ -317,7 +321,11 @@ public class AuctionService {
             .build();
         memberRepository.save(buyer);
 
-        // todo: 경매 종료 알림(판매자 및 낙찰자) 및 채팅방 생성
+        notificationService.send(auction.getSeller().getId(), "경매가 종료되었습니다.", DONE);
+        notificationService.send(buyer.getId(), "경매가 종료되었습니다.", DONE);
+
+        // todo: 판매자 및 낙찰자 채팅방 생성
+
     }
 
     // 이미지 연관관계 경매와 함께 저장하기 위한 메소드
