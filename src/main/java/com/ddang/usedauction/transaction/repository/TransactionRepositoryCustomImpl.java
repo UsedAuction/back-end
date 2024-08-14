@@ -80,6 +80,10 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
         final String CONTINUE = "continue";
         final String END = "end";
 
+        if (transTypeString == null) {
+            transTypeString = "";
+        }
+
         if (transTypeString.equals(END)) {
             return transaction.transType.eq(TransType.NONE)
                 .or(transaction.transType.eq(TransType.SUCCESS));
