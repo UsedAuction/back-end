@@ -1,12 +1,16 @@
 package com.ddang.usedauction.notification.service;
 
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.domain.Notification;
+import com.ddang.usedauction.notification.domain.NotificationType;
 import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +28,7 @@ public class NotificationService {
 
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
+    private final MemberRepository memberRepository;
 
     // 알림 구독
     public SseEmitter subscribe(long memberId, String lastEventId) {
@@ -53,12 +58,14 @@ public class NotificationService {
 
     // 알림 전송
     @Transactional
-    public void send(NotificationDto.Request request) {
+    public void send(Long memberId, String content, NotificationType notificationType) {
 
-        Notification notification = notificationRepository.save(createNotification(request));
+        Notification notification =
+            notificationRepository.save(createNotification(memberId, content, notificationType));
 
-        String memberId = String.valueOf(request.getMember().getId());
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(memberId);
+        Map<String, SseEmitter> emitters =
+            emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
+
         emitters.forEach(
             (key, emitter) -> {
                 emitterRepository.saveEventCache(key, notification);
@@ -80,11 +87,15 @@ public class NotificationService {
         }
     }
 
-    private Notification createNotification(NotificationDto.Request request) {
+    private Notification createNotification(Long memberId, String content, NotificationType notificationType) {
+
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
         return Notification.builder()
-            .member(request.getMember())
-            .content(request.getContent())
-            .notificationType(request.getNotificationType())
+            .member(member)
+            .content(content)
+            .notificationType(notificationType)
             .build();
     }
 }
