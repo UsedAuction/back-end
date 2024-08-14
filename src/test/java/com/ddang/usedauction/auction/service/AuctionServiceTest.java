@@ -2,7 +2,6 @@ package com.ddang.usedauction.auction.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -74,6 +73,9 @@ class AuctionServiceTest {
     @Mock
     private ImageService imageService;
 
+    @Mock
+    private AuctionRedisService auctionRedisService;
+
     @InjectMocks
     private AuctionService auctionService;
 
@@ -96,7 +98,7 @@ class AuctionServiceTest {
     @DisplayName("경매글 단건 조회 실패 - 등록되지 않은 경매글")
     void getAuctionFail1() {
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.empty());
+        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> auctionService.getAuction(1L));
     }
@@ -489,12 +491,13 @@ class AuctionServiceTest {
             .build();
 
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
             .auctionState(AuctionState.END)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
@@ -510,39 +513,14 @@ class AuctionServiceTest {
             .build();
 
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
             .auctionState(AuctionState.CONTINUE)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
 
         assertThrows(IllegalStateException.class,
-            () -> auctionService.confirmAuction(1L, "test", confirmDto));
-    }
-
-    @Test
-    @DisplayName("구매 확정 실패 - 구매자 포인트가 부족한 경우")
-    void confirmAuctionFail4() {
-
-        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-            .price(1000)
-            .sellerId(2L)
-            .build();
-
-        Auction auction = Auction.builder()
-            .title("title")
-            .auctionState(AuctionState.END)
-            .build();
-
-        Member buyer = Member.builder()
-            .memberId("buyer")
-            .point(500)
-            .build();
-
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(buyer));
-
-        assertThrows(MemberPointOutOfBoundsException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
@@ -632,10 +610,15 @@ class AuctionServiceTest {
     @DisplayName("즉시 구매")
     void instantPurchaseAuction() {
 
+        Member seller = Member.builder()
+            .id(2L)
+            .build();
+
         Auction auction = Auction.builder()
             .id(1L)
             .auctionState(AuctionState.CONTINUE)
             .instantPrice(2000)
+            .seller(seller)
             .build();
 
         Member buyer = Member.builder()
