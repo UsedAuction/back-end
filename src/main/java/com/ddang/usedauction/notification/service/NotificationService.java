@@ -1,8 +1,6 @@
 package com.ddang.usedauction.notification.service;
 
-import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.notification.domain.Notification;
-import com.ddang.usedauction.notification.domain.NotificationType;
 import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
@@ -11,7 +9,9 @@ import java.io.IOException;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
@@ -19,7 +19,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60; // 유효 시간
+    @Value("${notification.timeout}")
+    private Long DEFAULT_TIMEOUT;
 
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
@@ -36,18 +37,34 @@ public class NotificationService {
         sseEmitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
         // 503 에러방지를 위한 더미 이벤트 전송
-        sendNotification(sseEmitter, emitterId, "더미 이벤트 전송 완료 / 회원 id: " + memberId);
+        sendNotification(sseEmitter, emitterId, "연결 완료 / memberId: " + memberId);
 
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
-            Map<String, Object> cacheEvents = emitterRepository.findAllEventCacheStartWithMemberId(
-                String.valueOf(memberId));
+            Map<String, Object> cacheEvents =
+                emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(memberId));
             cacheEvents.entrySet().stream()
                 .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                 .forEach(entry -> sendNotification(sseEmitter, entry.getKey(), entry.getValue()));
         }
 
         return sseEmitter;
+    }
+
+    // 알림 전송
+    @Transactional
+    public void send(NotificationDto.Request request) {
+
+        Notification notification = notificationRepository.save(createNotification(request));
+
+        String memberId = String.valueOf(request.getMember().getId());
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(memberId);
+        emitters.forEach(
+            (key, emitter) -> {
+                emitterRepository.saveEventCache(key, notification);
+                sendNotification(emitter, key, NotificationDto.Response.from(notification));
+            }
+        );
     }
 
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
@@ -63,26 +80,11 @@ public class NotificationService {
         }
     }
 
-    // 알림 전송
-    public void send(Member member, NotificationType notificationType, String content) {
-
-        Notification notification = notificationRepository.save(createNotification(member, notificationType, content));
-
-        String memberId = String.valueOf(member.getId());
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(memberId);
-        emitters.forEach(
-            (key, emitter) -> {
-                emitterRepository.saveEventCache(key, notification);
-                sendNotification(emitter, key, NotificationDto.Response.from(notification));
-            }
-        );
-    }
-
-    private Notification createNotification(Member member, NotificationType notificationType, String content) {
+    private Notification createNotification(NotificationDto.Request request) {
         return Notification.builder()
-            .content(content)
-            .notificationType(notificationType)
-            .member(member)
+            .member(request.getMember())
+            .content(request.getContent())
+            .notificationType(request.getNotificationType())
             .build();
     }
 }
