@@ -2,7 +2,6 @@ package com.ddang.usedauction.auction.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,7 +26,6 @@ import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
-import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
@@ -41,7 +39,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -96,7 +93,7 @@ class AuctionServiceTest {
     @DisplayName("경매글 단건 조회 실패 - 등록되지 않은 경매글")
     void getAuctionFail1() {
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.empty());
+        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> auctionService.getAuction(1L));
     }
@@ -217,14 +214,13 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        ArgumentCaptor<Auction> auctionArgumentCaptor = ArgumentCaptor.forClass(Auction.class);
-
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
         when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
         when(imageService.uploadImageList(imageList)).thenReturn(uploadImageList);
-        when(auctionRepository.save(auctionArgumentCaptor.capture())).thenReturn(auction);
+        when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
+            auction);
 
         Auction result = auctionService.createAuction(thumbnail, imageList, "test",
             createDto);
@@ -422,11 +418,13 @@ class AuctionServiceTest {
             .build();
 
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
             .auctionState(AuctionState.END)
             .build();
 
         Member buyer = Member.builder()
+            .id(1L)
             .memberId("buyer")
             .point(5000)
             .build();
@@ -436,32 +434,25 @@ class AuctionServiceTest {
             .point(1000)
             .build();
 
+        Transaction transaction = Transaction.builder()
+            .buyer(buyer)
+            .transType(TransType.CONTINUE)
+            .build();
+
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
+        when(transactionRepository.findByBuyerId(1L, 1L)).thenReturn(Optional.of(transaction));
 
         auctionService.confirmAuction(1L, "buyer", confirmDto);
 
-        ArgumentCaptor<Member> memberArgumentCaptor = ArgumentCaptor.forClass(Member.class);
-        verify(memberRepository, times(1)).save(memberArgumentCaptor.capture());
-
-        assertEquals(2000, memberArgumentCaptor.getValue().getPoint());
-
-        ArgumentCaptor<PointHistory> pointHistoryCaptor = ArgumentCaptor.forClass(
-            PointHistory.class);
-        ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
-
-        verify(pointRepository, times(2)).save(pointHistoryCaptor.capture());
-        verify(transactionRepository, times(2)).save(transactionCaptor.capture());
-
-        List<PointHistory> savedPointHistories = pointHistoryCaptor.getAllValues();
-        List<Transaction> savedTransactions = transactionCaptor.getAllValues();
-
-        assertEquals(PointType.USE, savedPointHistories.get(0).getPointType());
-        assertEquals(PointType.GET, savedPointHistories.get(1).getPointType());
-
-        assertEquals(TransType.BUY, savedTransactions.get(0).getTransType());
-        assertEquals(TransType.SELL, savedTransactions.get(1).getTransType());
+        verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 2000));
+        verify(pointRepository, times(1)).save(
+            argThat(arg -> arg.getPointType().equals(PointType.USE)));
+        verify(pointRepository, times(1)).save(
+            argThat(arg -> arg.getPointType().equals(PointType.GET)));
+        verify(transactionRepository, times(1)).save(
+            argThat(arg -> arg.getTransType().equals(TransType.SUCCESS)));
     }
 
     @Test
@@ -489,12 +480,13 @@ class AuctionServiceTest {
             .build();
 
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
             .auctionState(AuctionState.END)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId(any())).thenReturn(Optional.empty());
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
@@ -510,18 +502,19 @@ class AuctionServiceTest {
             .build();
 
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
             .auctionState(AuctionState.CONTINUE)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
 
         assertThrows(IllegalStateException.class,
             () -> auctionService.confirmAuction(1L, "test", confirmDto));
     }
 
     @Test
-    @DisplayName("구매 확정 실패 - 구매자 포인트가 부족한 경우")
+    @DisplayName("구매 확정 실패 - 없는 거래 내역")
     void confirmAuctionFail4() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
@@ -530,20 +523,29 @@ class AuctionServiceTest {
             .build();
 
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
             .auctionState(AuctionState.END)
             .build();
 
         Member buyer = Member.builder()
+            .id(1L)
             .memberId("buyer")
-            .point(500)
+            .point(5000)
             .build();
 
-        when(auctionRepository.findById(any())).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId(any())).thenReturn(Optional.of(buyer));
+        Member seller = Member.builder()
+            .memberId("seller")
+            .point(1000)
+            .build();
 
-        assertThrows(MemberPointOutOfBoundsException.class,
-            () -> auctionService.confirmAuction(1L, "test", confirmDto));
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
+        when(transactionRepository.findByBuyerId(1L, 1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "buyer", confirmDto));
     }
 
     @Test
@@ -602,6 +604,8 @@ class AuctionServiceTest {
 
         Map<String, Long> auctionAndMemberMap = auctionService.endAuction(1L);
 
+        verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
+
         assertEquals(1, auctionAndMemberMap.get("auction"));
         assertEquals(2, auctionAndMemberMap.get("buyer"));
     }
@@ -648,9 +652,11 @@ class AuctionServiceTest {
 
         auctionService.instantPurchaseAuction(1L, "buyer");
 
-        verify(auctionRepository).save(
+        verify(auctionRepository, times(1)).save(
             argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
-        verify(memberRepository).save(argThat(arg -> arg.getPoint() == 0));
+        verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 0));
+        verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
+
     }
 
     @Test
