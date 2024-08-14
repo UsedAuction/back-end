@@ -108,7 +108,7 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
             return null;
         }
 
-        return transaction.updatedAt.between(startDate.atStartOfDay(), endDate.atStartOfDay());
+        return transaction.updatedAt.between(startDate.atStartOfDay(), endDate.atTime(23, 59));
     }
 
     // 정렬 방법
