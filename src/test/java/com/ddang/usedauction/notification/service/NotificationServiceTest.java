@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.notification.domain.Notification;
 import com.ddang.usedauction.notification.domain.NotificationType;
+import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
@@ -126,10 +127,17 @@ class NotificationServiceTest {
         Member member = mock(Member.class);
         NotificationType notificationType = NotificationType.DONE;
         String content = "경매가 종료되었습니다.";
+
         Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
             .member(member)
+            .build();
+
+        NotificationDto.Request request = NotificationDto.Request.builder()
+            .member(member)
+            .content(content)
+            .notificationType(notificationType)
             .build();
 
         Map<String, SseEmitter> emitters = new HashMap<>();
@@ -143,7 +151,7 @@ class NotificationServiceTest {
         given(emitterRepository.findAllEmitterStartWithMemberId("1")).willReturn(emitters);
 
         //when
-        notificationService.send(member, notificationType, content);
+        notificationService.send(request);
 
         //then
         verify(notificationRepository, times(1)).save(any(Notification.class));
@@ -158,10 +166,17 @@ class NotificationServiceTest {
         Member member = mock(Member.class);
         NotificationType notificationType = NotificationType.DONE;
         String content = "경매가 종료되었습니다.";
+
         Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
             .member(member)
+            .build();
+
+        NotificationDto.Request request = NotificationDto.Request.builder()
+            .member(member)
+            .content(content)
+            .notificationType(notificationType)
             .build();
 
         SseEmitter emitter = mock(SseEmitter.class);
@@ -177,7 +192,7 @@ class NotificationServiceTest {
 
         //when
         NotificationBadRequestException e = assertThrows(NotificationBadRequestException.class, () -> {
-            notificationService.send(member, notificationType, content);
+            notificationService.send(request);
         });
 
         // then
@@ -197,11 +212,17 @@ class NotificationServiceTest {
         NotificationType notificationType = NotificationType.DONE;
         String content = "경매가 종료되었습니다.";
 
+        NotificationDto.Request request = NotificationDto.Request.builder()
+            .member(member)
+            .content(content)
+            .notificationType(notificationType)
+            .build();
+
         given(notificationRepository.save(any(Notification.class))).willThrow(new RuntimeException("저장 실패"));
 
         //when
         RuntimeException e = assertThrows(RuntimeException.class,
-            () -> notificationService.send(member, notificationType, content));
+            () -> notificationService.send(request));
 
         //then
         assertEquals("저장 실패", e.getMessage());
