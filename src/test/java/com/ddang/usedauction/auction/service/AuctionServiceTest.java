@@ -71,6 +71,9 @@ class AuctionServiceTest {
     @Mock
     private ImageService imageService;
 
+    @Mock
+    private AuctionRedisService auctionRedisService;
+
     @InjectMocks
     private AuctionService auctionService;
 
@@ -636,10 +639,15 @@ class AuctionServiceTest {
     @DisplayName("즉시 구매")
     void instantPurchaseAuction() {
 
+        Member seller = Member.builder()
+            .id(2L)
+            .build();
+
         Auction auction = Auction.builder()
             .id(1L)
             .auctionState(AuctionState.CONTINUE)
             .instantPrice(2000)
+            .seller(seller)
             .build();
 
         Member buyer = Member.builder()

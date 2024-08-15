@@ -52,6 +52,7 @@ public class AuctionService {
     private final TransactionRepository transactionRepository;
     private final PointRepository pointRepository;
     private final ImageService imageService;
+    private final AuctionRedisService auctionRedisService;
 
     /**
      * 경매글 단건 조회
@@ -341,6 +342,10 @@ public class AuctionService {
             .auction(auction)
             .build();
         transactionRepository.save(transaction);
+
+        auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
+            auction.getSeller()
+                .getId()); // 일주일 후 자동 구매 확정 되도록 설정
 
         // todo: 경매 종료 알림(판매자 및 낙찰자) 및 채팅방 생성
     }
