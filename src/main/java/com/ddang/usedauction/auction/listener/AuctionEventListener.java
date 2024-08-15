@@ -43,9 +43,6 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         Long buyerId = auctionAndMemberMap.get("buyer"); // 입찰자 PK, null인 경우 없음
         Long price = auctionAndMemberMap.get("price");
 
-        // 판매자에게 경매 종료 알림보내기
-        notificationService.send(sellerId, "경매가 종료되었습니다.", DONE);
-
         if (buyerId != null) { // 낙찰자가 있는 경우
             Member buyer = memberRepository.findById(buyerId)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
@@ -58,6 +55,9 @@ public class AuctionEventListener { // 경매 이벤트 리스너
 
             // todo: 판매자 및 낙찰자 채팅방 생성
         }
+
+        // 판매자에게 경매 종료 알림보내기
+        notificationService.send(sellerId, "경매가 종료되었습니다.", DONE);
     }
 
     @EventListener
@@ -70,6 +70,6 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         auctionService.confirmAuction(auctionId, buyerId, confirmDto);
 
         // 판매자에게 구매 확정 알림보내기
-        notificationService.send(Long.valueOf(buyerId), "구매가 확정되었습니다.", CONFIRM);
+        notificationService.send(confirmDto.getSellerId(), "구매가 확정되었습니다.", CONFIRM);
     }
 }
