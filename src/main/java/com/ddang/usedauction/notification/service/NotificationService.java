@@ -30,7 +30,13 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
 
-    // 알림 구독
+    /**
+     * 알림 구독
+     *
+     * @param memberId 회원 id (PK)
+     * @param lastEventId 마지막 이벤트 id
+     * @return SseEmitter
+     */
     public SseEmitter subscribe(long memberId, String lastEventId) {
 
         String emitterId = memberId + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
@@ -56,7 +62,13 @@ public class NotificationService {
         return sseEmitter;
     }
 
-    // 알림 전송
+    /**
+     * 알림 전송
+     *
+     * @param memberId 회원 id (PK)
+     * @param content 알림 내용
+     * @param notificationType 알림 타입
+     */
     @Transactional
     public void send(Long memberId, String content, NotificationType notificationType) {
 
