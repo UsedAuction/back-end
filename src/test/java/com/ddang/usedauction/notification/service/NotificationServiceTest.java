@@ -10,6 +10,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
@@ -21,6 +24,7 @@ import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -31,6 +35,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @ExtendWith(MockitoExtension.class)
@@ -295,5 +303,70 @@ class NotificationServiceTest {
         verify(emitterRepository, times(1)).saveEventCache(anyString(), any(Notification.class));
         verify(emitterRepository, times(1)).deleteById("1_1234");
         verify(memberRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    @DisplayName("알림 전체 목록 조회 - 성공")
+    void getNotificationListSuccess() {
+
+        //given
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<Notification> notificationPage = new PageImpl<>(
+            List.of(
+                Notification.builder()
+                    .id(1L)
+                    .content("알림1")
+                    .notificationType(NotificationType.DONE)
+                    .member(member)
+                    .build(),
+                Notification.builder()
+                    .id(2L)
+                    .content("알림2")
+                    .notificationType(NotificationType.CHANGE_BID)
+                    .member(member)
+                    .build(),
+                Notification.builder()
+                    .id(3L)
+                    .content("알림3")
+                    .notificationType(NotificationType.QUESTION)
+                    .member(member)
+                    .build()),
+            pageable,
+            3
+        );
+
+        given(notificationRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, 10)))
+            .willReturn(notificationPage);
+
+        //when
+        Page<Notification> result = notificationService.getNotificationList(PageRequest.of(0, 10));
+
+        //then
+        assertEquals(notificationPage.getContent().size(), result.getTotalElements());
+        assertEquals(notificationPage.getContent().get(0).getContent(), result.getContent().get(0).getContent());
+        assertEquals(notificationPage.getContent().get(1).getContent(), result.getContent().get(1).getContent());
+        assertEquals(notificationPage.getContent().get(2).getContent(), result.getContent().get(2).getContent());
+
+        verify(notificationRepository, times(1)).findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    @Test
+    @DisplayName("알림 전체 목록 조회 - 실패")
+    void getNotificationListFail() {
+
+        //given
+        Pageable pageable = PageRequest.of(0, 10);
+
+        given(notificationRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, 10)))
+            .willThrow(new RuntimeException());
+
+        //when
+        //then
+        assertThrows(RuntimeException.class, () -> notificationRepository.findAllByOrderByCreatedAtDesc(pageable));
     }
 }
