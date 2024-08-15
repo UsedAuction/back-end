@@ -14,6 +14,8 @@ import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -84,6 +86,16 @@ public class NotificationService {
                 sendNotification(emitter, key, NotificationDto.Response.from(notification));
             }
         );
+    }
+
+    /**
+     * 알림 전체 목록 조회
+     *
+     * @param pageable
+     * @return Page<Notification>
+     */
+    public Page<Notification> getNotificationList(Pageable pageable) {
+        return notificationRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
