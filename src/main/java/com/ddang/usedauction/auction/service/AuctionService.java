@@ -22,6 +22,7 @@ import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.point.type.PointType;
+import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
@@ -118,6 +119,10 @@ public class AuctionService {
             throw new AuctionMaxDateOutOfBoundsException();
         }
 
+        if (createDto.getEndedAt().isBefore(LocalDateTime.now())) { // 경매 끝나는 날짜가 현재 날짜보다 이전인 경우
+            throw new IllegalArgumentException("경매가 끝나는 날짜가 현재 날짜보다 이전입니다.");
+        }
+
         if (createDto.getInstantPrice()
             <= createDto.getStartPrice()) { // 즉시 구매가가 입찰 시작가보다 적거나 같은 경우
             throw new StartPriceOutOfBoundsException(createDto.getStartPrice(),
@@ -209,6 +214,24 @@ public class AuctionService {
             buyer = memberRepository.save(member);
         }
 
+        Transaction transaction = Transaction.builder()
+            .auction(auction)
+            .buyer(null)
+            .transType(TransType.NONE)
+            .buyType(BuyType.NO_BUY)
+            .price(0)
+            .build();
+
+        if (buyer != null) {
+            transaction = transaction.toBuilder()
+                .buyType(BuyType.SUCCESSFUL_BID)
+                .buyer(buyer)
+                .transType(TransType.CONTINUE)
+                .price(bid.getBidPrice())
+                .build();
+        }
+        transactionRepository.save(transaction);
+
         auction = auction.toBuilder()
             .auctionState(AuctionState.END) // 경매 종료 처리
             .build();
@@ -268,21 +291,14 @@ public class AuctionService {
             .build();
         pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
 
-        Transaction buyerTransaction = Transaction.builder()
-            .auction(auction)
-            .member(buyer)
-            .price(confirmDto.getPrice())
-            .transType(TransType.BUY)
-            .build();
-        transactionRepository.save(buyerTransaction); // 구매자 거래 내역 저장
+        Transaction buyerTransaction = transactionRepository.findByBuyerId(buyer.getId(),
+                auction.getId())
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역 입니다."));
 
-        Transaction sellerTransaction = Transaction.builder()
-            .auction(auction)
-            .member(seller)
-            .price(confirmDto.getPrice())
-            .transType(TransType.SELL)
+        buyerTransaction = buyerTransaction.toBuilder()
+            .transType(TransType.SUCCESS)
             .build();
-        transactionRepository.save(sellerTransaction); // 판매자 거래 내역 저장
+        transactionRepository.save(buyerTransaction);
     }
 
     /**
@@ -317,6 +333,15 @@ public class AuctionService {
             .point(buyer.getPoint() - auction.getInstantPrice()) // 즉시 구매 가격만큼 포인트 차감
             .build();
         memberRepository.save(buyer);
+
+        Transaction transaction = Transaction.builder()
+            .price(auction.getInstantPrice())
+            .transType(TransType.CONTINUE)
+            .buyType(BuyType.INSTANT)
+            .buyer(buyer)
+            .auction(auction)
+            .build();
+        transactionRepository.save(transaction);
 
         auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
             auction.getSeller()
