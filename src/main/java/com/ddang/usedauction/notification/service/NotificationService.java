@@ -94,6 +94,7 @@ public class NotificationService {
      * @param pageable
      * @return Page<Notification>
      */
+    @Transactional(readOnly = true)
     public Page<Notification> getNotificationList(Pageable pageable) {
         return notificationRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
