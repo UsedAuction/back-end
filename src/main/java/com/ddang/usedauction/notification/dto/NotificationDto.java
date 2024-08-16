@@ -21,6 +21,7 @@ public class NotificationDto {
 
         private Long id;
         private Long memberId;
+        private Long auctionId;
         private String content;
         private NotificationType notificationType;
         private LocalDateTime createdAt;
@@ -29,6 +30,7 @@ public class NotificationDto {
             return Response.builder()
                 .id(notification.getId())
                 .memberId(notification.getMember().getId())
+                .auctionId(notification.getAuctionId())
                 .content(notification.getContent())
                 .notificationType(notification.getNotificationType())
                 .createdAt(notification.getCreatedAt())
