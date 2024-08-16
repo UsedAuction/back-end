@@ -9,6 +9,7 @@ import com.ddang.usedauction.member.exception.MemberNotFoundException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,10 +18,13 @@ import java.util.List;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final JavaMailSender javaMailSender;
+
 
     @Autowired
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, JavaMailSender javaMailSender) {
         this.memberRepository = memberRepository;
+        this.javaMailSender = javaMailSender;
     }
 
     public void create(Member member) {

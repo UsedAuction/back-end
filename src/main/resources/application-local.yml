@@ -92,7 +92,7 @@ payment:
     host: smtp.gmail.com
     port: 587
     username: seungh2206@gmail.com
-    password: znwlziwlnxlyppmg
+    password: znwl ziwl nxly ppmg
     properties:
       mail:
         smtp:

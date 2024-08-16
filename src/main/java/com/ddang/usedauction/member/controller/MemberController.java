@@ -2,6 +2,7 @@ package com.ddang.usedauction.member.controller;
 
 import com.ddang.usedauction.member.component.MailComponent;
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.dto.MemberGetDto.Response;
 import com.ddang.usedauction.member.exception.IllegalMemberAccessException;
 import com.ddang.usedauction.member.service.MemberService;
 import jakarta.servlet.http.HttpSession;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +23,7 @@ public class MemberController {
     private final MemberService memberService;
     private final MailComponent mailComponent;
 
-    public MemberController(MemberService memberService, MailComponent mailComponent) {
+    public MemberController(MemberService memberService, MailComponent mailComponent, JavaMailSender javaMailSender) {
         this.memberService = memberService;
         this.mailComponent = mailComponent;
     }
@@ -39,7 +41,8 @@ public class MemberController {
             throw new IllegalMemberAccessException("비밀번호가 틀렸습니다.");
         }
 
-        session.setAttribute(HttpSessionUtils.MEMBER_SESSION_KEY, member);
+        // DTO를 세션에 저장
+        session.setAttribute(HttpSessionUtils.MEMBER_SESSION_KEY, Response.from(member));
         logger.debug("member : {}님이 로그인하셨습니다.", member.getMemberId());
 
         return ResponseEntity.ok("로그인이 완료되었습니다!");
@@ -50,9 +53,10 @@ public class MemberController {
      */
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
-        Member member = HttpSessionUtils.getSessionMember(session);
-        if (member != null) {
-            logger.debug("member : {}님이 로그아웃하셨습니다.", member.getMemberId());
+        // 세션에서 DTO 가져오기
+        Response memberDto = (Response) session.getAttribute(HttpSessionUtils.MEMBER_SESSION_KEY);
+        if (memberDto != null) {
+            logger.debug("member : {}님이 로그아웃하셨습니다.", memberDto.getMemberId());
             session.removeAttribute(HttpSessionUtils.MEMBER_SESSION_KEY);
             return ResponseEntity.ok("로그아웃이 완료되었습니다!");
         } else {
@@ -68,15 +72,14 @@ public class MemberController {
         memberService.create(member);
         logger.debug("member : {}님이 가입하셨습니다.", member.getMemberId());
 
-        //메일 전송
-
+        // 메일 전송
         String fromEmail = "seungh22@gmail.com";
         String fromName = "관리자";
         String toEmail = member.getEmail();
         String toName = member.getMemberId();
 
         String title = "[땅땅땅!] 회원가입을 축하드립니다.";
-        String contents = "땅땅땅! 중고 물품 거래 웹사이트 회원가입을 축하드립니다.";
+        String contents = "땅땅땅! 중고물품 거래 웹사이트 회원가입을 축하드립니다.";
 
         mailComponent.send(fromEmail, fromName, toEmail, toName, title, contents);
 
@@ -86,7 +89,6 @@ public class MemberController {
     /**
      * 회원탈퇴 기능
      */
-
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMember(@PathVariable Long id, HttpSession session) {
         Member member = memberService.findVerifiedMember(id, session);
@@ -102,9 +104,10 @@ public class MemberController {
      * 특정 회원의 프로필을 JSON 형태로 반환합니다.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Member> profile(@PathVariable Long id) {
+    public ResponseEntity<Response> profile(@PathVariable Long id) {
         Member member = memberService.findMember(id);
-        return ResponseEntity.ok(member);
+        // DTO로 변환하여 반환
+        return ResponseEntity.ok(Response.from(member));
     }
 
     /**
@@ -130,7 +133,9 @@ public class MemberController {
 
         memberService.update(member, member);
 
-        session.setAttribute(HttpSessionUtils.MEMBER_SESSION_KEY, member);
+        // DTO를 세션에 저장
+        session.setAttribute(HttpSessionUtils.MEMBER_SESSION_KEY, Response.from(member));
         return ResponseEntity.ok("회원 정보가 성공적으로 수정되었습니다!");
     }
 }
+

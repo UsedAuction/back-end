@@ -10,27 +10,18 @@ import java.util.Properties;
 
 @Configuration
 public class MailSenderConfig {
-
-    @Value("${spring.mail.host}")
-    private String host;
-
-    @Value("${spring.mail.port}")
-    private Integer port;
-
-    @Value("${spring.mail.username}")
-    private String adminMail;
-
-    @Value("${spring.mail.password}")
-    private String adminPassword;
-
     @Bean
     public JavaMailSender javaMailService() {
-        final JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost(host);
-        javaMailSender.setUsername(adminMail);
-        javaMailSender.setPassword(adminPassword);
-        javaMailSender.setPort(port);
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+
+        javaMailSender.setHost("smtp.gmail.com");
+        javaMailSender.setUsername("seungh2206@gmail.com");
+        javaMailSender.setPassword("znwl ziwl nxly ppmg");
+
+        javaMailSender.setPort(587);
+
         javaMailSender.setJavaMailProperties(getMailProperties());
+
         return javaMailSender;
     }
 
@@ -39,8 +30,10 @@ public class MailSenderConfig {
         properties.setProperty("mail.transport.protocol", "smtp");
         properties.setProperty("mail.smtp.auth", "true");
         properties.setProperty("mail.smtp.starttls.enable", "true");
+        properties.setProperty("mail.debug", "true");
+        properties.setProperty("mail.smtp.ssl.trust","smtp.naver.com");
         properties.setProperty("mail.smtp.ssl.enable","true");
         return properties;
     }
-
 }
+
