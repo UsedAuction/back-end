@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.DeliveryType;
-import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.service.AuctionService;
@@ -101,7 +101,7 @@ class AuctionControllerTest {
             .productStatus(3.5)
             .startPrice(1000)
             .productDescription("설명")
-            .transactionType(TransactionType.ALL)
+            .receiveType(ReceiveType.ALL)
             .productColor("color")
             .childCategory(childCategory)
             .parentCategory(parentCategory)
@@ -189,7 +189,7 @@ class AuctionControllerTest {
             .productStatus(3.5)
             .startPrice(3000)
             .productDescription("설명")
-            .transactionType(TransactionType.ALL)
+            .receiveType(ReceiveType.ALL)
             .productColor("color")
             .childCategoryId(2L)
             .parentCategoryId(1L)
@@ -236,7 +236,7 @@ class AuctionControllerTest {
             .productStatus(3.5)
             .startPrice(3000)
             .productDescription("설명")
-            .transactionType(TransactionType.ALL)
+            .receiveType(ReceiveType.ALL)
             .productColor("color")
             .childCategoryId(2L)
             .parentCategoryId(1L)
@@ -273,7 +273,7 @@ class AuctionControllerTest {
             .productStatus(3.5)
             .startPrice(3000)
             .productDescription("설명")
-            .transactionType(TransactionType.ALL)
+            .receiveType(ReceiveType.ALL)
             .productColor("color")
             .childCategoryId(2L)
             .parentCategoryId(1L)
@@ -313,7 +313,7 @@ class AuctionControllerTest {
             .productStatus(3.5)
             .startPrice(3000)
             .productDescription("설명")
-            .transactionType(TransactionType.ALL)
+            .receiveType(ReceiveType.ALL)
             .productColor("color")
             .childCategoryId(2L)
             .parentCategoryId(1L)
@@ -354,7 +354,7 @@ class AuctionControllerTest {
             .productStatus(3.5)
             .startPrice(3000)
             .productDescription("설명")
-            .transactionType(TransactionType.ALL)
+            .receiveType(ReceiveType.ALL)
             .productColor("color")
             .childCategoryId(2L)
             .parentCategoryId(1L)

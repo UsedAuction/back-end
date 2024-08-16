@@ -4,7 +4,7 @@ import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
-import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
@@ -130,7 +130,7 @@ public class AuctionService {
         }
 
         // 직거래가 가능한 경우이지만 직거래 장소가 없는 경우
-        if (!createDto.getTransactionType().equals(TransactionType.DELIVERY)
+        if (!createDto.getReceiveType().equals(ReceiveType.DELIVERY)
             && !StringUtils.hasText(createDto.getContactPlace())) {
             throw new IllegalArgumentException("거래 장소를 입력해주세요.");
         }
@@ -157,7 +157,7 @@ public class AuctionService {
             .productColor(createDto.getProductColor())
             .productStatus(createDto.getProductStatus())
             .productDescription(createDto.getProductDescription())
-            .transactionType(createDto.getTransactionType())
+            .receiveType(createDto.getReceiveType())
             .contactPlace(createDto.getContactPlace())
             .deliveryType(createDto.getDeliveryType())
             .deliveryPrice(createDto.getDeliveryPrice())
