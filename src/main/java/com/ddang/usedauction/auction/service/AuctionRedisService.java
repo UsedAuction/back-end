@@ -22,6 +22,6 @@ public class AuctionRedisService {
     public void createAutoConfirm(Long auctionId, String buyerId, long price, Long sellerId) {
 
         auctionRedisRepository.saveAuctionAutoConfirm(auctionId, buyerId,
-            AuctionConfirmDto.Request.of(price, sellerId));
+            AuctionConfirmDto.Request.from(price, sellerId));
     }
 }

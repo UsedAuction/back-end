@@ -5,11 +5,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum TransType {
+public enum BuyType {
 
-    SUCCESS("SUCCESS", "거래 완료"),
-    NONE("NONE", "구매자 없이 경매 종료"),
-    CONTINUE("CONTINUE", "거래 진행 중");
+    SUCCESSFUL_BID("SUCCESSFULBID", "낙찰"),
+    NO_BUY("NOBUY", "구매자 없음"),
+    INSTANT("INSTANT", "즉시 구매");
 
     private final String name;
     private final String description;

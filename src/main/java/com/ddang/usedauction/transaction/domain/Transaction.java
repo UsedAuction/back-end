@@ -37,9 +37,13 @@ public class Transaction extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private TransType transType; // 거래 타입
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private BuyType buyType; // 구매 타입
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
-    private Member member; // 회원
+    @JoinColumn(name = "member_id")
+    private Member buyer; // 구매자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id", nullable = false)

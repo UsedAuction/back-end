@@ -1,6 +1,5 @@
 package com.ddang.usedauction.payment.controller;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -91,7 +90,7 @@ class PaymentControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString("상품가격은 1 이상이어야 합니다.")));
+            .andExpect(content().json("[\"상품가격은 1 이상이어야 합니다.\"]"));
     }
 
     @Test
@@ -111,7 +110,7 @@ class PaymentControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString("상품가격은 1 이상이어야 합니다.")));
+            .andExpect(content().json("[\"상품가격은 1 이상이어야 합니다.\"]"));
     }
 
     @Test
@@ -137,7 +136,7 @@ class PaymentControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isRequestTimeout())
-            .andExpect(content().string(containsString("결제 준비 요청에 대한 응답이 없습니다.")));
+            .andExpect(content().string("결제 준비 요청에 대한 응답이 없습니다."));
     }
 
     @Test
@@ -206,7 +205,7 @@ class PaymentControllerTest {
                     .param("partner_order_id", partnerOrderId)
                     .param("pg_token", pgToken))
             .andExpect(status().isRequestTimeout())
-            .andExpect(content().string(containsString("결제 승인 요청에 대한 응답이 없습니다.")));
+            .andExpect(content().string("결제 승인 요청에 대한 응답이 없습니다."));
     }
 
     @Test
