@@ -96,7 +96,7 @@ class NotificationServiceAutoConfirmTest {
         auctionEventListener.handleAuctionAutoConfirmEvent(auctionAutoConfirmEvent);
 
         //then
-        verify(notificationService, times(1)).send(seller.getId(), "구매가 확정되었습니다.", CONFIRM);
+        verify(notificationService, times(1)).send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
     }
 
     @Test
@@ -112,7 +112,7 @@ class NotificationServiceAutoConfirmTest {
             () -> auctionEventListener.handleAuctionAutoConfirmEvent(auctionAutoConfirmEvent));
 
         //then
-        verify(notificationService, times(0)).send(seller.getId(), "구매가 확정되었습니다.", CONFIRM);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
     }
 
     @Test
@@ -128,7 +128,7 @@ class NotificationServiceAutoConfirmTest {
             () -> auctionEventListener.handleAuctionAutoConfirmEvent(auctionAutoConfirmEvent));
 
         //then
-        verify(notificationService, times(0)).send(seller.getId(), "구매가 확정되었습니다.", CONFIRM);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
     }
 
     @Test
@@ -144,6 +144,6 @@ class NotificationServiceAutoConfirmTest {
             () -> auctionEventListener.handleAuctionAutoConfirmEvent(auctionAutoConfirmEvent));
 
         //then
-        verify(notificationService, times(0)).send(seller.getId(), "구매가 확정되었습니다.", CONFIRM);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
     }
 }
