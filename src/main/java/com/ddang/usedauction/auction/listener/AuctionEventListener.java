@@ -51,13 +51,13 @@ public class AuctionEventListener { // 경매 이벤트 리스너
             auctionRedisService.createAutoConfirm(auctionId, buyer.getMemberId(), price, sellerId);
 
             // 구매자에게 경매 종료 알림보내기
-            notificationService.send(buyerId, "경매가 종료되었습니다.", DONE);
+            notificationService.send(buyerId, auctionId, "경매가 종료되었습니다.", DONE);
 
             // todo: 판매자 및 낙찰자 채팅방 생성
         }
 
         // 판매자에게 경매 종료 알림보내기
-        notificationService.send(sellerId, "경매가 종료되었습니다.", DONE);
+        notificationService.send(sellerId, auctionId, "경매가 종료되었습니다.", DONE);
     }
 
     @EventListener
@@ -70,6 +70,6 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         auctionService.confirmAuction(auctionId, buyerId, confirmDto);
 
         // 판매자에게 구매 확정 알림보내기
-        notificationService.send(confirmDto.getSellerId(), "구매가 확정되었습니다.", CONFIRM);
+        notificationService.send(confirmDto.getSellerId(), auctionId, "구매가 확정되었습니다.", CONFIRM);
     }
 }
