@@ -90,13 +90,16 @@ class NotificationServiceTest {
 
         given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
 
+        ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<SseEmitter> emitterCaptor = ArgumentCaptor.forClass(SseEmitter.class);
+
         //when
         SseEmitter resultEmitter = notificationService.subscribe(seller.getId(), lastEventId);
 
         //then
         assertNotNull(resultEmitter);
         assertEquals(sseEmitter, resultEmitter);
-        verify(emitterRepository).save(anyString(), any(SseEmitter.class));
+        verify(emitterRepository).save(emitterIdCaptor.capture(), emitterCaptor.capture());
     }
 
     @Test
@@ -104,7 +107,7 @@ class NotificationServiceTest {
     void subscribeFail_emitterRepositorySave() {
         //given
         given(emitterRepository.save(anyString(), any(SseEmitter.class)))
-            .willThrow(new RuntimeException("emitterRepository 저장 실패"));
+            .willThrow(new RuntimeException());
 
         //when
         //then
@@ -118,7 +121,7 @@ class NotificationServiceTest {
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
         given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
-        doThrow(new IOException("전송 실패")).when(sseEmitter).send(any(SseEmitter.SseEventBuilder.class));
+        doThrow(new IOException()).when(sseEmitter).send(any(SseEmitter.SseEventBuilder.class));
 
         ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -140,9 +143,10 @@ class NotificationServiceTest {
             .willThrow(new RuntimeException("findAllEventCacheStartWithMemberId 실패"));
 
         //when
-        //then
         RuntimeException e = assertThrows(RuntimeException.class,
             () -> notificationService.subscribe(seller.getId(), lastEventId));
+
+        //then
         assertEquals("findAllEventCacheStartWithMemberId 실패", e.getMessage());
     }
 
