@@ -68,8 +68,5 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         Request confirmDto = auctionAutoConfirmEvent.getConfirmDto();
 
         auctionService.confirmAuction(auctionId, buyerId, confirmDto);
-
-        // 판매자에게 구매 확정 알림보내기
-        notificationService.send(confirmDto.getSellerId(), "구매가 확정되었습니다.", CONFIRM);
     }
 }
