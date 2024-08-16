@@ -10,15 +10,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.domain.Notification;
 import com.ddang.usedauction.notification.domain.NotificationType;
-import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
@@ -95,8 +91,8 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("알림 구독 - 실패 (sendNotification 예외 발생)")
-    void subscribeFail_sendNotification() throws IOException {
+    @DisplayName("알림 구독 - 실패 (sendNotification 에서 전송 실패)")
+    void subscribeFail_sendNotification() throws Exception {
         //given
         Member member = Member.builder()
             .id(1L)
@@ -110,12 +106,9 @@ class NotificationServiceTest {
         ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
 
         // when
-        NotificationBadRequestException e = assertThrows(NotificationBadRequestException.class, () -> {
-            notificationService.subscribe(member.getId(), lastEventId);
-        });
+        notificationService.subscribe(member.getId(), lastEventId);
 
         // then
-        assertEquals("전송 실패", e.getMessage());
         verify(emitterRepository, times(1)).deleteById(emitterIdCaptor.capture());
     }
 
@@ -264,7 +257,7 @@ class NotificationServiceTest {
     }
 
     @Test
-    @DisplayName("알림 전송 - 실패 (sendNotification 예외 발생)")
+    @DisplayName("알림 전송 - 실패 (sendNotification 에서 전송 실패)")
     void sendFail_sendNotification() throws IOException {
         //given
         Member member = Member.builder()
@@ -291,12 +284,9 @@ class NotificationServiceTest {
         ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
 
         //when
-        NotificationBadRequestException e = assertThrows(NotificationBadRequestException.class, () -> {
-            notificationService.send(member.getId(), content, notificationType);
-        });
+        notificationService.send(member.getId(), content, notificationType);
 
         // then
-        assertEquals("전송 실패", e.getMessage());
         verify(emitterRepository, times(1)).deleteById(emitterIdCaptor.capture());
         verify(notificationRepository, times(1)).save(any(Notification.class));
         verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
