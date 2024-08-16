@@ -5,7 +5,6 @@ import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.domain.Notification;
 import com.ddang.usedauction.notification.domain.NotificationType;
 import com.ddang.usedauction.notification.dto.NotificationDto;
-import com.ddang.usedauction.notification.exception.NotificationBadRequestException;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
@@ -107,8 +106,8 @@ public class NotificationService {
                 .data(data)
             );
         } catch (IOException e) {
+            log.error("전송 실패 - emitterId: {}, error: {}", emitterId, e.getMessage());
             emitterRepository.deleteById(emitterId);
-            throw new NotificationBadRequestException("전송 실패");
         }
     }
 
