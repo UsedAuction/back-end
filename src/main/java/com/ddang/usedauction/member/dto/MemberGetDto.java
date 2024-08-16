@@ -27,6 +27,35 @@ public class MemberGetDto {
     private String socialProviderId;
     private LocalDateTime createdAt;
 
+
+    public String getMemberId() {
+      return memberId;
+    }
+
+    public String getPassWord() {
+      return passWord;
+    }
+
+
+    public String getEmail() {
+      return email;
+    }
+
+    public void setMemberId(String memberId) {
+      this.memberId = memberId;
+    }
+
+    public void setPassWord(String passWord) {
+      this.passWord = passWord;
+    }
+
+    public void setEmail(String email) {
+      this.email = email;
+    }
+    public boolean isValidPassWord(String password) {
+      return this.passWord.equals(password);
+    }
+
     // entity -> getResponse
     public static MemberGetDto.Response from(Member member) {
 
@@ -42,5 +71,6 @@ public class MemberGetDto {
           .createdAt(member.getCreatedAt())
           .build();
     }
+
   }
 }

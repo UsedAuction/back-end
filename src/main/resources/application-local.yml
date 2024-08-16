@@ -91,8 +91,8 @@ payment:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: seungh2206@gmail.com
-    password: znwl ziwl nxly ppmg
+    username: ${mail.username}
+    password: ${mail.password}
     properties:
       mail:
         smtp:
