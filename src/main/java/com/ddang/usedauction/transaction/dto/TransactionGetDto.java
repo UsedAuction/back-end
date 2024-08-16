@@ -1,5 +1,6 @@
 package com.ddang.usedauction.transaction.dto;
 
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
@@ -36,6 +37,7 @@ public class TransactionGetDto {
         private Long salePrice; // 판매된 가격
         private TransType transType; // 거래 종료 또는 거래 진행 중
         private BuyType buyType; // 구매 방식 (낙찰 또는 즉시 구매)
+        private ReceiveType receiveType; // 수령 방식
 
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime saleDate; // 판매한 날짜
@@ -63,6 +65,7 @@ public class TransactionGetDto {
                     transaction.getBuyer() != null ? transaction.getBuyer().getMemberId() : null)
                 .transType(transaction.getTransType())
                 .buyType(transaction.getBuyType())
+                .receiveType(transaction.getAuction().getReceiveType())
                 .build();
         }
     }
