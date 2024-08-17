@@ -355,8 +355,8 @@ public class AuctionService {
             auction.getSeller()
                 .getId()); // 일주일 후 자동 구매 확정 되도록 설정
       
-        notificationService.send(auction.getSeller().getId(), "경매가 종료되었습니다.", DONE);
-        notificationService.send(buyer.getId(), "경매가 종료되었습니다.", DONE);
+        notificationService.send(auction.getSeller().getId(), auctionId, "경매가 종료되었습니다.", DONE);
+        notificationService.send(buyer.getId(), auctionId, "경매가 종료되었습니다.", DONE);
 
         // todo: 판매자 및 낙찰자 채팅방 생성
 

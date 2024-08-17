@@ -103,8 +103,8 @@ class NotificationServiceEndAuctionTest {
         auctionEventListener.handleAuctionEndEvent(auctionEndEvent);
 
         //then
-        verify(notificationService, times(1)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(1)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(1)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(1)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -118,8 +118,8 @@ class NotificationServiceEndAuctionTest {
         assertThrows(NoSuchElementException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -133,8 +133,8 @@ class NotificationServiceEndAuctionTest {
         assertThrows(IllegalStateException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -154,8 +154,8 @@ class NotificationServiceEndAuctionTest {
         assertThrows(NoSuchElementException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -174,8 +174,8 @@ class NotificationServiceEndAuctionTest {
         auctionEventListener.handleAuctionEndEvent(auctionEndEvent);
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(1)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(1)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -189,8 +189,8 @@ class NotificationServiceEndAuctionTest {
         assertThrows(NoSuchElementException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -204,7 +204,7 @@ class NotificationServiceEndAuctionTest {
         assertThrows(IllegalStateException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 }
