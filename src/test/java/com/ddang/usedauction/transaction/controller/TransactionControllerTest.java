@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
@@ -37,8 +38,6 @@ class TransactionControllerTest {
     @MockBean
     private TransactionService transactionService;
 
-    private Auction auction1;
-    private Auction auction2;
     private List<Transaction> transactionList;
 
     @BeforeEach
@@ -55,7 +54,7 @@ class TransactionControllerTest {
             .email("seller@naver.com")
             .build();
 
-        auction1 = Auction.builder()
+        Auction auction1 = Auction.builder()
             .id(1L)
             .imageList(imageList)
             .productName("name1")
@@ -64,9 +63,10 @@ class TransactionControllerTest {
             .startPrice(1000)
             .instantPrice(4000)
             .seller(seller)
+            .receiveType(ReceiveType.ALL)
             .build();
 
-        auction2 = Auction.builder()
+        Auction auction2 = Auction.builder()
             .id(2L)
             .imageList(imageList)
             .productName("name2")
@@ -75,6 +75,7 @@ class TransactionControllerTest {
             .startPrice(1000)
             .instantPrice(5000)
             .seller(seller)
+            .receiveType(ReceiveType.CONTACT)
             .build();
 
         Member buyer = Member.builder()
@@ -115,7 +116,8 @@ class TransactionControllerTest {
         mockMvc.perform(get("/api/transactions/sales?word=name&transTypeString=end"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0].sellerEmail").value("seller@naver.com"));
+            .andExpect(jsonPath("$.content[0].sellerEmail").value("seller@naver.com"))
+            .andExpect(jsonPath("$.content[0].receiveType").value("ALL"));
     }
 
     @Test
@@ -143,7 +145,8 @@ class TransactionControllerTest {
         mockMvc.perform(get("/api/transactions/purchases?word=name&transTypeString=end"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0].buyerId").value("buyer"));
+            .andExpect(jsonPath("$.content[0].buyerId").value("buyer"))
+            .andExpect(jsonPath("$.content[0].receiveType").value("ALL"));
     }
 
     @Test

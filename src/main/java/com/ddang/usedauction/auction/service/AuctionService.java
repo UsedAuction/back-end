@@ -1,10 +1,12 @@
 package com.ddang.usedauction.auction.service;
 
+import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
+
 import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
-import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
@@ -19,6 +21,7 @@ import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.service.NotificationService;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.point.type.PointType;
@@ -53,6 +56,7 @@ public class AuctionService {
     private final PointRepository pointRepository;
     private final ImageService imageService;
     private final AuctionRedisService auctionRedisService;
+    private final NotificationService notificationService;
 
     /**
      * 경매글 단건 조회
@@ -130,7 +134,7 @@ public class AuctionService {
         }
 
         // 직거래가 가능한 경우이지만 직거래 장소가 없는 경우
-        if (!createDto.getTransactionType().equals(TransactionType.DELIVERY)
+        if (!createDto.getReceiveType().equals(ReceiveType.DELIVERY)
             && !StringUtils.hasText(createDto.getContactPlace())) {
             throw new IllegalArgumentException("거래 장소를 입력해주세요.");
         }
@@ -157,7 +161,7 @@ public class AuctionService {
             .productColor(createDto.getProductColor())
             .productStatus(createDto.getProductStatus())
             .productDescription(createDto.getProductDescription())
-            .transactionType(createDto.getTransactionType())
+            .receiveType(createDto.getReceiveType())
             .contactPlace(createDto.getContactPlace())
             .deliveryType(createDto.getDeliveryType())
             .deliveryPrice(createDto.getDeliveryPrice())
@@ -346,8 +350,12 @@ public class AuctionService {
         auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
             auction.getSeller()
                 .getId()); // 일주일 후 자동 구매 확정 되도록 설정
+      
+        notificationService.send(auction.getSeller().getId(), "경매가 종료되었습니다.", DONE);
+        notificationService.send(buyer.getId(), "경매가 종료되었습니다.", DONE);
 
-        // todo: 경매 종료 알림(판매자 및 낙찰자) 및 채팅방 생성
+        // todo: 판매자 및 낙찰자 채팅방 생성
+
     }
 
     // 이미지 연관관계 경매와 함께 저장하기 위한 메소드

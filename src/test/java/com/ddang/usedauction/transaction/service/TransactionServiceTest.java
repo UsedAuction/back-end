@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
@@ -40,6 +41,7 @@ class TransactionServiceTest {
         Auction auction1 = Auction.builder()
             .seller(seller)
             .productName("name1")
+            .receiveType(ReceiveType.ALL)
             .build();
 
         Auction auction2 = Auction.builder()
@@ -76,6 +78,7 @@ class TransactionServiceTest {
         assertEquals(2000, resultList.getContent().get(0).getPrice());
         assertEquals("seller",
             resultList.getContent().get(0).getAuction().getSeller().getMemberId());
+        assertEquals(ReceiveType.ALL, resultList.getContent().get(0).getAuction().getReceiveType());
     }
 
     @Test

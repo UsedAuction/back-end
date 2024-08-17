@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum TransactionType {
+public enum ReceiveType {
 
     CONTACT("CONTACT", "대면 거래"),
     DELIVERY("DELIVERY", "택배"),
@@ -18,9 +18,9 @@ public enum TransactionType {
 
     // Enum 검증을 위한 코드, Enum에 속하지 않으면 null 리턴
     @JsonCreator
-    private static TransactionType fromTransactionType(String value) {
+    private static ReceiveType fromTransactionType(String value) {
 
-        return Arrays.stream(TransactionType.values())
+        return Arrays.stream(ReceiveType.values())
             .filter(r -> r.getName().equals(value.toUpperCase()))
             .findAny()
             .orElse(null);

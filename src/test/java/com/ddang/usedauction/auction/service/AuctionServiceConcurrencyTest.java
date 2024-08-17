@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
-import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
@@ -76,7 +76,7 @@ public class AuctionServiceConcurrencyTest {
         Auction auction = Auction.builder()
             .title("title")
             .contactPlace("place")
-            .transactionType(TransactionType.CONTACT)
+            .receiveType(ReceiveType.CONTACT)
             .productStatus(3.5)
             .startPrice(1000)
             .productName("name")
