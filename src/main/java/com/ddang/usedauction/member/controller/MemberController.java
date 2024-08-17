@@ -1,7 +1,6 @@
 package com.ddang.usedauction.member.controller;
 
 import com.ddang.usedauction.member.dto.MemberGetDto.Response;
-import com.ddang.usedauction.member.exception.IllegalMemberAccessException;
 import com.ddang.usedauction.member.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import org.slf4j.Logger;
