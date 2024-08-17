@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
-import java.util.List;
 
 @Service
 public class MemberService {
