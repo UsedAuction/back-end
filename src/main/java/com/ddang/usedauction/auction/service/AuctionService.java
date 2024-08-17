@@ -1,5 +1,6 @@
 package com.ddang.usedauction.auction.service;
 
+import static com.ddang.usedauction.notification.domain.NotificationType.CONFIRM;
 import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
 
 import com.ddang.usedauction.aop.RedissonLock;
@@ -303,6 +304,9 @@ public class AuctionService {
             .transType(TransType.SUCCESS)
             .build();
         transactionRepository.save(buyerTransaction);
+
+        // 판매자에게 구매 확정 알림보내기
+        notificationService.send(confirmDto.getSellerId(), auctionId, "구매가 확정되었습니다.", CONFIRM);
     }
 
     /**
