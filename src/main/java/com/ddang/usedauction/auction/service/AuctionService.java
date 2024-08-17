@@ -231,6 +231,21 @@ public class AuctionService {
             .build();
         auctionRepository.save(auction);
 
+        reducePointAndSaveTransaction(buyer, auction); // 구매자 포인트 감소 처리 및 거래 내역 저장
+
+        auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
+            auction.getSeller()
+                .getId()); // 일주일 후 자동 구매 확정 되도록 설정
+
+        notificationService.send(auction.getSeller().getId(), auctionId, "경매가 종료되었습니다.", DONE);
+        notificationService.send(buyer.getId(), auctionId, "경매가 종료되었습니다.", DONE);
+
+        // todo: 판매자 및 낙찰자 채팅방 생성
+
+    }
+
+    // 구매자 포인트 감소 처리 및 구매 내역 저장 메소드
+    private void reducePointAndSaveTransaction(Member buyer, Auction auction) {
         buyer = buyer.toBuilder()
             .point(buyer.getPoint() - auction.getInstantPrice()) // 즉시 구매 가격만큼 포인트 차감
             .build();
@@ -244,16 +259,6 @@ public class AuctionService {
             .auction(auction)
             .build();
         transactionRepository.save(transaction);
-
-        auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
-            auction.getSeller()
-                .getId()); // 일주일 후 자동 구매 확정 되도록 설정
-      
-        notificationService.send(auction.getSeller().getId(), auctionId, "경매가 종료되었습니다.", DONE);
-        notificationService.send(buyer.getId(), auctionId, "경매가 종료되었습니다.", DONE);
-
-        // todo: 판매자 및 낙찰자 채팅방 생성
-
     }
 
     // 이미지 연관관계 경매와 함께 저장하기 위한 메소드
