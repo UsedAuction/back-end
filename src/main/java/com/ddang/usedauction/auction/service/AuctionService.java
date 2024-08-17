@@ -126,25 +126,7 @@ public class AuctionService {
         Category childCategory = categoryRepository.findById(createDto.getChildCategoryId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 카테고리입니다."));
 
-        Auction auction = Auction.builder()
-            .title(createDto.getTitle())
-            .auctionState(AuctionState.CONTINUE)
-            .productName(createDto.getProductName())
-            .productColor(createDto.getProductColor())
-            .productStatus(createDto.getProductStatus())
-            .productDescription(createDto.getProductDescription())
-            .receiveType(createDto.getReceiveType())
-            .contactPlace(createDto.getContactPlace())
-            .deliveryType(createDto.getDeliveryType())
-            .deliveryPrice(createDto.getDeliveryPrice())
-            .currentPrice(createDto.getStartPrice())
-            .startPrice(createDto.getStartPrice())
-            .instantPrice(createDto.getInstantPrice())
-            .endedAt(createDto.getEndedAt())
-            .seller(member)
-            .parentCategory(parentCategory)
-            .childCategory(childCategory)
-            .build();
+        Auction auction = buildAuction(createDto, member, parentCategory, childCategory);
 
         List<Image> images = new ArrayList<>();
         Image thumnailImage = imageService.uploadThumbnail(thumbnail);
@@ -342,6 +324,31 @@ public class AuctionService {
                 .build()
             ).forEach(auction::addImageList);
     }
+
+    // 경매 엔티티 빌드
+    private Auction buildAuction(Request createDto, Member member, Category parentCategory,
+        Category childCategory) {
+        return Auction.builder()
+            .title(createDto.getTitle())
+            .auctionState(AuctionState.CONTINUE)
+            .productName(createDto.getProductName())
+            .productColor(createDto.getProductColor())
+            .productStatus(createDto.getProductStatus())
+            .productDescription(createDto.getProductDescription())
+            .receiveType(createDto.getReceiveType())
+            .contactPlace(createDto.getContactPlace())
+            .deliveryType(createDto.getDeliveryType())
+            .deliveryPrice(createDto.getDeliveryPrice())
+            .currentPrice(createDto.getStartPrice())
+            .startPrice(createDto.getStartPrice())
+            .instantPrice(createDto.getInstantPrice())
+            .endedAt(createDto.getEndedAt())
+            .seller(member)
+            .parentCategory(parentCategory)
+            .childCategory(childCategory)
+            .build();
+    }
+
     // 생성 시 체그해야할 사항 validation
     private void createValidation(List<MultipartFile> imageList, Request createDto) {
 
