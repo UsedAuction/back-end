@@ -196,30 +196,8 @@ public class AuctionService {
             .build();
         memberRepository.save(seller);
 
-        PointHistory buyerPointHistory = PointHistory.builder()
-            .curPointAmount(buyer.getPoint())
-            .pointType(PointType.USE)
-            .pointAmount(confirmDto.getPrice())
-            .member(buyer)
-            .build();
-        pointRepository.save(buyerPointHistory); // 구매자 포인트 히스토리 저장
-
-        PointHistory sellerPointHistory = PointHistory.builder()
-            .curPointAmount(seller.getPoint())
-            .pointType(PointType.GET)
-            .pointAmount(confirmDto.getPrice())
-            .member(seller)
-            .build();
-        pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
-
-        Transaction buyerTransaction = transactionRepository.findByBuyerId(buyer.getId(),
-                auction.getId())
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역 입니다."));
-
-        buyerTransaction = buyerTransaction.toBuilder()
-            .transType(TransType.SUCCESS)
-            .build();
-        transactionRepository.save(buyerTransaction);
+        // 포인트 히스토리와 거래 내역 저장
+        savePointAndTransaction(confirmDto, buyer, seller, auction);
 
         // 판매자에게 구매 확정 알림보내기
         notificationService.send(confirmDto.getSellerId(), auctionId, "구매가 확정되었습니다.", CONFIRM);
@@ -385,4 +363,34 @@ public class AuctionService {
         return bid;
     }
 
+    // 포인트 히스토리와 거래 내역 저장 메소드
+    private void savePointAndTransaction(AuctionConfirmDto.Request confirmDto, Member buyer,
+        Member seller,
+        Auction auction) {
+
+        PointHistory buyerPointHistory = PointHistory.builder()
+            .curPointAmount(buyer.getPoint())
+            .pointType(PointType.USE)
+            .pointAmount(confirmDto.getPrice())
+            .member(buyer)
+            .build();
+        pointRepository.save(buyerPointHistory); // 구매자 포인트 히스토리 저장
+
+        PointHistory sellerPointHistory = PointHistory.builder()
+            .curPointAmount(seller.getPoint())
+            .pointType(PointType.GET)
+            .pointAmount(confirmDto.getPrice())
+            .member(seller)
+            .build();
+        pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
+
+        Transaction buyerTransaction = transactionRepository.findByBuyerId(buyer.getId(),
+                auction.getId())
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역 입니다."));
+
+        buyerTransaction = buyerTransaction.toBuilder()
+            .transType(TransType.SUCCESS)
+            .build();
+        transactionRepository.save(buyerTransaction);
+    }
 }
