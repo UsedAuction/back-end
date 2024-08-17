@@ -1,6 +1,6 @@
 package com.ddang.usedauction.member.controller;
 
-import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.dto.MemberGetDto.Response;
 import jakarta.servlet.http.HttpSession;
 
 public class HttpSessionUtils {
@@ -13,8 +13,7 @@ public class HttpSessionUtils {
         return getSessionMember(session) != null;
     }
 
-    public static Member getSessionMember(HttpSession session) {
-        return (Member) session.getAttribute(MEMBER_SESSION_KEY);
+    public static Response getSessionMember(HttpSession session) {
+        return (Response) session.getAttribute(MEMBER_SESSION_KEY);
     }
 }
-

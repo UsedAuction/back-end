@@ -44,6 +44,18 @@ spring:
   cache:
     type: redis
 
+  # 메일설정
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${mail.username}
+    password: ${mail.password}
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+
 redisson:
   host: localhost
   port: 6379
@@ -87,15 +99,4 @@ payment:
   ready: https://open-api.kakaopay.com/online/v1/payment/ready
   approve: https://open-api.kakaopay.com/online/v1/payment/approve
 
-# 메일 설정
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: seungh2206@gmail.com
-    password: znwl ziwl nxly ppmg
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+

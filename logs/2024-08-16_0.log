@@ -1,0 +1,655 @@
+[34m2024.08.16 21:47:02.885[0;39m [32m INFO[0;39m [2m- [nd-preinit][0;39m [36mo.h.validator.internal.util.Version     [0;39m [2m: HV000001: Hibernate Validator 8.0.1.Final[0;39m 
+[34m2024.08.16 21:47:02.994[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Starting UsedauctionApplication using Java 17.0.12 with PID 11576 (C:\Users\user\Desktop\SEUNG\build\classes\java\main started by user in C:\Users\user\Desktop\SEUNG)[0;39m 
+[34m2024.08.16 21:47:02.998[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: The following 1 profile is active: "local"[0;39m 
+[34m2024.08.16 21:47:04.481[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:47:04.482[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:47:04.525[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 8 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 21:47:05.093[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:47:05.094[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data JPA repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:47:05.695[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 599 ms. Found 9 JPA repository interfaces.[0;39m 
+[34m2024.08.16 21:47:05.706[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:47:05.707[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:47:05.788[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.auction.repository.AuctionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.791[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.category.repository.CategoryRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.792[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatMessageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.793[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatRoomRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.794[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.image.repository.ImageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.794[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.member.repository.MemberRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.795[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.order.repository.OrderRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.795[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.point.repository.PointRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.795[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.transaction.repository.TransactionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:47:05.795[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 88 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 21:47:07.633[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat initialized with port 8080 (http)[0;39m 
+[34m2024.08.16 21:47:07.645[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Initializing ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 21:47:07.646[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Starting service [Tomcat][0;39m 
+[34m2024.08.16 21:47:07.646[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardEngine   [0;39m [2m: Starting Servlet engine: [Apache Tomcat/10.1.26][0;39m 
+[34m2024.08.16 21:47:07.840[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m: Initializing Spring embedded WebApplicationContext[0;39m 
+[34m2024.08.16 21:47:07.841[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mw.s.c.ServletWebServerApplicationContext[0;39m [2m: Root WebApplicationContext: initialization completed in 4766 ms[0;39m 
+[34m2024.08.16 21:47:08.330[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Starting...[0;39m 
+[34m2024.08.16 21:47:08.731[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m: HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:test user=${DB_USER_NAME}[0;39m 
+[34m2024.08.16 21:47:08.733[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Start completed.[0;39m 
+[34m2024.08.16 21:47:08.741[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.h2.H2ConsoleAutoConfiguration   [0;39m [2m: H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:test'[0;39m 
+[34m2024.08.16 21:47:09.064[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m: HHH000204: Processing PersistenceUnitInfo [name: default][0;39m 
+[34m2024.08.16 21:47:09.225[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.hibernate.Version                   [0;39m [2m: HHH000412: Hibernate ORM core version 6.5.2.Final[0;39m 
+[34m2024.08.16 21:47:09.292[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m: HHH000026: Second-level cache disabled[0;39m 
+[34m2024.08.16 21:47:09.836[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m: No LoadTimeWeaver setup: ignoring JPA class transformer[0;39m 
+[34m2024.08.16 21:47:09.940[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36morg.hibernate.orm.deprecation           [0;39m [2m: HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)[0;39m 
+[34m2024.08.16 21:47:10.779[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.redisson.Version                    [0;39m [2m: Redisson 3.27.0[0;39m 
+[34m2024.08.16 21:47:15.840[0;39m [31mERROR[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Failed to initialize JPA EntityManagerFactory: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'com.ddang.usedauction.auction.listener.AuctionEntityListener': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionRedisService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 21:47:15.840[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36mConfigServletWebServerApplicationContext[0;39m [2m: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'com.ddang.usedauction.auction.listener.AuctionEntityListener': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionRedisService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 21:47:15.841[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown initiated...[0;39m 
+[34m2024.08.16 21:47:15.907[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown completed.[0;39m 
+[34m2024.08.16 21:47:15.911[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Stopping service [Tomcat][0;39m 
+[34m2024.08.16 21:47:15.937[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.b.a.l.ConditionEvaluationReportLogger[0;39m [2m: 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.[0;39m 
+[34m2024.08.16 21:47:15.961[0;39m [31mERROR[0;39m [2m- [      main][0;39m [36mo.s.boot.SpringApplication              [0;39m [2m: Application run failed[0;39m 
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'com.ddang.usedauction.auction.listener.AuctionEntityListener': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionRedisService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1806)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:205)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:954)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.ddang.usedauction.UsedauctionApplication.main(UsedauctionApplication.java:14)
+Caused by: jakarta.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'com.ddang.usedauction.auction.listener.AuctionEntityListener': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionRedisService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:421)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1853)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1802)
+	... 15 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'com.ddang.usedauction.auction.listener.AuctionEntityListener': Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionRedisService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:321)
+	at org.springframework.orm.hibernate5.SpringBeanContainer.createBean(SpringBeanContainer.java:148)
+	at org.springframework.orm.hibernate5.SpringBeanContainer.getBean(SpringBeanContainer.java:106)
+	at org.hibernate.resource.beans.internal.ManagedBeanRegistryImpl.getBean(ManagedBeanRegistryImpl.java:67)
+	at org.hibernate.resource.beans.internal.ManagedBeanRegistryImpl.getBean(ManagedBeanRegistryImpl.java:51)
+	at org.hibernate.jpa.event.internal.ListenerCallback$Definition.createCallback(ListenerCallback.java:39)
+	at org.hibernate.jpa.event.internal.CallbacksFactory.buildCallbacks(CallbacksFactory.java:84)
+	at org.hibernate.jpa.event.internal.CallbacksFactory.buildCallbackRegistry(CallbacksFactory.java:66)
+	at org.hibernate.event.spi.EventEngine.<init>(EventEngine.java:44)
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:226)
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:457)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1506)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:75)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:409)
+	... 19 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionRedisService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionRedisService.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 39 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionRedisRepository' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\repository\AuctionRedisRepository.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 53 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'redissonClient' defined in class path resource [com/ddang/usedauction/config/RedissonConfig.class]: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:648)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:485)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1355)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1185)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 67 common frames omitted
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.redisson.api.RedissonClient]: Factory method 'redissonClient' threw exception with message: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:178)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:644)
+	... 81 common frames omitted
+Caused by: org.redisson.client.RedisConnectionException: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.redisson.connection.MasterSlaveConnectionManager.doConnect(MasterSlaveConnectionManager.java:232)
+	at org.redisson.connection.MasterSlaveConnectionManager.connect(MasterSlaveConnectionManager.java:196)
+	at org.redisson.config.ConfigSupport.createConnectionManager(ConfigSupport.java:220)
+	at org.redisson.Redisson.<init>(Redisson.java:71)
+	at org.redisson.Redisson.create(Redisson.java:116)
+	at com.ddang.usedauction.config.RedissonConfig.redissonClient(RedissonConfig.java:30)
+	at com.ddang.usedauction.config.RedissonConfig$$SpringCGLIB$$0.CGLIB$redissonClient$0(<generated>)
+	at com.ddang.usedauction.config.RedissonConfig$$SpringCGLIB$$FastClass$$1.invoke(<generated>)
+	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:258)
+	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:348)
+	at com.ddang.usedauction.config.RedissonConfig$$SpringCGLIB$$0.redissonClient(<generated>)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:146)
+	... 82 common frames omitted
+Caused by: java.util.concurrent.ExecutionException: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:396)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at org.redisson.connection.MasterSlaveConnectionManager.doConnect(MasterSlaveConnectionManager.java:228)
+	... 97 common frames omitted
+Caused by: org.redisson.client.RedisConnectionException: Unable to connect to Redis server: localhost/127.0.0.1:6379
+	at org.redisson.connection.ConnectionsHolder.lambda$createConnection$1(ConnectionsHolder.java:183)
+	at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:863)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:841)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2162)
+	at org.redisson.connection.ConnectionsHolder.promiseFailure(ConnectionsHolder.java:218)
+	at org.redisson.connection.ConnectionsHolder.lambda$createConnection$4(ConnectionsHolder.java:204)
+	at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:863)
+	at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:841)
+	at java.base/java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510)
+	at java.base/java.util.concurrent.CompletableFuture.completeExceptionally(CompletableFuture.java:2162)
+	at org.redisson.client.RedisClient$1$2.run(RedisClient.java:308)
+	at io.netty.util.concurrent.AbstractEventExecutor.runTask(AbstractEventExecutor.java:173)
+	at io.netty.util.concurrent.AbstractEventExecutor.safeExecute(AbstractEventExecutor.java:166)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:469)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:569)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:994)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+Caused by: java.util.concurrent.CompletionException: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: no further information: localhost/127.0.0.1:6379
+	at java.base/java.util.concurrent.CompletableFuture.encodeRelay(CompletableFuture.java:368)
+	at java.base/java.util.concurrent.CompletableFuture.completeRelay(CompletableFuture.java:377)
+	at java.base/java.util.concurrent.CompletableFuture$UniRelay.tryFire(CompletableFuture.java:1097)
+	... 11 common frames omitted
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: no further information: localhost/127.0.0.1:6379
+Caused by: java.net.ConnectException: Connection refused: no further information
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:672)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:946)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:336)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:339)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:994)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:842)
+[34m2024.08.16 21:48:17.993[0;39m [32m INFO[0;39m [2m- [nd-preinit][0;39m [36mo.h.validator.internal.util.Version     [0;39m [2m: HV000001: Hibernate Validator 8.0.1.Final[0;39m 
+[34m2024.08.16 21:48:18.098[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Starting UsedauctionApplication using Java 17.0.12 with PID 21076 (C:\Users\user\Desktop\SEUNG\build\classes\java\main started by user in C:\Users\user\Desktop\SEUNG)[0;39m 
+[34m2024.08.16 21:48:18.102[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: The following 1 profile is active: "local"[0;39m 
+[34m2024.08.16 21:48:19.913[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:48:19.914[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:48:19.947[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 7 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 21:48:20.816[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:48:20.817[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data JPA repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:48:21.652[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 832 ms. Found 9 JPA repository interfaces.[0;39m 
+[34m2024.08.16 21:48:21.742[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:48:21.742[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:48:21.833[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.auction.repository.AuctionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.834[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.category.repository.CategoryRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.834[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatMessageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.834[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatRoomRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.834[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.image.repository.ImageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.835[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.member.repository.MemberRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.835[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.order.repository.OrderRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.835[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.point.repository.PointRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.835[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.transaction.repository.TransactionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:48:21.835[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 94 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 21:48:24.158[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat initialized with port 8080 (http)[0;39m 
+[34m2024.08.16 21:48:24.180[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Initializing ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 21:48:24.182[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Starting service [Tomcat][0;39m 
+[34m2024.08.16 21:48:24.182[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardEngine   [0;39m [2m: Starting Servlet engine: [Apache Tomcat/10.1.26][0;39m 
+[34m2024.08.16 21:48:24.358[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m: Initializing Spring embedded WebApplicationContext[0;39m 
+[34m2024.08.16 21:48:24.358[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mw.s.c.ServletWebServerApplicationContext[0;39m [2m: Root WebApplicationContext: initialization completed in 6170 ms[0;39m 
+[34m2024.08.16 21:48:24.813[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Starting...[0;39m 
+[34m2024.08.16 21:48:25.255[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m: HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:test user=${DB_USER_NAME}[0;39m 
+[34m2024.08.16 21:48:25.257[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Start completed.[0;39m 
+[34m2024.08.16 21:48:25.269[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.h2.H2ConsoleAutoConfiguration   [0;39m [2m: H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:test'[0;39m 
+[34m2024.08.16 21:48:25.495[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m: HHH000204: Processing PersistenceUnitInfo [name: default][0;39m 
+[34m2024.08.16 21:48:25.619[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.hibernate.Version                   [0;39m [2m: HHH000412: Hibernate ORM core version 6.5.2.Final[0;39m 
+[34m2024.08.16 21:48:25.694[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m: HHH000026: Second-level cache disabled[0;39m 
+[34m2024.08.16 21:48:26.152[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m: No LoadTimeWeaver setup: ignoring JPA class transformer[0;39m 
+[34m2024.08.16 21:48:26.245[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36morg.hibernate.orm.deprecation           [0;39m [2m: HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)[0;39m 
+[34m2024.08.16 21:48:27.330[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.redisson.Version                    [0;39m [2m: Redisson 3.27.0[0;39m 
+[34m2024.08.16 21:48:27.983[0;39m [32m INFO[0;39m [2m- [-netty-1-5][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 1 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 21:48:28.059[0;39m [32m INFO[0;39m [2m- [netty-1-20][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 24 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 21:48:29.696[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m: HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)[0;39m 
+[34m2024.08.16 21:48:29.889[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Initialized JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 21:48:31.288[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.d.j.r.query.QueryEnhancerFactory    [0;39m [2m: Hibernate is in classpath; If applicable, HQL parser will be used.[0;39m 
+[34m2024.08.16 21:48:32.007[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36mConfigServletWebServerApplicationContext[0;39m [2m: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionController' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\controller\AuctionController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionService.class]: Unsatisfied dependency expressed through constructor parameter 5: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed[0;39m 
+[34m2024.08.16 21:48:32.008[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Closing JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 21:48:32.061[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown initiated...[0;39m 
+[34m2024.08.16 21:48:32.069[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown completed.[0;39m 
+[34m2024.08.16 21:48:32.071[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Stopping service [Tomcat][0;39m 
+[34m2024.08.16 21:48:32.094[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.b.a.l.ConditionEvaluationReportLogger[0;39m [2m: 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.[0;39m 
+[34m2024.08.16 21:48:32.136[0;39m [31mERROR[0;39m [2m- [      main][0;39m [36mo.s.boot.SpringApplication              [0;39m [2m: Application run failed[0;39m 
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionController' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\controller\AuctionController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionService.class]: Unsatisfied dependency expressed through constructor parameter 5: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:975)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:971)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.ddang.usedauction.UsedauctionApplication.main(UsedauctionApplication.java:14)
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionService.class]: Unsatisfied dependency expressed through constructor parameter 5: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 19 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 33 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:514)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1439)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:599)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:409)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1355)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1185)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 47 common frames omitted
+Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'S3_ACCESS_KEY' in value "${S3_ACCESS_KEY}"
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:180)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:126)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:239)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:210)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveNestedPlaceholders(AbstractPropertyResolver.java:230)
+	at org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertyResolver.getProperty(ConfigurationPropertySourcesPropertyResolver.java:80)
+	at org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertyResolver.getProperty(ConfigurationPropertySourcesPropertyResolver.java:61)
+	at org.springframework.core.env.AbstractEnvironment.getProperty(AbstractEnvironment.java:552)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer$1.getProperty(PropertySourcesPlaceholderConfigurer.java:153)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer$1.getProperty(PropertySourcesPlaceholderConfigurer.java:149)
+	at org.springframework.core.env.PropertySourcesPropertyResolver.getProperty(PropertySourcesPropertyResolver.java:85)
+	at org.springframework.core.env.PropertySourcesPropertyResolver.getPropertyAsRawString(PropertySourcesPropertyResolver.java:74)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:153)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:126)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:239)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:210)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:200)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:964)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1374)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:784)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:767)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:145)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:508)
+	... 68 common frames omitted
+[34m2024.08.16 21:49:51.212[0;39m [32m INFO[0;39m [2m- [nd-preinit][0;39m [36mo.h.validator.internal.util.Version     [0;39m [2m: HV000001: Hibernate Validator 8.0.1.Final[0;39m 
+[34m2024.08.16 21:49:51.297[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Starting UsedauctionApplication using Java 17.0.12 with PID 20928 (C:\Users\user\Desktop\SEUNG\build\classes\java\main started by user in C:\Users\user\Desktop\SEUNG)[0;39m 
+[34m2024.08.16 21:49:51.298[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: The following 1 profile is active: "local"[0;39m 
+[34m2024.08.16 21:49:52.945[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:49:52.945[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:49:52.987[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 21:49:54.042[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:49:54.044[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data JPA repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:49:55.018[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 970 ms. Found 9 JPA repository interfaces.[0;39m 
+[34m2024.08.16 21:49:55.138[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 21:49:55.139[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 21:49:55.226[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.auction.repository.AuctionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.227[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.category.repository.CategoryRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.228[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatMessageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.228[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatRoomRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.229[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.image.repository.ImageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.230[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.member.repository.MemberRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.230[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.order.repository.OrderRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.231[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.point.repository.PointRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.231[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.transaction.repository.TransactionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 21:49:55.232[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 92 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 21:49:58.013[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat initialized with port 8080 (http)[0;39m 
+[34m2024.08.16 21:49:58.026[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Initializing ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 21:49:58.028[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Starting service [Tomcat][0;39m 
+[34m2024.08.16 21:49:58.028[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardEngine   [0;39m [2m: Starting Servlet engine: [Apache Tomcat/10.1.26][0;39m 
+[34m2024.08.16 21:49:58.194[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m: Initializing Spring embedded WebApplicationContext[0;39m 
+[34m2024.08.16 21:49:58.195[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mw.s.c.ServletWebServerApplicationContext[0;39m [2m: Root WebApplicationContext: initialization completed in 6805 ms[0;39m 
+[34m2024.08.16 21:49:58.511[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Starting...[0;39m 
+[34m2024.08.16 21:49:58.863[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m: HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:test user=${DB_USER_NAME}[0;39m 
+[34m2024.08.16 21:49:58.865[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Start completed.[0;39m 
+[34m2024.08.16 21:49:58.873[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.h2.H2ConsoleAutoConfiguration   [0;39m [2m: H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:test'[0;39m 
+[34m2024.08.16 21:49:59.119[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m: HHH000204: Processing PersistenceUnitInfo [name: default][0;39m 
+[34m2024.08.16 21:49:59.272[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.hibernate.Version                   [0;39m [2m: HHH000412: Hibernate ORM core version 6.5.2.Final[0;39m 
+[34m2024.08.16 21:49:59.353[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m: HHH000026: Second-level cache disabled[0;39m 
+[34m2024.08.16 21:49:59.945[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m: No LoadTimeWeaver setup: ignoring JPA class transformer[0;39m 
+[34m2024.08.16 21:50:00.051[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36morg.hibernate.orm.deprecation           [0;39m [2m: HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)[0;39m 
+[34m2024.08.16 21:50:00.880[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.redisson.Version                    [0;39m [2m: Redisson 3.27.0[0;39m 
+[34m2024.08.16 21:50:01.535[0;39m [32m INFO[0;39m [2m- [-netty-1-5][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 1 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 21:50:01.608[0;39m [32m INFO[0;39m [2m- [netty-1-20][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 24 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 21:50:03.080[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m: HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)[0;39m 
+[34m2024.08.16 21:50:03.178[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Initialized JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 21:50:04.006[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.d.j.r.query.QueryEnhancerFactory    [0;39m [2m: Hibernate is in classpath; If applicable, HQL parser will be used.[0;39m 
+[34m2024.08.16 21:50:04.608[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36mConfigServletWebServerApplicationContext[0;39m [2m: Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionController' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\controller\AuctionController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionService.class]: Unsatisfied dependency expressed through constructor parameter 5: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed[0;39m 
+[34m2024.08.16 21:50:04.609[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Closing JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 21:50:04.631[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown initiated...[0;39m 
+[34m2024.08.16 21:50:04.634[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown completed.[0;39m 
+[34m2024.08.16 21:50:04.635[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Stopping service [Tomcat][0;39m 
+[34m2024.08.16 21:50:04.697[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.b.a.l.ConditionEvaluationReportLogger[0;39m [2m: 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.[0;39m 
+[34m2024.08.16 21:50:04.725[0;39m [31mERROR[0;39m [2m- [      main][0;39m [36mo.s.boot.SpringApplication              [0;39m [2m: Application run failed[0;39m 
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionController' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\controller\AuctionController.class]: Unsatisfied dependency expressed through constructor parameter 0: Error creating bean with name 'auctionService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionService.class]: Unsatisfied dependency expressed through constructor parameter 5: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:975)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:971)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.ddang.usedauction.UsedauctionApplication.main(UsedauctionApplication.java:14)
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'auctionService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\auction\service\AuctionService.class]: Unsatisfied dependency expressed through constructor parameter 5: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 19 common frames omitted
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'imageService' defined in file [C:\Users\user\Desktop\SEUNG\build\classes\java\main\com\ddang\usedauction\image\service\ImageService.class]: Unsatisfied dependency expressed through constructor parameter 1: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:795)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:237)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1375)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1212)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 33 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 's3Config': Injection of autowired dependencies failed
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:514)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1439)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:599)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:409)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1355)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1185)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:904)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:782)
+	... 47 common frames omitted
+Caused by: java.lang.IllegalArgumentException: Could not resolve placeholder 'S3_ACCESS_KEY' in value "${S3_ACCESS_KEY}"
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:180)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:126)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:239)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:210)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveNestedPlaceholders(AbstractPropertyResolver.java:230)
+	at org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertyResolver.getProperty(ConfigurationPropertySourcesPropertyResolver.java:80)
+	at org.springframework.boot.context.properties.source.ConfigurationPropertySourcesPropertyResolver.getProperty(ConfigurationPropertySourcesPropertyResolver.java:61)
+	at org.springframework.core.env.AbstractEnvironment.getProperty(AbstractEnvironment.java:552)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer$1.getProperty(PropertySourcesPlaceholderConfigurer.java:153)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer$1.getProperty(PropertySourcesPlaceholderConfigurer.java:149)
+	at org.springframework.core.env.PropertySourcesPropertyResolver.getProperty(PropertySourcesPropertyResolver.java:85)
+	at org.springframework.core.env.PropertySourcesPropertyResolver.getPropertyAsRawString(PropertySourcesPropertyResolver.java:74)
+	at org.springframework.util.PropertyPlaceholderHelper.parseStringValue(PropertyPlaceholderHelper.java:153)
+	at org.springframework.util.PropertyPlaceholderHelper.replacePlaceholders(PropertyPlaceholderHelper.java:126)
+	at org.springframework.core.env.AbstractPropertyResolver.doResolvePlaceholders(AbstractPropertyResolver.java:239)
+	at org.springframework.core.env.AbstractPropertyResolver.resolveRequiredPlaceholders(AbstractPropertyResolver.java:210)
+	at org.springframework.context.support.PropertySourcesPlaceholderConfigurer.lambda$processProperties$0(PropertySourcesPlaceholderConfigurer.java:200)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.resolveEmbeddedValue(AbstractBeanFactory.java:964)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1374)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.resolveFieldValue(AutowiredAnnotationBeanPostProcessor.java:784)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor$AutowiredFieldElement.inject(AutowiredAnnotationBeanPostProcessor.java:767)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:145)
+	at org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor.postProcessProperties(AutowiredAnnotationBeanPostProcessor.java:508)
+	... 68 common frames omitted
+[34m2024.08.16 22:23:06.595[0;39m [32m INFO[0;39m [2m- [nd-preinit][0;39m [36mo.h.validator.internal.util.Version     [0;39m [2m: HV000001: Hibernate Validator 8.0.1.Final[0;39m 
+[34m2024.08.16 22:23:06.704[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Starting UsedauctionApplication using Java 17.0.12 with PID 14792 (C:\Users\user\Desktop\SEUNG\build\classes\java\main started by user in C:\Users\user\Desktop\SEUNG)[0;39m 
+[34m2024.08.16 22:23:06.704[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: The following 1 profile is active: "local"[0;39m 
+[34m2024.08.16 22:23:08.769[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 22:23:08.770[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 22:23:08.812[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 10 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 22:23:09.557[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 22:23:09.557[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data JPA repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 22:23:10.243[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 686 ms. Found 9 JPA repository interfaces.[0;39m 
+[34m2024.08.16 22:23:10.415[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 22:23:10.415[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 22:23:10.493[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.auction.repository.AuctionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.category.repository.CategoryRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatMessageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatRoomRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.image.repository.ImageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.member.repository.MemberRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.order.repository.OrderRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.point.repository.PointRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.transaction.repository.TransactionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:10.508[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 91 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 22:23:12.732[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat initialized with port 8080 (http)[0;39m 
+[34m2024.08.16 22:23:12.734[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Initializing ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 22:23:12.734[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Starting service [Tomcat][0;39m 
+[34m2024.08.16 22:23:12.734[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardEngine   [0;39m [2m: Starting Servlet engine: [Apache Tomcat/10.1.26][0;39m 
+[34m2024.08.16 22:23:12.938[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m: Initializing Spring embedded WebApplicationContext[0;39m 
+[34m2024.08.16 22:23:12.939[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mw.s.c.ServletWebServerApplicationContext[0;39m [2m: Root WebApplicationContext: initialization completed in 6152 ms[0;39m 
+[34m2024.08.16 22:23:13.552[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Starting...[0;39m 
+[34m2024.08.16 22:23:13.930[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m: HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:test user=SA[0;39m 
+[34m2024.08.16 22:23:13.930[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Start completed.[0;39m 
+[34m2024.08.16 22:23:13.945[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.h2.H2ConsoleAutoConfiguration   [0;39m [2m: H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:test'[0;39m 
+[34m2024.08.16 22:23:14.450[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m: HHH000204: Processing PersistenceUnitInfo [name: default][0;39m 
+[34m2024.08.16 22:23:14.590[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.hibernate.Version                   [0;39m [2m: HHH000412: Hibernate ORM core version 6.5.2.Final[0;39m 
+[34m2024.08.16 22:23:14.662[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m: HHH000026: Second-level cache disabled[0;39m 
+[34m2024.08.16 22:23:15.201[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m: No LoadTimeWeaver setup: ignoring JPA class transformer[0;39m 
+[34m2024.08.16 22:23:15.310[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36morg.hibernate.orm.deprecation           [0;39m [2m: HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)[0;39m 
+[34m2024.08.16 22:23:16.112[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.redisson.Version                    [0;39m [2m: Redisson 3.27.0[0;39m 
+[34m2024.08.16 22:23:17.054[0;39m [32m INFO[0;39m [2m- [-netty-1-5][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 1 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 22:23:17.133[0;39m [32m INFO[0;39m [2m- [netty-1-20][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 24 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 22:23:19.133[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m: HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)[0;39m 
+[34m2024.08.16 22:23:19.393[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Initialized JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 22:23:20.744[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.d.j.r.query.QueryEnhancerFactory    [0;39m [2m: Hibernate is in classpath; If applicable, HQL parser will be used.[0;39m 
+[34m2024.08.16 22:23:25.291[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36mJpaBaseConfiguration$JpaWebConfiguration[0;39m [2m: spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning[0;39m 
+[34m2024.08.16 22:23:25.371[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36m.s.s.UserDetailsServiceAutoConfiguration[0;39m [2m: 
+
+Using generated security password: b73c81a9-5471-446d-89be-196f986b7f09
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+[0;39m 
+[34m2024.08.16 22:23:25.402[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mr$InitializeUserDetailsManagerConfigurer[0;39m [2m: Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager[0;39m 
+[34m2024.08.16 22:23:27.284[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.e.web.EndpointLinksResolver     [0;39m [2m: Exposing 1 endpoint beneath base path '/actuator'[0;39m 
+[34m2024.08.16 22:23:29.839[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Starting ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 22:23:29.917[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat started on port 8080 (http) with context path '/'[0;39m 
+[34m2024.08.16 22:23:29.933[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Starting...[0;39m 
+[34m2024.08.16 22:23:29.933[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@49be20c2]][0;39m 
+[34m2024.08.16 22:23:29.933[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Started.[0;39m 
+[34m2024.08.16 22:23:30.017[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Started UsedauctionApplication in 24.328 seconds (process running for 25.385)[0;39m 
+[34m2024.08.16 22:23:35.876[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Stopping...[0;39m 
+[34m2024.08.16 22:23:35.876[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@49be20c2]][0;39m 
+[34m2024.08.16 22:23:35.876[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Stopped.[0;39m 
+[34m2024.08.16 22:23:36.339[0;39m [33m WARN[0;39m [2m- [utdownHook][0;39m [36mio.lettuce.core.RedisChannelHandler     [0;39m [2m: Connection is already closed[0;39m 
+[34m2024.08.16 22:23:36.402[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Closing JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 22:23:36.428[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown initiated...[0;39m 
+[34m2024.08.16 22:23:36.428[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown completed.[0;39m 
+[34m2024.08.16 22:23:42.977[0;39m [32m INFO[0;39m [2m- [nd-preinit][0;39m [36mo.h.validator.internal.util.Version     [0;39m [2m: HV000001: Hibernate Validator 8.0.1.Final[0;39m 
+[34m2024.08.16 22:23:43.021[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Starting UsedauctionApplication using Java 17.0.12 with PID 20456 (C:\Users\user\Desktop\SEUNG\build\classes\java\main started by user in C:\Users\user\Desktop\SEUNG)[0;39m 
+[34m2024.08.16 22:23:43.022[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: The following 1 profile is active: "local"[0;39m 
+[34m2024.08.16 22:23:43.848[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 22:23:43.939[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 22:23:43.965[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 22:23:44.383[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 22:23:44.384[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data JPA repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 22:23:44.694[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 308 ms. Found 9 JPA repository interfaces.[0;39m 
+[34m2024.08.16 22:23:44.702[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Multiple Spring Data modules found, entering strict repository configuration mode[0;39m 
+[34m2024.08.16 22:23:44.702[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Bootstrapping Spring Data Redis repositories in DEFAULT mode.[0;39m 
+[34m2024.08.16 22:23:44.715[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.auction.repository.AuctionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.715[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.category.repository.CategoryRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.716[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatMessageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.716[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.chat.repository.ChatRoomRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.716[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.image.repository.ImageRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.716[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.member.repository.MemberRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.717[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.order.repository.OrderRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.717[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.point.repository.PointRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.717[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.RepositoryConfigurationExtensionSupport[0;39m [2m: Spring Data Redis - Could not safely identify store assignment for repository candidate interface com.ddang.usedauction.transaction.repository.TransactionRepository; If you want this repository to be a Redis repository, consider annotating your entities with one of these annotations: org.springframework.data.redis.core.RedisHash (preferred), or consider extending one of the following types with your repository: org.springframework.data.keyvalue.repository.KeyValueRepository[0;39m 
+[34m2024.08.16 22:23:44.717[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36m.s.d.r.c.RepositoryConfigurationDelegate[0;39m [2m: Finished Spring Data repository scanning in 14 ms. Found 0 Redis repository interfaces.[0;39m 
+[34m2024.08.16 22:23:45.602[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat initialized with port 8080 (http)[0;39m 
+[34m2024.08.16 22:23:45.611[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Initializing ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 22:23:45.612[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardService  [0;39m [2m: Starting service [Tomcat][0;39m 
+[34m2024.08.16 22:23:45.613[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.apache.catalina.core.StandardEngine   [0;39m [2m: Starting Servlet engine: [Apache Tomcat/10.1.26][0;39m 
+[34m2024.08.16 22:23:45.743[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m: Initializing Spring embedded WebApplicationContext[0;39m 
+[34m2024.08.16 22:23:45.744[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mw.s.c.ServletWebServerApplicationContext[0;39m [2m: Root WebApplicationContext: initialization completed in 2680 ms[0;39m 
+[34m2024.08.16 22:23:45.905[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Starting...[0;39m 
+[34m2024.08.16 22:23:46.095[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.pool.HikariPool       [0;39m [2m: HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:test user=SA[0;39m 
+[34m2024.08.16 22:23:46.097[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Start completed.[0;39m 
+[34m2024.08.16 22:23:46.105[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.h2.H2ConsoleAutoConfiguration   [0;39m [2m: H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:test'[0;39m 
+[34m2024.08.16 22:23:46.299[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.hibernate.jpa.internal.util.LogHelper [0;39m [2m: HHH000204: Processing PersistenceUnitInfo [name: default][0;39m 
+[34m2024.08.16 22:23:46.357[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.hibernate.Version                   [0;39m [2m: HHH000412: Hibernate ORM core version 6.5.2.Final[0;39m 
+[34m2024.08.16 22:23:46.395[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.c.internal.RegionFactoryInitiator   [0;39m [2m: HHH000026: Second-level cache disabled[0;39m 
+[34m2024.08.16 22:23:46.700[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.o.j.p.SpringPersistenceUnitInfo     [0;39m [2m: No LoadTimeWeaver setup: ignoring JPA class transformer[0;39m 
+[34m2024.08.16 22:23:46.744[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36morg.hibernate.orm.deprecation           [0;39m [2m: HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)[0;39m 
+[34m2024.08.16 22:23:47.184[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36morg.redisson.Version                    [0;39m [2m: Redisson 3.27.0[0;39m 
+[34m2024.08.16 22:23:47.609[0;39m [32m INFO[0;39m [2m- [-netty-1-5][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 1 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 22:23:47.689[0;39m [32m INFO[0;39m [2m- [netty-1-20][0;39m [36mo.redisson.connection.ConnectionsHolder [0;39m [2m: 24 connections initialized for localhost/127.0.0.1:6379[0;39m 
+[34m2024.08.16 22:23:48.609[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.h.e.t.j.p.i.JtaPlatformInitiator      [0;39m [2m: HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)[0;39m 
+[34m2024.08.16 22:23:48.687[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Initialized JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 22:23:49.247[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.d.j.r.query.QueryEnhancerFactory    [0;39m [2m: Hibernate is in classpath; If applicable, HQL parser will be used.[0;39m 
+[34m2024.08.16 22:23:51.340[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36mJpaBaseConfiguration$JpaWebConfiguration[0;39m [2m: spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning[0;39m 
+[34m2024.08.16 22:23:51.398[0;39m [33m WARN[0;39m [2m- [      main][0;39m [36m.s.s.UserDetailsServiceAutoConfiguration[0;39m [2m: 
+
+Using generated security password: 58bf4d35-c621-487a-bdd8-a7c5eae1b924
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+[0;39m 
+[34m2024.08.16 22:23:51.417[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mr$InitializeUserDetailsManagerConfigurer[0;39m [2m: Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager[0;39m 
+[34m2024.08.16 22:23:52.364[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.a.e.web.EndpointLinksResolver     [0;39m [2m: Exposing 1 endpoint beneath base path '/actuator'[0;39m 
+[34m2024.08.16 22:23:53.255[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.a.coyote.http11.Http11NioProtocol     [0;39m [2m: Starting ProtocolHandler ["http-nio-8080"][0;39m 
+[34m2024.08.16 22:23:53.264[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.b.w.embedded.tomcat.TomcatWebServer [0;39m [2m: Tomcat started on port 8080 (http) with context path '/'[0;39m 
+[34m2024.08.16 22:23:53.273[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Starting...[0;39m 
+[34m2024.08.16 22:23:53.274[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@18177a3c]][0;39m 
+[34m2024.08.16 22:23:53.274[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Started.[0;39m 
+[34m2024.08.16 22:23:53.288[0;39m [32m INFO[0;39m [2m- [      main][0;39m [36mc.d.usedauction.UsedauctionApplication  [0;39m [2m: Started UsedauctionApplication in 10.864 seconds (process running for 11.543)[0;39m 
+[34m2024.08.16 22:23:54.098[0;39m [32m INFO[0;39m [2m- [.168.45.47][0;39m [36mo.a.c.c.C.[Tomcat].[localhost].[/]      [0;39m [2m: Initializing Spring DispatcherServlet 'dispatcherServlet'[0;39m 
+[34m2024.08.16 22:23:54.098[0;39m [32m INFO[0;39m [2m- [.168.45.47][0;39m [36mo.s.web.servlet.DispatcherServlet       [0;39m [2m: Initializing Servlet 'dispatcherServlet'[0;39m 
+[34m2024.08.16 22:23:54.100[0;39m [32m INFO[0;39m [2m- [.168.45.47][0;39m [36mo.s.web.servlet.DispatcherServlet       [0;39m [2m: Completed initialization in 1 ms[0;39m 
+[34m2024.08.16 22:24:36.500[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Stopping...[0;39m 
+[34m2024.08.16 22:24:36.500[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@18177a3c]][0;39m 
+[34m2024.08.16 22:24:36.500[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mo.s.m.s.b.SimpleBrokerMessageHandler    [0;39m [2m: Stopped.[0;39m 
+[34m2024.08.16 22:24:36.968[0;39m [33m WARN[0;39m [2m- [utdownHook][0;39m [36mio.lettuce.core.RedisChannelHandler     [0;39m [2m: Connection is already closed[0;39m 
+[34m2024.08.16 22:24:36.968[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mj.LocalContainerEntityManagerFactoryBean[0;39m [2m: Closing JPA EntityManagerFactory for persistence unit 'default'[0;39m 
+[34m2024.08.16 22:24:36.985[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown initiated...[0;39m 
+[34m2024.08.16 22:24:36.985[0;39m [32m INFO[0;39m [2m- [utdownHook][0;39m [36mcom.zaxxer.hikari.HikariDataSource      [0;39m [2m: HikariPool-1 - Shutdown completed.[0;39m 

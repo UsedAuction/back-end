@@ -26,6 +26,7 @@ public class MemberGetDto {
     private String social;
     private String socialProviderId;
     private LocalDateTime createdAt;
+    private LocalDateTime deletedAt;
 
     // entity -> getResponse
     public static MemberGetDto.Response from(Member member) {
@@ -40,6 +41,7 @@ public class MemberGetDto {
           .social(member.getSocial())
           .socialProviderId(member.getSocialProviderId())
           .createdAt(member.getCreatedAt())
+          .deletedAt(member.getDeletedAt())
           .build();
     }
   }
