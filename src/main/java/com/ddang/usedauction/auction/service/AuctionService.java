@@ -157,38 +157,7 @@ public class AuctionService {
             throw new IllegalStateException("현재 경매가 이미 종료되었습니다.");
         }
 
-        List<Bid> bidList = auction.getBidList();
-        Bid bid = bidList != null ? bidList.stream()
-            .max(Comparator.comparing(Bid::getBidPrice))
-            .orElse(null) : null;
-
-        Member buyer = null; // 입찰자
-        if (bid != null) {
-            Member member = bid.getMember();
-            member = member.toBuilder()
-                .point(member.getPoint() - bid.getBidPrice()) // 입찰자 포인트 차감
-                .build();
-
-            buyer = memberRepository.save(member);
-        }
-
-        Transaction transaction = Transaction.builder()
-            .auction(auction)
-            .buyer(null)
-            .transType(TransType.NONE)
-            .buyType(BuyType.NO_BUY)
-            .price(0)
-            .build();
-
-        if (buyer != null) {
-            transaction = transaction.toBuilder()
-                .buyType(BuyType.SUCCESSFUL_BID)
-                .buyer(buyer)
-                .transType(TransType.CONTINUE)
-                .price(bid.getBidPrice())
-                .build();
-        }
-        transactionRepository.save(transaction);
+        Bid bid = getSuccessfulBid(auction); // 낙찰된 입찰
 
         auction = auction.toBuilder()
             .auctionState(AuctionState.END) // 경매 종료 처리
@@ -376,6 +345,44 @@ public class AuctionService {
             createDto.getDeliveryPrice())) {
             throw new IllegalArgumentException("택배비를 입력해주세요.");
         }
+    }
+
+    // 낙찰된 입찰 조회 및 거래 내역 저장 메소드
+    private Bid getSuccessfulBid(Auction auction) {
+
+        List<Bid> bidList = auction.getBidList();
+        Bid bid = bidList != null ? bidList.stream()
+            .max(Comparator.comparing(Bid::getBidPrice))
+            .orElse(null) : null;
+
+        if (bid != null) {
+            Member member = bid.getMember();
+            member = member.toBuilder()
+                .point(member.getPoint() - bid.getBidPrice()) // 입찰자 포인트 차감
+                .build();
+
+            memberRepository.save(member);
+        }
+
+        Transaction transaction = Transaction.builder()
+            .auction(auction)
+            .buyer(null)
+            .transType(TransType.NONE)
+            .buyType(BuyType.NO_BUY)
+            .price(0)
+            .build();
+
+        if (bid != null) {
+            transaction = transaction.toBuilder()
+                .buyType(BuyType.SUCCESSFUL_BID)
+                .buyer(bid.getMember())
+                .transType(TransType.CONTINUE)
+                .price(bid.getBidPrice())
+                .build();
+        }
+        transactionRepository.save(transaction); // 거래 내역 저장
+
+        return bid;
     }
 
 }
