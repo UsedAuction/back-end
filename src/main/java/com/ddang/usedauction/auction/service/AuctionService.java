@@ -10,6 +10,8 @@ import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
+import com.ddang.usedauction.auction.dto.AuctionCreateDto.Request;
+import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
@@ -33,9 +35,7 @@ import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -115,36 +115,7 @@ public class AuctionService {
     public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
         String memberId, AuctionCreateDto.Request createDto) {
 
-        if (imageList != null && imageList.size() > 5) { // 썸네일 포함 6개 초과인 경우
-            throw new ImageCountOutOfBoundsException(imageList.size() + 1);
-        }
-
-        if (createDto.getEndedAt()
-            .isAfter(LocalDateTime.now().plusDays(7))) { // 경매 끝나는 날짜가 일주일 초과되는 경우
-            throw new AuctionMaxDateOutOfBoundsException();
-        }
-
-        if (createDto.getEndedAt().isBefore(LocalDateTime.now())) { // 경매 끝나는 날짜가 현재 날짜보다 이전인 경우
-            throw new IllegalArgumentException("경매가 끝나는 날짜가 현재 날짜보다 이전입니다.");
-        }
-
-        if (createDto.getInstantPrice()
-            <= createDto.getStartPrice()) { // 즉시 구매가가 입찰 시작가보다 적거나 같은 경우
-            throw new StartPriceOutOfBoundsException(createDto.getStartPrice(),
-                createDto.getInstantPrice());
-        }
-
-        // 직거래가 가능한 경우이지만 직거래 장소가 없는 경우
-        if (!createDto.getReceiveType().equals(ReceiveType.DELIVERY)
-            && !StringUtils.hasText(createDto.getContactPlace())) {
-            throw new IllegalArgumentException("거래 장소를 입력해주세요.");
-        }
-
-        // 택배 거래가 가능하지만 택베비가 없는 경우
-        if (!createDto.getDeliveryType().equals(DeliveryType.NO_DELIVERY) && !StringUtils.hasText(
-            createDto.getDeliveryPrice())) {
-            throw new IllegalArgumentException("택배비를 입력해주세요.");
-        }
+        createValidation(imageList, createDto);
 
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
@@ -371,4 +342,39 @@ public class AuctionService {
                 .build()
             ).forEach(auction::addImageList);
     }
+    // 생성 시 체그해야할 사항 validation
+    private void createValidation(List<MultipartFile> imageList, Request createDto) {
+
+        if (imageList != null && imageList.size() > 5) { // 썸네일 포함 6개 초과인 경우
+            throw new ImageCountOutOfBoundsException(imageList.size() + 1);
+        }
+
+        if (createDto.getEndedAt()
+            .isAfter(LocalDateTime.now().plusDays(7))) { // 경매 끝나는 날짜가 일주일 초과되는 경우
+            throw new AuctionMaxDateOutOfBoundsException();
+        }
+
+        if (createDto.getEndedAt().isBefore(LocalDateTime.now())) { // 경매 끝나는 날짜가 현재 날짜보다 이전인 경우
+            throw new IllegalArgumentException("경매가 끝나는 날짜가 현재 날짜보다 이전입니다.");
+        }
+
+        if (createDto.getInstantPrice()
+            <= createDto.getStartPrice()) { // 즉시 구매가가 입찰 시작가보다 적거나 같은 경우
+            throw new StartPriceOutOfBoundsException(createDto.getStartPrice(),
+                createDto.getInstantPrice());
+        }
+
+        // 직거래가 가능한 경우이지만 직거래 장소가 없는 경우
+        if (!createDto.getReceiveType().equals(ReceiveType.DELIVERY)
+            && !StringUtils.hasText(createDto.getContactPlace())) {
+            throw new IllegalArgumentException("거래 장소를 입력해주세요.");
+        }
+
+        // 택배 거래가 가능하지만 택베비가 없는 경우
+        if (!createDto.getDeliveryType().equals(DeliveryType.NO_DELIVERY) && !StringUtils.hasText(
+            createDto.getDeliveryPrice())) {
+            throw new IllegalArgumentException("택배비를 입력해주세요.");
+        }
+    }
+
 }
