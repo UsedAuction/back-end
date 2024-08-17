@@ -148,7 +148,7 @@ public class AuctionService {
      * @param auctionId 종료할 경매 PK
      */
     @Transactional
-    public Map<String, Long> endAuction(Long auctionId) {
+    public AuctionEndDto endAuction(Long auctionId) {
 
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
@@ -195,13 +195,7 @@ public class AuctionService {
             .build();
         Auction savedAuction = auctionRepository.save(auction);
 
-        Map<String, Long> auctionAndMemberMap = new HashMap<>();
-        auctionAndMemberMap.put("auction", savedAuction.getId());
-        auctionAndMemberMap.put("buyer", buyer != null ? buyer.getId() : null);
-        auctionAndMemberMap.put("seller", savedAuction.getSeller().getId());
-        auctionAndMemberMap.put("price", bid != null ? bid.getBidPrice() : 0);
-
-        return auctionAndMemberMap;
+        return AuctionEndDto.from(savedAuction, bid);
     }
 
     /**
