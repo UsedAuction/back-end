@@ -1,10 +1,5 @@
 package com.ddang.usedauction.notification.controller;
 
-import static com.ddang.usedauction.notification.domain.NotificationType.CHANGE_BID;
-import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
-import static com.ddang.usedauction.notification.domain.NotificationType.QUESTION;
-import static com.ddang.usedauction.point.type.PointType.CHARGE;
-import static com.ddang.usedauction.point.type.PointType.USE;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -13,9 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.notification.domain.Notification;
 import com.ddang.usedauction.notification.domain.NotificationType;
-import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.service.NotificationService;
-import com.ddang.usedauction.point.domain.PointHistory;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -98,7 +91,7 @@ class NotificationControllerTest {
                 Notification.builder()
                     .id(2L)
                     .content("알림2")
-                    .notificationType(NotificationType.CHANGE_BID)
+                    .notificationType(NotificationType.CONFIRM)
                     .member(member)
                     .build(),
                 Notification.builder()
@@ -111,7 +104,7 @@ class NotificationControllerTest {
             3
         );
 
-        given(notificationService.getNotificationList(pageable))
+        given(notificationService.getNotificationList(member.getId(), pageable))
             .willReturn(notificationPage);
 
         //when
@@ -129,7 +122,13 @@ class NotificationControllerTest {
     void getNotificationListFail() throws Exception {
 
         //given
-        given(notificationService.getNotificationList(PageRequest.of(0, 10)))
+        Member member = Member.builder()
+            .id(1L)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        given(notificationService.getNotificationList(member.getId(), pageable))
             .willThrow(new RuntimeException());
 
         //when

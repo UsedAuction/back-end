@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -21,6 +22,7 @@ import com.ddang.usedauction.notification.domain.NotificationType;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -263,7 +265,6 @@ class NotificationServiceTest {
         });
 
         //then
-//        assertEquals("저장 실패", e.getMessage());
         verify(notificationRepository, times(1)).save(any(Notification.class));
         verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
         verify(emitterRepository, times(1)).saveEventCache(anyString(), any(Notification.class));
@@ -336,11 +337,12 @@ class NotificationServiceTest {
             3
         );
 
-        given(notificationRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, 10)))
+        given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
+        given(notificationRepository.findNotificationList(eq(seller.getId()), any(LocalDateTime.class), eq(pageable)))
             .willReturn(notificationPage);
 
         //when
-        Page<Notification> result = notificationService.getNotificationList(PageRequest.of(0, 10));
+        Page<Notification> result = notificationService.getNotificationList(seller.getId(), pageable);
 
         //then
         assertEquals(notificationPage.getContent().size(), result.getTotalElements());
@@ -348,20 +350,43 @@ class NotificationServiceTest {
         assertEquals(notificationPage.getContent().get(1).getContent(), result.getContent().get(1).getContent());
         assertEquals(notificationPage.getContent().get(2).getContent(), result.getContent().get(2).getContent());
 
-        verify(notificationRepository, times(1)).findAllByOrderByCreatedAtDesc(pageable);
+        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()), any(LocalDateTime.class), eq(pageable));
     }
 
     @Test
-    @DisplayName("알림 전체 목록 조회 - 실패")
-    void getNotificationListFail() {
+    @DisplayName("알림 전체 목록 조회 - 실패 (존재하지 않는 회원)")
+    void getNotificationListFail_1() {
         //given
         Pageable pageable = PageRequest.of(0, 10);
 
-        given(notificationRepository.findAllByOrderByCreatedAtDesc(PageRequest.of(0, 10)))
-            .willThrow(new RuntimeException());
+        given(memberRepository.findById(seller.getId())).willReturn(Optional.empty());
 
         //when
+        assertThrows(NoSuchElementException.class, () -> notificationService.getNotificationList(seller.getId(), pageable));
+
         //then
-        assertThrows(RuntimeException.class, () -> notificationRepository.findAllByOrderByCreatedAtDesc(pageable));
+        verify(memberRepository, times(1)).findById(seller.getId());
+        verify(notificationRepository, times(0)).findNotificationList(eq(seller.getId()), any(LocalDateTime.class), eq(pageable));
+    }
+
+    @Test
+    @DisplayName("알림 전체 목록 조회 - 실패 (findNotificationList 예외 발생)")
+    void getNotificationListFail_2() {
+        //given
+        LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
+        given(notificationRepository.findNotificationList(seller.getId(), beforeOneMonth, pageable))
+            .willThrow(new RuntimeException());
+
+        ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+
+        //when
+        assertThrows(RuntimeException.class, () -> notificationService.getNotificationList(seller.getId(), pageable));
+
+        //then
+        verify(memberRepository, times(1)).findById(seller.getId());
+        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()), dateTimeCaptor.capture(), eq(pageable));
     }
 }
