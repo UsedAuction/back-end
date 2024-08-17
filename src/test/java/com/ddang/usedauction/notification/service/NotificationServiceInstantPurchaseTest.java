@@ -11,9 +11,11 @@ import static org.mockito.Mockito.verify;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +36,12 @@ class NotificationServiceInstantPurchaseTest {
 
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private AuctionRedisService auctionRedisService;
+
+    @Mock
+    private TransactionRepository transactionRepository;
 
     @InjectMocks
     private AuctionService auctionService;
@@ -67,8 +75,9 @@ class NotificationServiceInstantPurchaseTest {
         auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId());
 
         //then
-        verify(notificationService).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(auctionRedisService).createAutoConfirm(auction.getId(), buyer.getMemberId(), auction.getInstantPrice(), seller.getId());
     }
 
     @Test
@@ -100,8 +109,8 @@ class NotificationServiceInstantPurchaseTest {
             () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -134,8 +143,8 @@ class NotificationServiceInstantPurchaseTest {
             () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -168,8 +177,8 @@ class NotificationServiceInstantPurchaseTest {
             () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -202,7 +211,7 @@ class NotificationServiceInstantPurchaseTest {
             () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
     }
 }

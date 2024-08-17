@@ -39,4 +39,7 @@ public class Notification extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member; // 회원 id
+
+    @Column(nullable = false)
+    private Long auctionId; // 경매 pk
 }
