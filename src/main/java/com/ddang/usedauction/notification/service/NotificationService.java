@@ -10,6 +10,7 @@ import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -94,12 +95,19 @@ public class NotificationService {
     /**
      * 알림 전체 목록 조회
      *
-     * @param pageable
+     * @param memberId 회원 pk
+     * @param pageable page, size
      * @return Page<Notification>
      */
     @Transactional(readOnly = true)
-    public Page<Notification> getNotificationList(Pageable pageable) {
-        return notificationRepository.findAllByOrderByCreatedAtDesc(pageable);
+    public Page<Notification> getNotificationList(Long memberId, Pageable pageable) {
+
+        memberRepository.findById(memberId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
+
+        return notificationRepository.findNotificationList(memberId, beforeOneMonth, pageable);
     }
 
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
