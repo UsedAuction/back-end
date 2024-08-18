@@ -13,6 +13,7 @@ import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
+import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
@@ -26,6 +27,7 @@ import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.service.NotificationService;
 import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
@@ -33,7 +35,6 @@ import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -73,6 +74,9 @@ class AuctionServiceTest {
 
     @Mock
     private AuctionRedisService auctionRedisService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private AuctionService auctionService;
@@ -605,12 +609,12 @@ class AuctionServiceTest {
         when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
             afterAuction);
 
-        Map<String, Long> auctionAndMemberMap = auctionService.endAuction(1L);
+        AuctionEndDto auctionEndDto = auctionService.endAuction(1L);
 
         verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
 
-        assertEquals(1, auctionAndMemberMap.get("auction"));
-        assertEquals(2, auctionAndMemberMap.get("buyer"));
+        assertEquals(1, auctionEndDto.getAuctionId());
+        assertEquals(2, auctionEndDto.getBuyerId());
     }
 
     @Test
