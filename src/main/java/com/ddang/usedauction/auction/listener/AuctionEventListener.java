@@ -1,9 +1,9 @@
 package com.ddang.usedauction.auction.listener;
 
-import static com.ddang.usedauction.notification.domain.NotificationType.*;
 import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
 
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto.Request;
+import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.event.AuctionAutoConfirmEvent;
 import com.ddang.usedauction.auction.event.AuctionEndEvent;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
@@ -11,7 +11,6 @@ import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.service.NotificationService;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,12 +35,12 @@ public class AuctionEventListener { // 경매 이벤트 리스너
 
         Long auctionId = auctionEndEvent.getAuctionId();
 
-        Map<String, Long> auctionAndMemberMap = auctionService.endAuction(
+        AuctionEndDto auctionEndDto = auctionService.endAuction(
             auctionId);// 경매 종료 처리 및 낙찰자
 
-        Long sellerId = auctionAndMemberMap.get("seller"); // 판매자 PK
-        Long buyerId = auctionAndMemberMap.get("buyer"); // 입찰자 PK, null인 경우 없음
-        Long price = auctionAndMemberMap.get("price");
+        Long sellerId = auctionEndDto.getSellerId(); // 판매자 PK
+        Long buyerId = auctionEndDto.getBuyerId(); // 입찰자 PK, null인 경우 없음
+        long price = auctionEndDto.getPrice(); // 판매한 가격
 
         if (buyerId != null) { // 낙찰자가 있는 경우
             Member buyer = memberRepository.findById(buyerId)
