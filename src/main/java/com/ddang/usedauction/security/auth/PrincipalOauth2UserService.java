@@ -1,13 +1,14 @@
-package com.ddang.usedauction.global.security.auth;
+package com.ddang.usedauction.security.auth;
 
-import com.ddang.usedauction.global.security.auth.userInfo.GoogleUserInfo;
-import com.ddang.usedauction.global.security.auth.userInfo.KakaoUserInfo;
-import com.ddang.usedauction.global.security.auth.userInfo.NaverUserInfo;
-import com.ddang.usedauction.global.security.auth.userInfo.Oauth2UserInfo;
 import com.ddang.usedauction.member.domain.entity.Member;
 import com.ddang.usedauction.member.domain.enums.Role;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.security.auth.userInfo.GoogleUserInfo;
+import com.ddang.usedauction.security.auth.userInfo.KakaoUserInfo;
+import com.ddang.usedauction.security.auth.userInfo.NaverUserInfo;
+import com.ddang.usedauction.security.auth.userInfo.Oauth2UserInfo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,6 +16,10 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+/**
+ * OAuth2 인증 처리
+ */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
