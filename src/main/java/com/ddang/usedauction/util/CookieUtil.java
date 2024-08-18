@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class CookieUtil {
@@ -34,11 +35,13 @@ public class CookieUtil {
 
   public static void deleteCookie(HttpServletRequest request, HttpServletResponse response,
       String name) {
-    getCookie(request, name).ifPresent(cookie -> {
-      cookie.setValue("");
-      cookie.setPath("/");
-      cookie.setMaxAge(0);
-      response.addCookie(cookie);
-    });
+
+    Cookie cookie = getCookie(request, name)
+        .orElseThrow(() -> new NoSuchElementException("쿠키가 존재하지 않습니다."));
+
+    cookie.setValue("");
+    cookie.setPath("/");
+    cookie.setMaxAge(0);
+    response.addCookie(cookie);
   }
 }
