@@ -13,6 +13,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Arrays;
@@ -105,7 +106,9 @@ public class TokenProvider {
           .parseClaimsJws(token)
           .getBody();
     } catch (ExpiredJwtException e) {
-      throw new JwtException("만료되거나 유효하지 않은 토큰입니다.");
+      return e.getClaims();
+    } catch (JwtException e) {
+      throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
     }
   }
 
@@ -125,7 +128,7 @@ public class TokenProvider {
       throw new CustomJwtException(JwtErrorCode.EXPIRED_TOKEN);
     } catch (UnsupportedJwtException e) {
       throw new CustomJwtException(JwtErrorCode.UNSUPPORTED_TOKEN);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException | SignatureException e) {
       throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
     }
   }
