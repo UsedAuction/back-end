@@ -1,4 +1,4 @@
-package com.ddang.usedauction.global.security.jwt;
+package com.ddang.usedauction.security.jwt;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
