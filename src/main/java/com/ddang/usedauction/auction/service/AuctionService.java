@@ -305,8 +305,8 @@ public class AuctionService {
             .build();
         transactionRepository.save(buyerTransaction);
 
-        // 판매자에게 구매 확정 알림보내기
-        notificationService.send(confirmDto.getSellerId(), auctionId, "구매가 확정되었습니다.", CONFIRM);
+        // 구매 확정 알림 전송
+        sendNotificationForConfirm(buyer, auction);
     }
 
     /**
@@ -370,5 +370,25 @@ public class AuctionService {
                 .auction(auction)
                 .build()
             ).forEach(auction::addImageList);
+    }
+
+    // 구매 확정 알림 전송
+    private void sendNotificationForConfirm(Member buyer, Auction auction) {
+
+        // 판매자
+        notificationService.send(
+            auction.getSeller().getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+            CONFIRM
+        );
+
+        // 구매자
+        notificationService.send(
+            buyer.getId(),
+            auction.getId(),
+            auction.getTitle() + " 경매의 구매를 확정했습니다.",
+            CONFIRM
+        );
     }
 }
