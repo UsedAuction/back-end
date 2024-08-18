@@ -1,18 +1,18 @@
-package com.ddang.usedauction.global.security.jwt.exception;
+package com.ddang.usedauction.security.jwt.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@RequiredArgsConstructor
+@NoArgsConstructor
 @Builder
 public class CustomJwtException extends RuntimeException {
 
-  private final JwtErrorCode errorCode;
-  private final String message;
+  private JwtErrorCode errorCode;
+  private String message;
 
   public CustomJwtException(JwtErrorCode errorCode) {
     this.errorCode = errorCode;
