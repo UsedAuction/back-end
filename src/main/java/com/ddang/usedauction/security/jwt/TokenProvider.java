@@ -1,8 +1,8 @@
-package com.ddang.usedauction.global.security.jwt;
+package com.ddang.usedauction.security.jwt;
 
-import com.ddang.usedauction.global.security.jwt.exception.CustomJwtException;
-import com.ddang.usedauction.global.security.jwt.exception.JwtErrorCode;
-import com.ddang.usedauction.token.domain.entity.JwtToken;
+import com.ddang.usedauction.security.jwt.exception.CustomJwtException;
+import com.ddang.usedauction.security.jwt.exception.JwtErrorCode;
+import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -33,26 +33,22 @@ import org.springframework.stereotype.Component;
 @Component
 public class TokenProvider {
 
-  @Value("${jwt.secret_key}")
+  @Value("${spring.datasource.jwt.secret}")
   private String secretKey;
-
-  @Value("${jwt.access.expiration}")
+  @Value("${spring.datasource.jwt.access.expiration}")
   private Long accessExpiration;
-
-  @Value("${jwt.refresh.expiration}")
+  @Value("${spring.datasource.jwt.refresh.expiration}")
   private Long refreshExpiration;
-
-  private Key key;
-
   private final RefreshTokenService refreshTokenService;
+  private Key key;
 
   @PostConstruct
   public void init() {
     this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
   }
 
-  public JwtToken generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
-    long now = (new Date().getTime());
+  public TokenDto generateToken(String email, Collection<? extends GrantedAuthority> authorities) {
+    long now = new Date().getTime();
 
     String accessToken = Jwts.builder()
         .setSubject(email)
@@ -67,20 +63,29 @@ public class TokenProvider {
         .signWith(key, SignatureAlgorithm.HS256)
         .compact();
 
-    refreshTokenService.save(email, accessToken, refreshToken);
-
-    return JwtToken.builder()
-        .grantType("Bearer")
+    return TokenDto.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .build();
+  }
+
+  public String reissueAccessToken(String email,
+      Collection<? extends GrantedAuthority> authorities) {
+    long now = new Date().getTime();
+
+    return Jwts.builder()
+        .setSubject(email)
+        .claim("auth", authorities)
+        .setExpiration(new Date(now + accessExpiration))
+        .signWith(key, SignatureAlgorithm.HS256)
+        .compact();
   }
 
   public Authentication getAuthentication(String token) {
     Claims claims = parseClaims(token);
 
     if (claims.get("auth") == null) {
-      throw new JwtException("유효하지 않은 토큰입니다.");
+      throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
     }
 
     Collection<? extends GrantedAuthority> authorities =
@@ -110,6 +115,9 @@ public class TokenProvider {
           .setSigningKey(key)
           .build()
           .parseClaimsJws(token);
+      if (refreshTokenService.hasKeyBlackList(token)) {
+        return false;
+      }
       return true;
     } catch (SecurityException | MalformedJwtException e) {
       throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
@@ -120,5 +128,29 @@ public class TokenProvider {
     } catch (IllegalArgumentException e) {
       throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
     }
+  }
+
+  public boolean isExpiredToken(String token) {
+    try {
+      return parseClaims(token)
+          .getExpiration()
+          .before(new Date());
+    } catch (ExpiredJwtException e) {
+      return true;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  public String getEmailByToken(String token) {
+    Claims claims = parseClaims(token);
+    return claims.getSubject();
+  }
+
+  public Long getExpiration(String accessToken) {
+    Claims claims = parseClaims(accessToken);
+    Date expiration = claims.getExpiration();
+
+    return expiration.getTime() - new Date().getTime();
   }
 }
