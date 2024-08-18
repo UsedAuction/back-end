@@ -1,7 +1,7 @@
 package com.ddang.usedauction.auction.service;
 
 import static com.ddang.usedauction.notification.domain.NotificationType.CONFIRM;
-import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
+import static com.ddang.usedauction.notification.domain.NotificationType.DONE_INSTANT;
 
 import com.ddang.usedauction.aop.RedissonLock;
 import com.ddang.usedauction.auction.domain.Auction;
@@ -354,9 +354,9 @@ public class AuctionService {
         auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
             auction.getSeller()
                 .getId()); // 일주일 후 자동 구매 확정 되도록 설정
-      
-        notificationService.send(auction.getSeller().getId(), auctionId, "경매가 종료되었습니다.", DONE);
-        notificationService.send(buyer.getId(), auctionId, "경매가 종료되었습니다.", DONE);
+
+        // 알림 전송
+        sendNotificationForInstant(auction, buyer);
 
         // todo: 판매자 및 낙찰자 채팅방 생성
 
@@ -370,5 +370,23 @@ public class AuctionService {
                 .auction(auction)
                 .build()
             ).forEach(auction::addImageList);
+    }
+
+    // 즉시구매시 알림 전송
+    private void sendNotificationForInstant(Auction auction, Member buyer) {
+
+        notificationService.send(
+            auction.getSeller().getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님의 즉시구매로 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
+
+        notificationService.send(
+            buyer.getId(),
+            auction.getId(),
+            "즉시구매를 하여 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
     }
 }
