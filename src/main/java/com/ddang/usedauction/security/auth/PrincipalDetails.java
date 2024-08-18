@@ -1,6 +1,6 @@
-package com.ddang.usedauction.global.security.auth;
+package com.ddang.usedauction.security.auth;
 
-import com.ddang.usedauction.global.security.auth.userInfo.Oauth2UserInfo;
+import com.ddang.usedauction.security.auth.userInfo.Oauth2UserInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -8,6 +8,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+/**
+ * 사용자 인증 정보 관리
+ */
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
   private Long id;
