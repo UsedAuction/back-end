@@ -61,6 +61,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         .email(email)
         .social(provider)
         .socialProviderId(providerId)
+        .siteAlarm(true)
         .role(Role.USER)
         .build();
 
