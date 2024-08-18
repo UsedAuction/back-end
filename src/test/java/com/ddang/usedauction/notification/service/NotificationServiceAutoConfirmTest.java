@@ -176,7 +176,12 @@ class NotificationServiceAutoConfirmTest {
 
         // notificationService
         verify(notificationService, times(1))
-            .send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
+            .send(
+                seller.getId(),
+                auction.getId(),
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+                CONFIRM
+            );
     }
 
     @Test
@@ -192,7 +197,12 @@ class NotificationServiceAutoConfirmTest {
 
         //then
         verify(notificationService, times(0))
-            .send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
+            .send(
+                seller.getId(),
+                auction.getId(),
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+                CONFIRM
+            );
     }
 
     @Test
@@ -216,7 +226,12 @@ class NotificationServiceAutoConfirmTest {
 
         //then
         verify(notificationService, times(0))
-            .send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
+            .send(
+                seller.getId(),
+                auction.getId(),
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+                CONFIRM
+            );
     }
 
     @Test
@@ -233,7 +248,12 @@ class NotificationServiceAutoConfirmTest {
 
         //then
         verify(notificationService, times(0))
-            .send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
+            .send(
+                seller.getId(),
+                auction.getId(),
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+                CONFIRM
+            );
     }
 
     @Test
@@ -251,7 +271,12 @@ class NotificationServiceAutoConfirmTest {
 
         //then
         verify(notificationService, times(0))
-            .send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
+            .send(
+                seller.getId(),
+                auction.getId(),
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+                CONFIRM
+            );
     }
 
     @Test
@@ -271,6 +296,11 @@ class NotificationServiceAutoConfirmTest {
 
         //then
         verify(notificationService, times(0))
-            .send(seller.getId(), auction.getId(), "구매가 확정되었습니다.", CONFIRM);
+            .send(
+                seller.getId(),
+                auction.getId(),
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매의 구매를 확정했습니다.",
+                CONFIRM
+            );
     }
 }
