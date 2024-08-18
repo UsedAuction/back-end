@@ -1,4 +1,4 @@
-package com.ddang.usedauction.global.security.auth.userInfo;
+package com.ddang.usedauction.security.auth.userInfo;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;
