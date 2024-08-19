@@ -331,7 +331,7 @@ class NotificationServiceTest {
                 Notification.builder()
                     .id(2L)
                     .content("알림2")
-                    .notificationType(NotificationType.CHANGE_BID)
+                    .notificationType(NotificationType.CONFIRM)
                     .member(seller)
                     .build(),
                 Notification.builder()
