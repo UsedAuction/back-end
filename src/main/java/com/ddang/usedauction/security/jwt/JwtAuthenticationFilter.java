@@ -47,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       String newAccessToken = tokenProvider.reissueAccessToken(authentication.getName(),
           authentication.getAuthorities());
       // Redis accessToken 값 업데이트
-      dto.setAccessToken(newAccessToken);
+      dto.updateAccessToken(newAccessToken);
       refreshTokenService.updateToken(dto);
 
       if (StringUtils.hasText(newAccessToken)) {

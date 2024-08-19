@@ -21,7 +21,7 @@ public class TokenDto implements Serializable {
   private String refreshToken;
   private String accessToken;
 
-  public void setAccessToken(String accessToken) {
+  public void updateAccessToken(String accessToken) {
     this.accessToken = accessToken;
   }
 }
