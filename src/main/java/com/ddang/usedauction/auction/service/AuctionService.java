@@ -206,7 +206,7 @@ public class AuctionService {
         memberRepository.save(seller);
 
         // 포인트 히스토리와 거래 내역 저장
-        savePointAndTransaction(confirmDto, buyer, seller, auction);
+        savePointAndTransaction(confirmDto, buyer, seller, transaction);
 
         // 판매자에게 구매 확정 알림보내기
         notificationService.send(confirmDto.getSellerId(), auctionId, "구매가 확정되었습니다.", CONFIRM);
@@ -380,7 +380,7 @@ public class AuctionService {
     // 포인트 히스토리와 거래 내역 저장 메소드
     private void savePointAndTransaction(AuctionConfirmDto.Request confirmDto, Member buyer,
         Member seller,
-        Auction auction) {
+        Transaction transaction) {
 
         PointHistory buyerPointHistory = PointHistory.builder()
             .curPointAmount(buyer.getPoint())
@@ -398,15 +398,10 @@ public class AuctionService {
             .build();
         pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
 
-        Transaction buyerTransaction = transactionRepository.findByBuyerPkAndAuctionId(
-                buyer.getId(),
-                auction.getId())
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역 입니다."));
-
-        buyerTransaction = buyerTransaction.toBuilder()
+        transaction = transaction.toBuilder()
             .transType(TransType.SUCCESS)
             .build();
-        transactionRepository.save(buyerTransaction);
+        transactionRepository.save(transaction);
     }
 
     // 즉시구매시 알림 전송
