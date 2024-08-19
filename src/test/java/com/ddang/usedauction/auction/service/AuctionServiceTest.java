@@ -449,7 +449,8 @@ class AuctionServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerId(1L, 1L)).thenReturn(Optional.of(transaction));
+        when(transactionRepository.findByBuyerPkAndAuctionId(1L, 1L)).thenReturn(
+            Optional.of(transaction));
 
         auctionService.confirmAuction(1L, "buyer", confirmDto);
 
@@ -549,7 +550,7 @@ class AuctionServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerId(1L, 1L)).thenReturn(Optional.empty());
+        when(transactionRepository.findByBuyerPkAndAuctionId(1L, 1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "buyer", confirmDto));

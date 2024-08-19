@@ -137,11 +137,12 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
-        given(transactionRepository.findByBuyerId(buyer.getId(), auction.getId()))
+        given(transactionRepository.findByBuyerPkAndAuctionId(buyer.getId(), auction.getId()))
             .willReturn(Optional.of(Transaction.builder().build()));
 
         ArgumentCaptor<Member> sellerCaptor = ArgumentCaptor.forClass(Member.class);
-        ArgumentCaptor<PointHistory> pointHistoryCaptor = ArgumentCaptor.forClass(PointHistory.class);
+        ArgumentCaptor<PointHistory> pointHistoryCaptor = ArgumentCaptor.forClass(
+            PointHistory.class);
         ArgumentCaptor<Transaction> transactionCaptor = ArgumentCaptor.forClass(Transaction.class);
 
         //when
@@ -208,7 +209,8 @@ class NotificationServiceAutoConfirmTest {
             .bidList(bidList)
             .build();
 
-        given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction_continue));
+        given(auctionRepository.findById(auction.getId())).willReturn(
+            Optional.of(auction_continue));
 
         //when
         assertThrows(IllegalStateException.class,
@@ -262,7 +264,7 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
         given(memberRepository.findById(confirmDto.getSellerId())).willReturn(Optional.of(seller));
-        given(transactionRepository.findByBuyerId(buyer.getId(), auction.getId()))
+        given(transactionRepository.findByBuyerPkAndAuctionId(buyer.getId(), auction.getId()))
             .willReturn(Optional.empty());
 
         //when
