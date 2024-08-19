@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
-  @Value("${spring.datasource.jwt.access.expiration}")
+  @Value("${spring.jwt.access.expiration}")
   private int accessTokenExpiration;
   private static final String URI = "/";
   private final TokenProvider tokenProvider;

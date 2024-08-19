@@ -34,12 +34,12 @@ spring:
       type: redis
 
     #  # JWT 시크릿 키
-    jwt:
-      secret: ${JWT_SECRET} # 환경 변수
-      access:
-        expiration: 1800000 # 30분
-      refresh:
-        expiration: 604800000 # 1주일
+  jwt:
+    secret: ${JWT_SECRET} # 환경 변수
+    access:
+      expiration: 1800000 # 30분
+    refresh:
+      expiration: 604800000 # 1주일
   h2:
     console:
       enabled: true

@@ -18,7 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-  @Value("${spring.datasource.jwt.access.expiration}")
+  @Value("${spring.jwt.access.expiration}")
   private int accessTokenExpiration;
   private final TokenProvider tokenProvider;
   private final RefreshTokenService refreshTokenService;

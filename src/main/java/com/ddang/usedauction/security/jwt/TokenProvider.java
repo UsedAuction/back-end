@@ -33,11 +33,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class TokenProvider {
 
-  @Value("${spring.datasource.jwt.secret}")
+  @Value("${spring.jwt.secret}")
   private String secretKey;
-  @Value("${spring.datasource.jwt.access.expiration}")
+  @Value("${spring.jwt.access.expiration}")
   private Long accessExpiration;
-  @Value("${spring.datasource.jwt.refresh.expiration}")
+  @Value("${spring.jwt.refresh.expiration}")
   private Long refreshExpiration;
   private final RefreshTokenService refreshTokenService;
   private Key key;
