@@ -389,7 +389,8 @@ public class AuctionService {
             .build();
         pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
 
-        Transaction buyerTransaction = transactionRepository.findByBuyerId(buyer.getId(),
+        Transaction buyerTransaction = transactionRepository.findByBuyerPkAndAuctionId(
+                buyer.getId(),
                 auction.getId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역 입니다."));
 
@@ -398,7 +399,7 @@ public class AuctionService {
             .build();
         transactionRepository.save(buyerTransaction);
     }
-  
+
     // 즉시구매시 알림 전송
     private void sendNotificationForInstant(Auction auction, Member buyer) {
 
