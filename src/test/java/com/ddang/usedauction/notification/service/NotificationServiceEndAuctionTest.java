@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.event.AuctionEndEvent;
 import com.ddang.usedauction.auction.listener.AuctionEventListener;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
@@ -17,9 +18,7 @@ import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -95,13 +94,14 @@ class NotificationServiceEndAuctionTest {
     void exist_buyer_endAuction_send_success() {
 
         //given
-        Map<String, Long> auctionAndMemberMap = new HashMap<>();
-        auctionAndMemberMap.put("seller", seller.getId());
-        auctionAndMemberMap.put("buyer", buyer.getId());
-        auctionAndMemberMap.put("price", 2000L);
+        AuctionEndDto auctionEndDto = AuctionEndDto.builder()
+            .sellerId(seller.getId())
+            .buyerId(buyer.getId())
+            .price(2000)
+            .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
-        given(auctionService.endAuction(auction.getId())).willReturn(auctionAndMemberMap);
+        given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
         given(memberRepository.findById(buyer.getId())).willReturn(Optional.of(buyer));
 
         //when
@@ -122,7 +122,8 @@ class NotificationServiceEndAuctionTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.empty());
 
         //when
-        assertThrows(NoSuchElementException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
+        assertThrows(NoSuchElementException.class,
+            () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
         verify(notificationService, times(0))
@@ -140,7 +141,8 @@ class NotificationServiceEndAuctionTest {
         given(auctionService.endAuction(auction.getId())).willThrow(new IllegalStateException("현재 경매가 이미 종료되었습니다."));
 
         //when
-        assertThrows(IllegalStateException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
+        assertThrows(IllegalStateException.class,
+            () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
         verify(notificationService, times(0))
@@ -154,17 +156,19 @@ class NotificationServiceEndAuctionTest {
     void exist_buyer_endAuction_send_fail_3() {
 
         //given
-        Map<String, Long> auctionAndMemberMap = new HashMap<>();
-        auctionAndMemberMap.put("seller", seller.getId());
-        auctionAndMemberMap.put("buyer", buyer.getId());
-        auctionAndMemberMap.put("price", 2000L);
+        AuctionEndDto auctionEndDto = AuctionEndDto.builder()
+            .sellerId(seller.getId())
+            .buyerId(buyer.getId())
+            .price(2000)
+            .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
         given(memberRepository.findById(buyer.getId())).willThrow(new NoSuchElementException("존재하지 않는 회원입니다."));
 
         //when
-        given(auctionService.endAuction(auction.getId())).willReturn(auctionAndMemberMap);
-        assertThrows(NoSuchElementException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
+        given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
+        assertThrows(NoSuchElementException.class,
+            () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
         verify(notificationService, times(0))
@@ -178,13 +182,15 @@ class NotificationServiceEndAuctionTest {
     void not_exist_buyer_endAuction_send_success() {
 
         //given
-        Map<String, Long> auctionAndMemberMap = new HashMap<>();
-        auctionAndMemberMap.put("seller", seller.getId());
-        auctionAndMemberMap.put("buyer", null);
-        auctionAndMemberMap.put("price", 2000L);
+        AuctionEndDto auctionEndDto = AuctionEndDto.builder()
+            .sellerId(seller.getId())
+            .buyerId(null)
+            .price(2000)
+            .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
-        given(auctionService.endAuction(auction.getId())).willReturn(auctionAndMemberMap);
+        given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
+
 
         //when
         auctionEventListener.handleAuctionEndEvent(auctionEndEvent);
@@ -205,7 +211,8 @@ class NotificationServiceEndAuctionTest {
         given(auctionService.endAuction(auction.getId())).willThrow(new NoSuchElementException("존재하지 않는 경매입니다."));
 
         //when
-        assertThrows(NoSuchElementException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
+        assertThrows(NoSuchElementException.class,
+            () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
         verify(notificationService, times(0))
@@ -221,9 +228,10 @@ class NotificationServiceEndAuctionTest {
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
         given(auctionService.endAuction(auction.getId())).willThrow(new IllegalStateException("현재 경매가 이미 종료되었습니다."));
-
+      
         //when
-        assertThrows(IllegalStateException.class, () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
+        assertThrows(IllegalStateException.class,
+            () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
         verify(notificationService, times(0))
