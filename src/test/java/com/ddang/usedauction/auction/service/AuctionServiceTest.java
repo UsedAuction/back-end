@@ -449,7 +449,7 @@ class AuctionServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerPkAndAuctionId(1L, 1L)).thenReturn(
+        when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
             Optional.of(transaction));
 
         auctionService.confirmAuction(1L, "buyer", confirmDto);
@@ -479,7 +479,7 @@ class AuctionServiceTest {
     }
 
     @Test
-    @DisplayName("구매 확정 실패 - 없는 회원")
+    @DisplayName("구매 확정 실패 - 없는 거래 내역")
     void confirmAuctionFail2() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
@@ -494,6 +494,42 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
+            Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 회원")
+    void confirmAuctionFail3() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.END)
+            .build();
+
+        Member buyer = Member.builder()
+            .id(1L)
+            .memberId("buyer")
+            .point(5000)
+            .build();
+
+        Transaction transaction = Transaction.builder()
+            .buyer(buyer)
+            .transType(TransType.CONTINUE)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
+            Optional.of(transaction));
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -502,7 +538,7 @@ class AuctionServiceTest {
 
     @Test
     @DisplayName("구매 확정 실패 - 진행중인 경매인 경우")
-    void confirmAuctionFail3() {
+    void confirmAuctionFail4() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
             .price(1000)
@@ -523,7 +559,7 @@ class AuctionServiceTest {
 
     @Test
     @DisplayName("구매 확정 실패 - 없는 거래 내역")
-    void confirmAuctionFail4() {
+    void confirmAuctionFail5() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
             .price(1000)
@@ -536,21 +572,9 @@ class AuctionServiceTest {
             .auctionState(AuctionState.END)
             .build();
 
-        Member buyer = Member.builder()
-            .id(1L)
-            .memberId("buyer")
-            .point(5000)
-            .build();
-
-        Member seller = Member.builder()
-            .memberId("seller")
-            .point(1000)
-            .build();
-
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
-        when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerPkAndAuctionId(1L, 1L)).thenReturn(Optional.empty());
+        when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "buyer", confirmDto));
