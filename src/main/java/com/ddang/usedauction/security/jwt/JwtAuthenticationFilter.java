@@ -73,7 +73,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     CookieUtil.deleteCookie(request, response, "JWT");
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-    // TODO) 프론트에 메시지를 보내줘야되는가?
   }
 }
 
