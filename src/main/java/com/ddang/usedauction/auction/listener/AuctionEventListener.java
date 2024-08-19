@@ -2,10 +2,12 @@ package com.ddang.usedauction.auction.listener;
 
 import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
 
+import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto.Request;
 import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.event.AuctionAutoConfirmEvent;
 import com.ddang.usedauction.auction.event.AuctionEndEvent;
+import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.member.domain.Member;
@@ -27,6 +29,7 @@ public class AuctionEventListener { // 경매 이벤트 리스너
     private final AuctionService auctionService;
     private final AuctionRedisService auctionRedisService;
     private final NotificationService notificationService;
+    private final AuctionRepository auctionRepository;
 
     // 경매 종료 이벤트 리스너
     @EventListener
@@ -34,6 +37,9 @@ public class AuctionEventListener { // 경매 이벤트 리스너
     public void handleAuctionEndEvent(AuctionEndEvent auctionEndEvent) {
 
         Long auctionId = auctionEndEvent.getAuctionId();
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
         AuctionEndDto auctionEndDto = auctionService.endAuction(
             auctionId);// 경매 종료 처리 및 낙찰자
@@ -50,13 +56,13 @@ public class AuctionEventListener { // 경매 이벤트 리스너
             auctionRedisService.createAutoConfirm(auctionId, buyer.getMemberId(), price, sellerId);
 
             // 구매자에게 경매 종료 알림보내기
-            notificationService.send(buyerId, auctionId, "경매가 종료되었습니다.", DONE);
+            sendNotificationForEnd(buyerId, auction);
 
             // todo: 판매자 및 낙찰자 채팅방 생성
         }
 
         // 판매자에게 경매 종료 알림보내기
-        notificationService.send(sellerId, auctionId, "경매가 종료되었습니다.", DONE);
+        sendNotificationForEnd(sellerId, auction);
     }
 
     @EventListener
@@ -67,5 +73,16 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         Request confirmDto = auctionAutoConfirmEvent.getConfirmDto();
 
         auctionService.confirmAuction(auctionId, buyerId, confirmDto);
+    }
+
+    // 경매 종료 알림 전송
+    private void sendNotificationForEnd(Long memberId, Auction auction) {
+
+        notificationService.send(
+            memberId,
+            auction.getId(),
+            auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE
+        );
     }
 }

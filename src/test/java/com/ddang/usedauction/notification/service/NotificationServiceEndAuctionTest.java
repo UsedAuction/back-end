@@ -11,6 +11,7 @@ import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.event.AuctionEndEvent;
 import com.ddang.usedauction.auction.listener.AuctionEventListener;
+import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.bid.domain.Bid;
@@ -42,6 +43,9 @@ class NotificationServiceEndAuctionTest {
 
     @Mock
     private AuctionRedisService auctionRedisService;
+
+    @Mock
+    private AuctionRepository auctionRepository;
 
     @InjectMocks
     private AuctionEventListener auctionEventListener;
@@ -96,6 +100,7 @@ class NotificationServiceEndAuctionTest {
             .price(2000)
             .build();
 
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
         given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
         given(memberRepository.findById(buyer.getId())).willReturn(Optional.of(buyer));
 
@@ -103,10 +108,10 @@ class NotificationServiceEndAuctionTest {
         auctionEventListener.handleAuctionEndEvent(auctionEndEvent);
 
         //then
-        verify(notificationService, times(1)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(1)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(1))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(1))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -114,18 +119,17 @@ class NotificationServiceEndAuctionTest {
     void exist_buyer_endAuction_send_fail_1() {
 
         //given
-        given(auctionService.endAuction(auction.getId())).willThrow(
-            new NoSuchElementException("존재하지 않는 경매입니다."));
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
             () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(0))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -133,18 +137,18 @@ class NotificationServiceEndAuctionTest {
     void exist_buyer_endAuction_send_fail_2() {
 
         //given
-        given(auctionService.endAuction(auction.getId())).willThrow(
-            new IllegalStateException("현재 경매가 이미 종료되었습니다."));
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
+        given(auctionService.endAuction(auction.getId())).willThrow(new IllegalStateException("현재 경매가 이미 종료되었습니다."));
 
         //when
         assertThrows(IllegalStateException.class,
             () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(0))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -158,8 +162,8 @@ class NotificationServiceEndAuctionTest {
             .price(2000)
             .build();
 
-        given(memberRepository.findById(buyer.getId())).willThrow(
-            new NoSuchElementException("존재하지 않는 회원입니다."));
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
+        given(memberRepository.findById(buyer.getId())).willThrow(new NoSuchElementException("존재하지 않는 회원입니다."));
 
         //when
         given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
@@ -167,10 +171,10 @@ class NotificationServiceEndAuctionTest {
             () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(0))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -184,16 +188,18 @@ class NotificationServiceEndAuctionTest {
             .price(2000)
             .build();
 
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
         given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
+
 
         //when
         auctionEventListener.handleAuctionEndEvent(auctionEndEvent);
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(1)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(0))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(1))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -201,18 +207,18 @@ class NotificationServiceEndAuctionTest {
     void not_exist_buyer_endAuction_send_fail_1() {
 
         //given
-        given(auctionService.endAuction(auction.getId())).willThrow(
-            new NoSuchElementException("존재하지 않는 경매입니다."));
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
+        given(auctionService.endAuction(auction.getId())).willThrow(new NoSuchElementException("존재하지 않는 경매입니다."));
 
         //when
         assertThrows(NoSuchElementException.class,
             () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(0))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 
     @Test
@@ -220,17 +226,17 @@ class NotificationServiceEndAuctionTest {
     void not_exist_buyer_endAuction_send_fail_2() {
 
         //given
-        given(auctionService.endAuction(auction.getId())).willThrow(
-            new IllegalStateException("현재 경매가 이미 종료되었습니다."));
-
+        given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
+        given(auctionService.endAuction(auction.getId())).willThrow(new IllegalStateException("현재 경매가 이미 종료되었습니다."));
+      
         //when
         assertThrows(IllegalStateException.class,
             () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
 
         //then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.",
-            DONE);
+        verify(notificationService, times(0))
+            .send(buyer.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0))
+            .send(seller.getId(), auction.getId(), auction.getTitle() + " 경매가 종료되었습니다.", DONE);
     }
 }
