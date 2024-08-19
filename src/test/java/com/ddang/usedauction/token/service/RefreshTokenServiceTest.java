@@ -13,13 +13,11 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshTokenServiceTest {
@@ -28,10 +26,10 @@ class RefreshTokenServiceTest {
   private MemberRepository memberRepository;
 
   @Mock
-  private RedisTemplate<String, Object> redisTemplate;
+  private RedisTemplate<String, TokenDto> redisTemplate;
 
   @Mock
-  private ValueOperations<String, Object> valueOperations;
+  private ValueOperations<String, TokenDto> valueOperations;
 
   @InjectMocks
   private RefreshTokenService refreshTokenService;
@@ -108,20 +106,19 @@ class RefreshTokenServiceTest {
   void setBlackList() {
     //given
     String key = "blacklist_key";
-    String value = "blacklisted_value";
+    TokenDto tokenDto = TokenDto.builder()
+        .email("test@example.com")
+        .accessToken("blacklistedAccessToken")
+        .refreshToken("blacklistedRefreshToken")
+        .build();
     Long milliSeconds = 60000L;
 
     when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-    ArgumentCaptor<Jackson2JsonRedisSerializer> serializerCaptor = ArgumentCaptor.forClass(
-        Jackson2JsonRedisSerializer.class);
 
     //when
-    refreshTokenService.setBlackList(key, value, milliSeconds);
+    refreshTokenService.setBlackList(key, tokenDto, milliSeconds);
     //then
-    verify(redisTemplate).setValueSerializer(serializerCaptor.capture());
-    verify(valueOperations).set(eq(key), eq(value), eq(milliSeconds), eq(TimeUnit.MILLISECONDS));
-
-    assertTrue(serializerCaptor.getValue() instanceof Jackson2JsonRedisSerializer);
+    verify(valueOperations).set(eq(key), eq(tokenDto), eq(milliSeconds), eq(TimeUnit.MILLISECONDS));
   }
 
   @Test
