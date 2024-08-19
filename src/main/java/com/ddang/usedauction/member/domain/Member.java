@@ -1,6 +1,7 @@
 package com.ddang.usedauction.member.domain;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
+import com.ddang.usedauction.member.domain.enums.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,36 +23,39 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String memberId;
+  @Column(nullable = false)
+  private String memberId;
 
-    @Column(nullable = false)
-    private String passWord;
+  @Column(nullable = false)
+  private String passWord;
 
-    @Column(nullable = false)
-    private String email;
+  @Column(nullable = false)
+  private String email;
 
-    @Column
-    private boolean siteAlarm;
+  @Column
+  private Role role;
 
-    @Column
-    private long point;
+  @Column
+  private boolean siteAlarm;
 
-    @Column
-    private String social;
+  @Column
+  private long point;
 
-    @Column
-    private String socialProviderId;
+  @Column
+  private String social;
 
-    @Column
-    private LocalDateTime deletedAt;
+  @Column
+  private String socialProviderId;
 
-    // 포인트 충전
-    public void addPoint(int point) {
-        this.point += point;
-    }
+  @Column
+  private LocalDateTime deletedAt;
+
+  // 포인트 충전
+  public void addPoint(int point) {
+    this.point += point;
+  }
 }
