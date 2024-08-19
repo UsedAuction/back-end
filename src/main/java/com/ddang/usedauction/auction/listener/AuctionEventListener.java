@@ -11,6 +11,9 @@ import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.service.NotificationService;
+import com.ddang.usedauction.transaction.domain.TransType;
+import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuctionEventListener { // 경매 이벤트 리스너
 
     private final MemberRepository memberRepository;
+    private final TransactionRepository transactionRepository;
     private final AuctionService auctionService;
     private final AuctionRedisService auctionRedisService;
     private final NotificationService notificationService;
@@ -65,6 +69,15 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         Long auctionId = auctionAutoConfirmEvent.getAuctionId();
         String buyerId = auctionAutoConfirmEvent.getBuyerId();
         Request confirmDto = auctionAutoConfirmEvent.getConfirmDto();
+
+        Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(buyerId,
+                auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역입니다."));
+
+        // 구매확정으로 인해 이미 거래가 종료된 경우
+        if (transaction.getTransType().equals(TransType.SUCCESS)) {
+            return; // 종료
+        }
 
         auctionService.confirmAuction(auctionId, buyerId, confirmDto);
     }
