@@ -49,8 +49,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
     Member member = memberRepository.findByEmail(email)
         .orElseGet(() -> signUp(memberId, passWord, email, provider, providerId));
 
-    return new PrincipalDetails(member.getId(), member.getMemberId(), member.getPassWord(),
-        member.getEmail(), member.getRole().toString(), oauth2UserInfo);
+    return new PrincipalDetails(member.getEmail(), member.getPassWord(),
+        member.getRole().toString(), oauth2UserInfo);
   }
 
   private Member signUp(String memberId, String passWord, String email, String provider,

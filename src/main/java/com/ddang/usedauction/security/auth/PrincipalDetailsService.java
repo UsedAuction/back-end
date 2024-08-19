@@ -23,7 +23,7 @@ public class PrincipalDetailsService implements UserDetailsService {
     Member member = memberRepository.findByEmail(username)
         .orElseThrow(() -> new NoSuchElementException("등록되지 않은 회원입니다."));
 
-    return new PrincipalDetails(member.getId(), member.getMemberId(), member.getPassWord(),
-        member.getEmail(), member.getRole().toString());
+    return new PrincipalDetails(member.getEmail(), member.getPassWord(),
+        member.getRole().toString());
   }
 }

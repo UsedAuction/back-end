@@ -13,27 +13,21 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
  */
 public class PrincipalDetails implements UserDetails, OAuth2User {
 
-  private Long id;
-  private String memberId;
-  private String password;
   private String email;
+  private String password;
   private String role;
   private Oauth2UserInfo oauth2UserInfo;
 
-  public PrincipalDetails(Long id, String memberId, String password, String email, String role) {
-    this.id = id;
-    this.memberId = memberId;
-    this.password = password;
+  public PrincipalDetails(String email, String password, String role) {
     this.email = email;
+    this.password = password;
     this.role = role;
   }
 
-  public PrincipalDetails(Long id, String memberId,
-      String password, String email, String role, Oauth2UserInfo oauth2UserInfo) {
-    this.id = id;
-    this.memberId = memberId;
-    this.password = password;
+  public PrincipalDetails(String email,
+      String password, String role, Oauth2UserInfo oauth2UserInfo) {
     this.email = email;
+    this.password = password;
     this.role = role;
     this.oauth2UserInfo = oauth2UserInfo;
   }
@@ -44,6 +38,7 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
     collection.add((GrantedAuthority) () -> role);
     return collection;
   }
+
 
   @Override
   public String getPassword() {
@@ -82,6 +77,6 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
   @Override
   public String getName() {
-    return memberId;
+    return email;
   }
 }
