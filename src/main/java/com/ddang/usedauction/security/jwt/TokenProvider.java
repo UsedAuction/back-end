@@ -1,5 +1,6 @@
 package com.ddang.usedauction.security.jwt;
 
+import com.ddang.usedauction.security.auth.PrincipalDetails;
 import com.ddang.usedauction.security.jwt.exception.CustomJwtException;
 import com.ddang.usedauction.security.jwt.exception.JwtErrorCode;
 import com.ddang.usedauction.token.dto.TokenDto;
@@ -26,8 +27,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
@@ -94,8 +93,12 @@ public class TokenProvider {
             .map(SimpleGrantedAuthority::new)
             .collect(Collectors.toList());
 
-    UserDetails principal = new User(claims.getSubject(), "", authorities);
-    return new UsernamePasswordAuthenticationToken(principal, "", authorities);
+    PrincipalDetails principalDetails = new PrincipalDetails(
+        claims.getSubject(),
+        "",
+        authorities.toString()
+    );
+    return new UsernamePasswordAuthenticationToken(principalDetails, "", authorities);
   }
 
   private Claims parseClaims(String token) {
