@@ -185,6 +185,15 @@ public class AuctionService {
             throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
         }
 
+        Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(memberId,
+                auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
+
+        // 이미 구매확정이 징행된 경우
+        if (transaction.getTransType().equals(TransType.SUCCESS)) {
+            throw new IllegalStateException("이미 종료된 거래입니다.");
+        }
+
         Member buyer = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
