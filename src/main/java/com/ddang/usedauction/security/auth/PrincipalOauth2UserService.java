@@ -1,6 +1,6 @@
 package com.ddang.usedauction.security.auth;
 
-import com.ddang.usedauction.member.domain.entity.Member;
+import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.domain.enums.Role;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.auth.userInfo.GoogleUserInfo;
