@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
-import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.dto.BidMessageDto;
 import com.ddang.usedauction.category.domain.Category;
@@ -77,7 +77,7 @@ public class BidPubSubConcurrencyTest {
         Auction auction = Auction.builder()
             .title("title")
             .contactPlace("place")
-            .transactionType(TransactionType.CONTACT)
+            .receiveType(ReceiveType.CONTACT)
             .productStatus(3.5)
             .startPrice(1000)
             .productName("name")
@@ -110,7 +110,7 @@ public class BidPubSubConcurrencyTest {
             executorService.submit(() -> {
                 try {
                     bidPubSubService.createBid(BidMessageDto.Request.builder().bidAmount(2000)
-                        .auctionId(savedAuction.getId()).build(), "test" + finalI);
+                        .auctionId(savedAuction.getId()).memberId("test" + finalI).build());
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();

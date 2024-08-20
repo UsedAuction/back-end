@@ -11,6 +11,11 @@ import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.bid.service.BidService;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
+import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
+import com.ddang.usedauction.security.jwt.Oauth2SuccessHandler;
+import com.ddang.usedauction.security.jwt.TokenProvider;
+import com.ddang.usedauction.token.service.RefreshTokenService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,7 +28,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest({BidController.class, SecurityConfig.class})
+@WebMvcTest({
+    BidController.class, SecurityConfig.class
+})
 class BidControllerTest {
 
     @Autowired
@@ -31,6 +38,21 @@ class BidControllerTest {
 
     @MockBean
     private BidService bidService;
+
+    @MockBean
+    private TokenProvider tokenProvider;
+
+    @MockBean
+    private RefreshTokenService refreshTokenService;
+
+    @MockBean
+    private PrincipalOauth2UserService principalOauth2UserService;
+
+    @MockBean
+    private Oauth2SuccessHandler oauth2SuccessHandler;
+
+    @MockBean
+    private Oauth2FailureHandler oauth2FailureHandler;
 
     @Test
     @DisplayName("회원의 입찰 목록 조회 컨트롤러")

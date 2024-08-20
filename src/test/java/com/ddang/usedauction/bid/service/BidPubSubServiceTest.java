@@ -12,7 +12,6 @@ import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.bid.dto.BidErrorMessageDto;
-import com.ddang.usedauction.bid.dto.BidFailByPointMessageDto;
 import com.ddang.usedauction.bid.dto.BidFailByPointMessageDto.Response;
 import com.ddang.usedauction.bid.dto.BidFailByPreviousBidMessageDto;
 import com.ddang.usedauction.bid.dto.BidMessageDto;
@@ -60,6 +59,7 @@ class BidPubSubServiceTest {
         message = BidMessageDto.Request.builder()
             .bidAmount(3000)
             .auctionId(1L)
+            .memberId("test")
             .build();
 
         auction = Auction.builder()
@@ -105,7 +105,7 @@ class BidPubSubServiceTest {
         when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
             savedAuction);
 
-        bidPubSubService.createBid(message, "test");
+        bidPubSubService.createBid(message);
 
         assertEquals(3000, savedAuction.getCurrentPrice());
         verify(simpMessageSendingOperations, times(1)).convertAndSend(
@@ -137,7 +137,18 @@ class BidPubSubServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> bidPubSubService.createBid(message, "test"));
+            () -> bidPubSubService.createBid(message));
+    }
+
+    @Test
+    @DisplayName("입찰 pub/sub 실패 - 존재하지 않는 회원")
+    void createBidFail6() {
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> bidPubSubService.createBid(message));
     }
 
     @Test
@@ -149,20 +160,21 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
 
         assertThrows(IllegalStateException.class,
-            () -> bidPubSubService.createBid(message, "test"));
+            () -> bidPubSubService.createBid(message));
 
-        verify(simpMessageSendingOperations, times(1)).convertAndSendToUser(
-            argThat(arg -> arg.equals("test")), argThat(arg -> arg.equals("/queue/errors")),
-            argThat(arg -> {
+        verify(simpMessageSendingOperations, times(1)).convertAndSend(
+            argThat(arg -> arg.equals("/queue/errors/test")),
+            (Object) (argThat(arg -> {
                 if (!(arg instanceof BidErrorMessageDto)) {
                     return false;
                 }
 
                 BidErrorMessageDto bidErrorMessageDto = BidErrorMessageDto.from("이미 종료된 경매입니다.");
                 return bidErrorMessageDto.getMessage().equals("이미 종료된 경매입니다.");
-            }));
+            })));
     }
 
     @Test
@@ -174,13 +186,14 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
 
         assertThrows(IllegalArgumentException.class,
-            () -> bidPubSubService.createBid(message, "test"));
+            () -> bidPubSubService.createBid(message));
 
-        verify(simpMessageSendingOperations, times(1)).convertAndSendToUser(
-            argThat(arg -> arg.equals("test")), argThat(arg -> arg.equals("/queue/errors")),
-            argThat(arg -> {
+        verify(simpMessageSendingOperations, times(1)).convertAndSend(
+            argThat(arg -> arg.equals("/queue/errors/test")),
+            (Object) argThat(arg -> {
                 if (!(arg instanceof BidErrorMessageDto)) {
                     return false;
                 }
@@ -204,13 +217,14 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
 
         assertThrows(IllegalArgumentException.class,
-            () -> bidPubSubService.createBid(message, "test"));
+            () -> bidPubSubService.createBid(message));
 
-        verify(simpMessageSendingOperations, times(1)).convertAndSendToUser(
-            argThat(arg -> arg.equals("test")), argThat(arg -> arg.equals("/queue/errors")),
-            argThat(arg -> {
+        verify(simpMessageSendingOperations, times(1)).convertAndSend(
+            argThat(arg -> arg.equals("/queue/errors/test")),
+            (Object) argThat(arg -> {
                 if (!(arg instanceof BidFailByPreviousBidMessageDto.Response)) {
                     return false;
                 }
@@ -230,13 +244,14 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
 
         assertThrows(IllegalArgumentException.class,
-            () -> bidPubSubService.createBid(message, "test"));
+            () -> bidPubSubService.createBid(message));
 
-        verify(simpMessageSendingOperations, times(1)).convertAndSendToUser(
-            argThat(arg -> arg.equals("test")), argThat(arg -> arg.equals("/queue/errors")),
-            argThat(arg -> {
+        verify(simpMessageSendingOperations, times(1)).convertAndSend(
+            argThat(arg -> arg.equals("/queue/errors/test")),
+            (Object) argThat(arg -> {
                 if (!(arg instanceof BidErrorMessageDto)) {
                     return false;
                 }
@@ -246,17 +261,6 @@ class BidPubSubServiceTest {
                 return bidErrorMessageDto.getMessage()
                     .equals("입찰 금액은 입찰 시작가보다 1000원 높은 금액부터 입찰할 수 있습니다.");
             }));
-    }
-
-    @Test
-    @DisplayName("입찰 pub/sub 실패 - 존재하지 않는 회원")
-    void createBidFail6() {
-
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
-
-        assertThrows(NoSuchElementException.class,
-            () -> bidPubSubService.createBid(message, "test"));
     }
 
     @Test
@@ -282,12 +286,12 @@ class BidPubSubServiceTest {
             AuctionState.CONTINUE)).thenReturn(auctionList);
 
         assertThrows(IllegalArgumentException.class,
-            () -> bidPubSubService.createBid(message, "test"));
+            () -> bidPubSubService.createBid(message));
 
-        verify(simpMessageSendingOperations, times(1)).convertAndSendToUser(
-            argThat(arg -> arg.equals("test")), argThat(arg -> arg.equals("/queue/errors")),
-            argThat(arg -> {
-                if (!(arg instanceof BidFailByPointMessageDto.Response)) {
+        verify(simpMessageSendingOperations, times(1)).convertAndSend(
+            argThat(arg -> arg.equals("/queue/errors/test")),
+            (Object) argThat(arg -> {
+                if (!(arg instanceof Response)) {
                     return false;
                 }
 
