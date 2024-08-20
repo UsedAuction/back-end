@@ -73,8 +73,8 @@ public class BidPubSubService {
         // 종료된 경매인 경우
         if (auction.getAuctionState().equals(AuctionState.END)) {
             // 해당 회원에게 에러 메시지 발송
-            simpMessageSendingOperations.convertAndSendToUser(memberId,
-                "/queue/errors", BidErrorMessageDto.from("이미 종료된 경매입니다."));
+            simpMessageSendingOperations.convertAndSend("/queue/errors/" + message.getMemberId(),
+                BidErrorMessageDto.from("이미 종료된 경매입니다."));
 
             throw new IllegalStateException("이미 종료된 경매입니다.");
         }
@@ -82,8 +82,8 @@ public class BidPubSubService {
         // 즉시구매가 이상으로 입찰 시도하는 경우
         if (message.getBidAmount() >= auction.getInstantPrice()) {
             // 해당 회원에게 에러 메시지 발송
-            simpMessageSendingOperations.convertAndSendToUser(memberId,
-                "/queue/errors", BidErrorMessageDto.from("즉시구매가 이상으로 입찰할 수 없습니다."));
+            simpMessageSendingOperations.convertAndSend("/queue/errors/" + message.getMemberId(),
+                BidErrorMessageDto.from("즉시구매가 이상으로 입찰할 수 없습니다."));
 
             throw new IllegalArgumentException("즉시구매가 이상으로 입찰할 수 없습니다.");
         }
@@ -95,8 +95,8 @@ public class BidPubSubService {
                 auction.getCurrentPrice(), message.getBidAmount());
 
             // 해당 회원에게 에러 메시지 발송
-            simpMessageSendingOperations.convertAndSendToUser(memberId,
-                "/queue/errors", response);
+            simpMessageSendingOperations.convertAndSend("/queue/errors/" + message.getMemberId(),
+                response);
 
             throw new IllegalArgumentException("먼저 입찰한 회원이 존재합니다.");
         }
@@ -105,8 +105,7 @@ public class BidPubSubService {
         if (message.getBidAmount() < auction.getStartPrice() + 1000) {
 
             // 해당 회원에게 에러 메시지 발송
-            simpMessageSendingOperations.convertAndSendToUser(memberId,
-                "/queue/errors",
+            simpMessageSendingOperations.convertAndSend("/queue/errors/" + message.getMemberId(),
                 BidErrorMessageDto.from("입찰 금액은 입찰 시작가보다 1000원 높은 금액부터 입찰할 수 있습니다."));
 
             throw new IllegalArgumentException(
@@ -123,8 +122,7 @@ public class BidPubSubService {
                 message.getBidAmount());
 
             // 해당 회원에게 에러 메시지 발송
-            simpMessageSendingOperations.convertAndSendToUser(memberId,
-                "/queue/errors",
+            simpMessageSendingOperations.convertAndSend("/queue/errors/" + message.getMemberId(),
                 response);
 
             throw new IllegalArgumentException("포인트 충전이 필요합니다.");
