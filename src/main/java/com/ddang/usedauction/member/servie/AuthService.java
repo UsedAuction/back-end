@@ -41,7 +41,7 @@ public class AuthService {
     TokenDto token = refreshTokenService.findTokenByEmail(email);
     String oldAccessToken = token.getAccessToken();
 
-    if (!tokenProvider.isExpiredToken(oldAccessToken) &&
+    if (tokenProvider.isExpiredToken(oldAccessToken) &&
         !tokenProvider.isExpiredToken(token.getRefreshToken())) {
       String newAccessToken = tokenProvider.reissueAccessToken(member.getEmail(),
           List.of(new SimpleGrantedAuthority(member.getRole().toString())));
