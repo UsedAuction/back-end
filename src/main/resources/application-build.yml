@@ -37,7 +37,7 @@ spring:
   cache:
     type: redis
 
-  # 메일설정
+    # 메일설정
   mail:
     host: smtp.gmail.com
     port: 587
@@ -48,6 +48,9 @@ spring:
         smtp:
           starttls:
             enable: true
+            required: true  # 이 설정을 추가하여 STARTTLS를 필수로 설정
+          ssl:
+            trust: smtp.gmail.com  # Gmail의 SSL 신뢰 설정
 
 # redisson
 redisson:

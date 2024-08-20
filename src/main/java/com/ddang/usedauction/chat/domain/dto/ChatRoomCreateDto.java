@@ -2,8 +2,10 @@ package com.ddang.usedauction.chat.domain.dto;
 
 import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
-import com.ddang.usedauction.member.dto.MemberGetDto;
+
 import java.io.Serializable;
+
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,18 +1,19 @@
-package com.ddang.usedauction.member.component;
+package com.ddang.usedauction.member.service;
 
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
-public class MailComponent {
+@Service
+public class MailService {
     private final JavaMailSender javaMailSender;
 
     public boolean send(String fromEmail, String fromName, String toEmail, String toName, String title, String contents) {
@@ -43,6 +44,7 @@ public class MailComponent {
             result = true;
         } catch (Exception e) {
             log.info(e.getMessage());
+            throw new RuntimeException();
         }
         return result;
     }

@@ -28,6 +28,11 @@ public class MemberGetDto {
     private LocalDateTime createdAt;
     private LocalDateTime deletedAt;
 
+    // deletedAt에 대한 getter 메서드 추가
+    public LocalDateTime getDeletedAt() {
+      return this.deletedAt;
+    }
+
 
     public String getMemberId() {
       return memberId;
@@ -57,22 +62,26 @@ public class MemberGetDto {
       return this.passWord.equals(password);
     }
 
+    public Response(String memberId, String passWord) {
+      this.memberId = memberId;
+      this.passWord = passWord;
+    }
+
     // entity -> getResponse
     public static MemberGetDto.Response from(Member member) {
 
       return Response.builder()
-          .id(member.getId())
-          .memberId(member.getMemberId())
-          .passWord(member.getPassWord())
-          .email(member.getEmail())
-          .siteAlarm(member.isSiteAlarm())
-          .point(member.getPoint())
-          .social(member.getSocial())
-          .socialProviderId(member.getSocialProviderId())
-          .createdAt(member.getCreatedAt())
-          .deletedAt(member.getDeletedAt())
-          .build();
+              .id(member.getId())
+              .memberId(member.getMemberId())
+              .passWord(member.getPassWord())
+              .email(member.getEmail())
+              .siteAlarm(member.isSiteAlarm())
+              .point(member.getPoint())
+              .social(member.getSocial())
+              .socialProviderId(member.getSocialProviderId())
+              .createdAt(member.getCreatedAt())
+              .deletedAt(member.getDeletedAt())
+              .build();
     }
-
   }
 }

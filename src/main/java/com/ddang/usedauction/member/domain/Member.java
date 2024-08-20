@@ -31,16 +31,15 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @NotBlank(message = "아이디를 입력해주세요.")
     @Size(min = 6, max = 12)
     @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디는 영문자와 숫자만 사용 가능합니다.")
     @Column(nullable = false, length = 20, unique = true)
     private String memberId;
-
 
     @NotBlank(message = "비밀번호를 입력해주세요.")
     @Size(min = 4, max = 16)
@@ -56,13 +55,8 @@ public class Member extends BaseTimeEntity {
     @NotBlank(message = "이메일을 입력해주세요.")
     @Column(nullable = false, unique = true)
     private String email;
+    private LocalDateTime updateDate;
 
-  @Column
-  @Enumerated(EnumType.STRING)
-  private Role role;
-
-  @Column
-  private boolean siteAlarm;
     public String getMemberId() {
         return memberId;
     }
@@ -100,20 +94,40 @@ public class Member extends BaseTimeEntity {
     @Column
     private boolean siteAlarm;
 
-  @Column
-  private long point;
+    @Column
+    private long point;
 
-  @Column
-  private String social;
+    @Column
+    private String social;
 
   @Column
   private String socialProviderId;
 
+    @Column
+    private LocalDateTime deleteDate;
+
+    /**
+     * Entity -> ServiceDto
+     *
+     * @return ServiceDto
+     */
+    public MemberServiceDto toServiceDto() {
+
+        return MemberServiceDto.builder()
+                .id(id)
+                .memberId(memberId)
+                .passWord(passWord)
+                .email(email)
+                .createDate(getCreatedAt())
+                .updateDate(getUpdatedAt())
+                .deleteDate(getDeletedAt())
+                .build();
+    }
   @Column
   private LocalDateTime deletedAt;
 
-  // 포인트 충전
-  public void addPoint(int point) {
-    this.point += point;
-  }
+    // 포인트 충전
+    public void addPoint(int point) {
+        this.point += point;
+    }
 }

@@ -21,4 +21,8 @@ public class BaseTimeEntity {
     @Column(nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt; // 수정 날짜
+
+    @Column(nullable = false)
+    @LastModifiedDate
+    private LocalDateTime deletedAt;
 }

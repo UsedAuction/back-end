@@ -2,10 +2,12 @@ package com.ddang.usedauction.ask.dto;
 
 import com.ddang.usedauction.answer.dto.AnswerGetDto;
 import com.ddang.usedauction.ask.domain.Ask;
-import com.ddang.usedauction.member.dto.MemberGetDto;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
