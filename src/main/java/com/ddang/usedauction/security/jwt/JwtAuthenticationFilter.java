@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException {
 
     String token = CookieUtil.getCookieValue(request, "JWT")
-        .orElseThrow(() -> new RuntimeException("쿠키가 존재하지 않습니다."));
+        .orElse(null);
     // accessToken 검증
     if (token != null && tokenProvider.validateToken(token)) {
       setAuthentication(token);
