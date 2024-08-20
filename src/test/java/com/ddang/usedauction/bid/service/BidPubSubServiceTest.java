@@ -166,7 +166,7 @@ class BidPubSubServiceTest {
             () -> bidPubSubService.createBid(message));
 
         verify(simpMessageSendingOperations, times(1)).convertAndSend(
-            argThat(arg -> arg.equals("/queue/errors/test")),
+            argThat(arg -> arg.equals("/sub/errors/test")),
             (Object) (argThat(arg -> {
                 if (!(arg instanceof BidErrorMessageDto)) {
                     return false;
@@ -192,7 +192,7 @@ class BidPubSubServiceTest {
             () -> bidPubSubService.createBid(message));
 
         verify(simpMessageSendingOperations, times(1)).convertAndSend(
-            argThat(arg -> arg.equals("/queue/errors/test")),
+            argThat(arg -> arg.equals("/sub/errors/test")),
             (Object) argThat(arg -> {
                 if (!(arg instanceof BidErrorMessageDto)) {
                     return false;
@@ -223,7 +223,7 @@ class BidPubSubServiceTest {
             () -> bidPubSubService.createBid(message));
 
         verify(simpMessageSendingOperations, times(1)).convertAndSend(
-            argThat(arg -> arg.equals("/queue/errors/test")),
+            argThat(arg -> arg.equals("/sub/errors/test")),
             (Object) argThat(arg -> {
                 if (!(arg instanceof BidFailByPreviousBidMessageDto.Response)) {
                     return false;
@@ -250,7 +250,7 @@ class BidPubSubServiceTest {
             () -> bidPubSubService.createBid(message));
 
         verify(simpMessageSendingOperations, times(1)).convertAndSend(
-            argThat(arg -> arg.equals("/queue/errors/test")),
+            argThat(arg -> arg.equals("/sub/errors/test")),
             (Object) argThat(arg -> {
                 if (!(arg instanceof BidErrorMessageDto)) {
                     return false;
@@ -289,7 +289,7 @@ class BidPubSubServiceTest {
             () -> bidPubSubService.createBid(message));
 
         verify(simpMessageSendingOperations, times(1)).convertAndSend(
-            argThat(arg -> arg.equals("/queue/errors/test")),
+            argThat(arg -> arg.equals("/sub/errors/test")),
             (Object) argThat(arg -> {
                 if (!(arg instanceof Response)) {
                     return false;
