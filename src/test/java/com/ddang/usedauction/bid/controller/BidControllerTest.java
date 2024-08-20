@@ -36,19 +36,19 @@ class BidControllerTest {
     @DisplayName("회원의 입찰 목록 조회 컨트롤러")
     void getBidListController() throws Exception {
 
-        Member member = Member.builder()
-            .memberId("test")
-            .build();
-
         Auction auction = Auction.builder()
             .id(1L)
             .build();
 
+        Member member = Member.builder()
+            .memberId("test")
+            .build();
+
         Bid bid = Bid.builder()
             .id(1L)
-            .bidPrice(5000)
-            .member(member)
+            .bidPrice(1000)
             .auction(auction)
+            .member(member)
             .build();
         List<Bid> bidList = List.of(bid);
         Pageable pageable = PageRequest.of(0, 10);
@@ -59,7 +59,7 @@ class BidControllerTest {
         mockMvc.perform(get("/api/bids"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0].bidPrice").value(5000));
+            .andExpect(jsonPath("$.content[0].bidPrice").value(1000));
     }
 
     @Test
