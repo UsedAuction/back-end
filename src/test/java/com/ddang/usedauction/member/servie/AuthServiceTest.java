@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ddang.usedauction.member.domain.entity.Member;
+import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.domain.enums.Role;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
@@ -125,7 +125,11 @@ class AuthServiceTest {
     AccessTokenDto dto = AccessTokenDto.builder()
         .accessToken(newAccessToken)
         .build();
-
+    TokenDto tokenDto = TokenDto.builder()
+        .email("test@example.com")
+        .accessToken("blacklistedAccessToken")
+        .refreshToken("blacklistedRefreshToken")
+        .build();
     when(tokenProvider.validateToken(dto.getAccessToken())).thenReturn(true);
     when(tokenProvider.getExpiration(dto.getAccessToken())).thenReturn(604800000L);
     when(tokenProvider.getEmailByToken(dto.getAccessToken())).thenReturn(member.getEmail());
@@ -133,7 +137,7 @@ class AuthServiceTest {
 
     authService.deleteToken(dto);
 
-    verify(refreshTokenService).setBlackList(dto.getAccessToken(), "access_token", 604800000L);
+    verify(refreshTokenService).setBlackList(dto.getAccessToken(), tokenDto, 604800000L);
     verify(refreshTokenService).deleteRefreshTokenByEmail(tokenDto.getEmail());
   }
 }

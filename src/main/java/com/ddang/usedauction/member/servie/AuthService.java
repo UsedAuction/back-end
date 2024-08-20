@@ -1,6 +1,6 @@
 package com.ddang.usedauction.member.servie;
 
-import com.ddang.usedauction.member.domain.entity.Member;
+import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
 import com.ddang.usedauction.security.jwt.exception.CustomJwtException;
@@ -67,7 +67,7 @@ public class AuthService {
     TokenDto token = refreshTokenService.findTokenByEmail(email);
 
     // accessToken 유효시간만큼 blackList 에 저장
-    refreshTokenService.setBlackList(dto.getAccessToken(), "access_token", expiration);
+    refreshTokenService.setBlackList(dto.getAccessToken(), token, expiration);
     refreshTokenService.deleteRefreshTokenByEmail(token.getEmail());
   }
 }
