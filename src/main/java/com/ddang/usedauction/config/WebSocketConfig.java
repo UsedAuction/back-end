@@ -15,7 +15,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
      */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/sub", "/queue");
+        config.enableSimpleBroker("/sub");
         config.setApplicationDestinationPrefixes("/pub");
     }
 
@@ -28,15 +28,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             .setAllowedOriginPatterns("*");
 //        .withSockJS();
 
-        registry.addEndpoint("/auction-websocket") // 리스트 페이지 경매 가격 업데이트
-            .setAllowedOriginPatterns("*");
-//        .withSockJS()
-
-        registry.addEndpoint("/auction-bid") // 경매 상세페이지 입찰 가격 업데이트
-            .setAllowedOriginPatterns("*");
-//        .withSockJS()
-
-        registry.addEndpoint("/errors") // 에러 메시지
+        registry.addEndpoint("/auction-websocket") // 경매 관련 엔드포인트
             .setAllowedOriginPatterns("*");
 //        .withSockJS()
     }
