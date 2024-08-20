@@ -13,6 +13,7 @@ import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
+import com.ddang.usedauction.auction.dto.AuctionEndDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
@@ -26,6 +27,7 @@ import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.service.NotificationService;
 import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
@@ -33,7 +35,6 @@ import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -73,6 +74,9 @@ class AuctionServiceTest {
 
     @Mock
     private AuctionRedisService auctionRedisService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private AuctionService auctionService;
@@ -445,7 +449,8 @@ class AuctionServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerId(1L, 1L)).thenReturn(Optional.of(transaction));
+        when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
+            Optional.of(transaction));
 
         auctionService.confirmAuction(1L, "buyer", confirmDto);
 
@@ -474,7 +479,7 @@ class AuctionServiceTest {
     }
 
     @Test
-    @DisplayName("구매 확정 실패 - 없는 회원")
+    @DisplayName("구매 확정 실패 - 없는 거래 내역")
     void confirmAuctionFail2() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
@@ -489,6 +494,42 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
+            Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 회원")
+    void confirmAuctionFail3() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.END)
+            .build();
+
+        Member buyer = Member.builder()
+            .id(1L)
+            .memberId("buyer")
+            .point(5000)
+            .build();
+
+        Transaction transaction = Transaction.builder()
+            .buyer(buyer)
+            .transType(TransType.CONTINUE)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
+            Optional.of(transaction));
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -497,7 +538,7 @@ class AuctionServiceTest {
 
     @Test
     @DisplayName("구매 확정 실패 - 진행중인 경매인 경우")
-    void confirmAuctionFail3() {
+    void confirmAuctionFail4() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
             .price(1000)
@@ -518,7 +559,7 @@ class AuctionServiceTest {
 
     @Test
     @DisplayName("구매 확정 실패 - 없는 거래 내역")
-    void confirmAuctionFail4() {
+    void confirmAuctionFail5() {
 
         AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
             .price(1000)
@@ -531,21 +572,9 @@ class AuctionServiceTest {
             .auctionState(AuctionState.END)
             .build();
 
-        Member buyer = Member.builder()
-            .id(1L)
-            .memberId("buyer")
-            .point(5000)
-            .build();
-
-        Member seller = Member.builder()
-            .memberId("seller")
-            .point(1000)
-            .build();
-
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
-        when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerId(1L, 1L)).thenReturn(Optional.empty());
+        when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "buyer", confirmDto));
@@ -605,12 +634,12 @@ class AuctionServiceTest {
         when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
             afterAuction);
 
-        Map<String, Long> auctionAndMemberMap = auctionService.endAuction(1L);
+        AuctionEndDto auctionEndDto = auctionService.endAuction(1L);
 
         verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
 
-        assertEquals(1, auctionAndMemberMap.get("auction"));
-        assertEquals(2, auctionAndMemberMap.get("buyer"));
+        assertEquals(1, auctionEndDto.getAuctionId());
+        assertEquals(2, auctionEndDto.getBuyerId());
     }
 
     @Test

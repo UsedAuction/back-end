@@ -40,13 +40,15 @@ public class NotificationController {
     /**
      * 알림 전체 목록 조회
      *
-     * @param pageable
+     * @param pageable page, size
      * @return 성공 시 200 코드와 알림 전체 목록, 실패 시 에러메시지
      */
     @GetMapping
-    public ResponseEntity<Page<NotificationDto.Response>> getNotificationList(@PageableDefault Pageable pageable) {
-
-        Page<Notification> notificationPage = notificationService.getNotificationList(pageable);
+    public ResponseEntity<Page<NotificationDto.Response>> getNotificationList(
+        @PageableDefault Pageable pageable
+    ) {
+        long memberId = 1L; // TODO: 토큰 사용으로 수정
+        Page<Notification> notificationPage = notificationService.getNotificationList(memberId, pageable);
         return ResponseEntity.ok(notificationPage.map(Response::from));
     }
 }

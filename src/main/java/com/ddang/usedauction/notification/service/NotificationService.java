@@ -1,5 +1,7 @@
 package com.ddang.usedauction.notification.service;
 
+import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.domain.Notification;
@@ -8,6 +10,7 @@ import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +33,12 @@ public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
     private final MemberRepository memberRepository;
+    private final AuctionRepository auctionRepository;
 
     /**
      * 알림 구독
      *
-     * @param memberId 회원 id (PK)
+     * @param memberId 회원 pk
      * @param lastEventId 마지막 이벤트 id
      * @return SseEmitter
      */
@@ -66,15 +70,16 @@ public class NotificationService {
     /**
      * 알림 전송
      *
-     * @param memberId 회원 id (PK)
+     * @param memberId 회원 pk
+     * @param auctionId 경매 pk
      * @param content 알림 내용
      * @param notificationType 알림 타입
      */
     @Transactional
-    public void send(Long memberId, String content, NotificationType notificationType) {
+    public void send(Long memberId, Long auctionId, String content, NotificationType notificationType) {
 
         Notification notification =
-            notificationRepository.save(createNotification(memberId, content, notificationType));
+            notificationRepository.save(createNotification(memberId, auctionId, content, notificationType));
 
         Map<String, SseEmitter> emitters =
             emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
@@ -90,12 +95,19 @@ public class NotificationService {
     /**
      * 알림 전체 목록 조회
      *
-     * @param pageable
+     * @param memberId 회원 pk
+     * @param pageable page, size
      * @return Page<Notification>
      */
     @Transactional(readOnly = true)
-    public Page<Notification> getNotificationList(Pageable pageable) {
-        return notificationRepository.findAllByOrderByCreatedAtDesc(pageable);
+    public Page<Notification> getNotificationList(Long memberId, Pageable pageable) {
+
+        memberRepository.findById(memberId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
+
+        return notificationRepository.findNotificationList(memberId, beforeOneMonth, pageable);
     }
 
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
@@ -111,13 +123,17 @@ public class NotificationService {
         }
     }
 
-    private Notification createNotification(Long memberId, String content, NotificationType notificationType) {
+    private Notification createNotification(Long memberId, Long auctionId, String content, NotificationType notificationType) {
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
         return Notification.builder()
             .member(member)
+            .auctionId(auction.getId())
             .content(content)
             .notificationType(notificationType)
             .build();
