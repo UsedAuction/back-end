@@ -16,6 +16,7 @@ public class BidMessageDto {
     public static class Request {
 
         private Long auctionId; // 경매 pk
+        private String memberId; // 회원 아이디
         private long bidAmount; // 입찰 금액
     }
 

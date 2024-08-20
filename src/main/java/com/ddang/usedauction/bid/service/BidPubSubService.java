@@ -32,20 +32,19 @@ public class BidPubSubService {
     /**
      * 입찰하기
      *
-     * @param message  입찰 정보
-     * @param memberId 입찰한 회원 아이디
+     * @param message 입찰 정보
      */
     @RedissonLock("#message.auctionId")
-    public void createBid(BidMessageDto.Request message, String memberId) {
+    public void createBid(BidMessageDto.Request message) {
 
         Auction auction = auctionRepository.findById(message.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberId(message.getMemberId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         // 검증 및 에러메시지 발송
-        validationAndSendErrorMessage(message, memberId, auction, member);
+        validationAndSendErrorMessage(message, auction, member);
 
         auction = auction.toBuilder()
             .currentPrice(message.getBidAmount())
@@ -61,16 +60,15 @@ public class BidPubSubService {
 
         // 해당 경매 채널에 성공 메시지 발송
         simpMessageSendingOperations.convertAndSend("/sub/auction/" + message.getAuctionId(),
-            BidMessageDto.Response.from(message, memberId));
+            BidMessageDto.Response.from(message, message.getMemberId()));
 
         // 경매 리스트 채널에 성공 메시지 발송
         simpMessageSendingOperations.convertAndSend("/sub/auction-all",
-            BidMessageDto.Response.from(message, memberId));
+            BidMessageDto.Response.from(message, message.getMemberId()));
     }
 
     // 검증 및 에러 상황에 맞는 메시지를 해당 유저에게 발송
-    private void validationAndSendErrorMessage(Request message, String memberId, Auction auction,
-        Member member) {
+    private void validationAndSendErrorMessage(Request message, Auction auction, Member member) {
 
         // 종료된 경매인 경우
         if (auction.getAuctionState().equals(AuctionState.END)) {
@@ -116,7 +114,7 @@ public class BidPubSubService {
         }
 
         // 다른 경매의 최고입찰가로 현재 회원이 있는 경우의 총 금액
-        long previousUsedPoint = getPreviousUsedPoint(memberId, message, member);
+        long previousUsedPoint = getPreviousUsedPoint(message.getMemberId(), message, member);
 
         // 현재 보유 포인트에서 다른 경매에서 현재 회원이 최고입찰자인 경우 해당 포인트만큼 감소시킨 금액이 현재 입찰할 금액보다 적은 경우
         if (member.getPoint() - previousUsedPoint < message.getBidAmount()) {

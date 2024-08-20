@@ -20,8 +20,6 @@ public class BidPubSubController {
     @MessageMapping("/bid")
     public void handleBid(BidMessageDto.Request message) {
 
-        String memberId = "test";
-
-        bidPubSubService.createBid(message, memberId);
+        bidPubSubService.createBid(message);
     }
 }
