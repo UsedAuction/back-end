@@ -12,6 +12,11 @@ public class BidPubSubController {
 
     private final BidPubSubService bidPubSubService;
 
+    /**
+     * 입찰하기 컨트롤러
+     *
+     * @param message 입찰 정보
+     */
     @MessageMapping("/bid")
     public void handleBid(BidMessageDto.Request message) {
 
