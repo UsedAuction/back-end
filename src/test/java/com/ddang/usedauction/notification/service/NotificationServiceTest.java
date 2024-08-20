@@ -113,7 +113,8 @@ class NotificationServiceTest {
 
         //when
         //then
-        assertThrows(RuntimeException.class, () -> notificationService.subscribe(seller.getId(), lastEventId));
+        assertThrows(RuntimeException.class,
+            () -> notificationService.subscribe(seller.getId(), lastEventId));
     }
 
     @Test
@@ -198,7 +199,8 @@ class NotificationServiceTest {
 
         //when
         NoSuchElementException e = assertThrows(NoSuchElementException.class,
-            () -> notificationService.send(seller.getId(), auction.getId(), content, notificationType));
+            () -> notificationService.send(seller.getId(), auction.getId(), content,
+                notificationType));
 
         //then
         assertEquals("존재하지 않는 회원입니다.", e.getMessage());
@@ -224,16 +226,19 @@ class NotificationServiceTest {
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
-        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(seller.getId()))).willThrow(new RuntimeException("찾기 실패"));
+        given(emitterRepository.findAllEmitterStartWithMemberId(
+            String.valueOf(seller.getId()))).willThrow(new RuntimeException("찾기 실패"));
 
         //when
         RuntimeException e = assertThrows(RuntimeException.class,
-            () -> notificationService.send(seller.getId(), auction.getId(), content, notificationType));
+            () -> notificationService.send(seller.getId(), auction.getId(), content,
+                notificationType));
 
         //then
         assertEquals("찾기 실패", e.getMessage());
         verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(String.valueOf(seller.getId()));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(
+            String.valueOf(seller.getId()));
         verify(emitterRepository, times(0)).saveEventCache(anyString(), any(Notification.class));
     }
 
@@ -256,8 +261,10 @@ class NotificationServiceTest {
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(notificationRepository.save(any(Notification.class))).willReturn(notification);
-        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(seller.getId()))).willReturn(emitters);
-        doThrow(new RuntimeException("저장 실패")).when(emitterRepository).saveEventCache(anyString(), any(Notification.class));
+        given(emitterRepository.findAllEmitterStartWithMemberId(
+            String.valueOf(seller.getId()))).willReturn(emitters);
+        doThrow(new RuntimeException("저장 실패")).when(emitterRepository)
+            .saveEventCache(anyString(), any(Notification.class));
 
         //when
         assertThrows(RuntimeException.class, () -> {
@@ -324,7 +331,7 @@ class NotificationServiceTest {
                 Notification.builder()
                     .id(2L)
                     .content("알림2")
-                    .notificationType(NotificationType.CHANGE_BID)
+                    .notificationType(NotificationType.CONFIRM)
                     .member(seller)
                     .build(),
                 Notification.builder()
@@ -338,19 +345,25 @@ class NotificationServiceTest {
         );
 
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
-        given(notificationRepository.findNotificationList(eq(seller.getId()), any(LocalDateTime.class), eq(pageable)))
+        given(notificationRepository.findNotificationList(eq(seller.getId()),
+            any(LocalDateTime.class), eq(pageable)))
             .willReturn(notificationPage);
 
         //when
-        Page<Notification> result = notificationService.getNotificationList(seller.getId(), pageable);
+        Page<Notification> result = notificationService.getNotificationList(seller.getId(),
+            pageable);
 
         //then
         assertEquals(notificationPage.getContent().size(), result.getTotalElements());
-        assertEquals(notificationPage.getContent().get(0).getContent(), result.getContent().get(0).getContent());
-        assertEquals(notificationPage.getContent().get(1).getContent(), result.getContent().get(1).getContent());
-        assertEquals(notificationPage.getContent().get(2).getContent(), result.getContent().get(2).getContent());
+        assertEquals(notificationPage.getContent().get(0).getContent(),
+            result.getContent().get(0).getContent());
+        assertEquals(notificationPage.getContent().get(1).getContent(),
+            result.getContent().get(1).getContent());
+        assertEquals(notificationPage.getContent().get(2).getContent(),
+            result.getContent().get(2).getContent());
 
-        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()), any(LocalDateTime.class), eq(pageable));
+        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()),
+            any(LocalDateTime.class), eq(pageable));
     }
 
     @Test
@@ -362,11 +375,13 @@ class NotificationServiceTest {
         given(memberRepository.findById(seller.getId())).willReturn(Optional.empty());
 
         //when
-        assertThrows(NoSuchElementException.class, () -> notificationService.getNotificationList(seller.getId(), pageable));
+        assertThrows(NoSuchElementException.class,
+            () -> notificationService.getNotificationList(seller.getId(), pageable));
 
         //then
         verify(memberRepository, times(1)).findById(seller.getId());
-        verify(notificationRepository, times(0)).findNotificationList(eq(seller.getId()), any(LocalDateTime.class), eq(pageable));
+        verify(notificationRepository, times(0)).findNotificationList(eq(seller.getId()),
+            any(LocalDateTime.class), eq(pageable));
     }
 
     @Test
@@ -383,10 +398,12 @@ class NotificationServiceTest {
         ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
 
         //when
-        assertThrows(RuntimeException.class, () -> notificationService.getNotificationList(seller.getId(), pageable));
+        assertThrows(RuntimeException.class,
+            () -> notificationService.getNotificationList(seller.getId(), pageable));
 
         //then
         verify(memberRepository, times(1)).findById(seller.getId());
-        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()), dateTimeCaptor.capture(), eq(pageable));
+        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()),
+            dateTimeCaptor.capture(), eq(pageable));
     }
 }

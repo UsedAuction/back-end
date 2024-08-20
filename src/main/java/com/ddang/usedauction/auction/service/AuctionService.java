@@ -185,6 +185,15 @@ public class AuctionService {
             throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
         }
 
+        Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(memberId,
+                auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
+
+        // 이미 구매확정이 징행된 경우
+        if (transaction.getTransType().equals(TransType.SUCCESS)) {
+            throw new IllegalStateException("이미 종료된 거래입니다.");
+        }
+
         Member buyer = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
@@ -197,7 +206,7 @@ public class AuctionService {
         memberRepository.save(seller);
 
         // 포인트 히스토리와 거래 내역 저장
-        savePointAndTransaction(confirmDto, buyer, seller, auction);
+        savePointAndTransaction(confirmDto, buyer, seller, transaction);
 
         // 구매 확정 알림 전송
         sendNotificationForConfirm(buyer, auction);
@@ -371,7 +380,7 @@ public class AuctionService {
     // 포인트 히스토리와 거래 내역 저장 메소드
     private void savePointAndTransaction(AuctionConfirmDto.Request confirmDto, Member buyer,
         Member seller,
-        Auction auction) {
+        Transaction transaction) {
 
         PointHistory buyerPointHistory = PointHistory.builder()
             .curPointAmount(buyer.getPoint())
@@ -389,16 +398,12 @@ public class AuctionService {
             .build();
         pointRepository.save(sellerPointHistory); // 판매자 포인트 히스토리 저장
 
-        Transaction buyerTransaction = transactionRepository.findByBuyerId(buyer.getId(),
-                auction.getId())
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역 입니다."));
-
-        buyerTransaction = buyerTransaction.toBuilder()
+        transaction = transaction.toBuilder()
             .transType(TransType.SUCCESS)
             .build();
-        transactionRepository.save(buyerTransaction);
+        transactionRepository.save(transaction);
     }
-  
+
     // 즉시구매시 알림 전송
     private void sendNotificationForInstant(Auction auction, Member buyer) {
 
