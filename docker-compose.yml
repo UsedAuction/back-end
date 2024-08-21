@@ -31,13 +31,11 @@ services:
 
   db:
     image: oscarfonts/h2:latest
-    port:
+    ports:
       - 1521:1521
       - 8081:81
     environment:
       H2_OPTIONS: -ifNotExists
-    ports:
-      - "3306:3306"
     volumes:
       - ./h2/:/opt/h2-data
     restart: always
