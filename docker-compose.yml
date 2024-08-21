@@ -45,6 +45,7 @@ services:
   redis:
     image: redis:7
     hostname: redis
+    command: redis-server
     ports:
       - "6379:6379"
     extra_hosts:
