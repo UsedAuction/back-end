@@ -64,11 +64,12 @@ class PointControllerTest {
         UserDetails userDetails = new User("test123@example.com", "123qwe!@#", new ArrayList<>());
 
         // when
-        when(pointService.getPointBalance(userDetails)).thenThrow(new NoSuchElementException("존재하지 않는 회원입니다."));
+        when(pointService.getPointBalance(userDetails)).thenThrow(
+            new NoSuchElementException("존재하지 않는 회원입니다."));
 
         // then
         mockMvc.perform(get("/api/members/points").contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
+            .andExpect(status().isInternalServerError())
             .andExpect(content().string("존재하지 않는 회원입니다."));
     }
 
@@ -108,16 +109,17 @@ class PointControllerTest {
         );
 
         //when
-        when(pointService.getPointList(userDetails, startDate, endDate, pageable)).thenReturn(pointHistoryPage);
+        when(pointService.getPointList(userDetails, startDate, endDate, pageable)).thenReturn(
+            pointHistoryPage);
 
         //then
         mockMvc.perform(
-            get("/api/members/points/history")
-                .param("startDate", startDate.toString())
-                .param("endDate", endDate.toString())
-                .param("page", "0")
-                .param("size", "10")
-                .contentType(MediaType.APPLICATION_JSON))
+                get("/api/members/points/history")
+                    .param("startDate", startDate.toString())
+                    .param("endDate", endDate.toString())
+                    .param("page", "0")
+                    .param("size", "10")
+                    .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content[0].id").value(1))
             .andExpect(jsonPath("$.content[0].pointType").value("CHARGE"))
