@@ -30,16 +30,17 @@ services:
       - redis
 
   db:
-    image: mysql:8.0
+    image: oscarfonts/h2:latest
+    port:
+      - 1521:1521
+      - 8081:81
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: usedauction
-      MYSQL_USER: root
-      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      H2_OPTIONS: -ifNotExists
     ports:
       - "3306:3306"
     volumes:
-      - db-data:/var/lib/mysql
+      - ./h2/:/opt/h2-data
+    restart: always
 
   redis:
     image: redis:7
@@ -49,5 +50,5 @@ services:
       - redis-data:/data
 
 volumes:
-  db-data:
+  ./h2/:
   redis-data:
