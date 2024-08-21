@@ -33,7 +33,7 @@ services:
     image: oscarfonts/h2:latest
     ports:
       - 1521:1521
-      - 8081:81
+      - 8082:8082
     environment:
       H2_OPTIONS: -ifNotExists
     volumes:
@@ -48,5 +48,4 @@ services:
       - redis-data:/data
 
 volumes:
-  h2:
   redis-data:
