@@ -30,7 +30,7 @@ services:
       - redis
 
   db:
-    image: oscarfonts/h2:latest
+    image: h2:latest
     ports:
       - "1521:1521"
       - "8082:8082"
