@@ -12,10 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Value("${spring.jwt.access.expiration}")
@@ -28,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       FilterChain filterChain) throws ServletException, IOException {
 
     String token = CookieUtil.getCookieValue(request, "JWT")
-        .orElseThrow(() -> new RuntimeException("쿠키가 존재하지 않습니다."));
+        .orElse(null);
     // accessToken 검증
     if (token != null && tokenProvider.validateToken(token)) {
       setAuthentication(token);
