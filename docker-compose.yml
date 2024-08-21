@@ -50,5 +50,5 @@ services:
       - redis-data:/data
 
 volumes:
-  ./h2/:
+  h2:
   redis-data:
