@@ -4,6 +4,7 @@ import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionGetDto;
+import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.validation.IsImage;
 import jakarta.validation.Valid;
@@ -68,6 +69,19 @@ public class AuctionController {
             pageable);
 
         return ResponseEntity.ok(auctionList.map(AuctionGetDto.Response::from));
+    }
+
+    /**
+     * 최근 본 경매 리스트 조회 컨트롤러
+     *
+     * @return 성공 시 200 코드와 최근 본 경매 리스트, 없으면 200 코드와 빈 리스트, 실패 시 에러코드와 에러메시지
+     */
+    @GetMapping("/recent")
+    public ResponseEntity<List<AuctionRecentDto>> getAuctionRecentListController() {
+
+        List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
+
+        return ResponseEntity.ok(auctionRecentList);
     }
 
     /**
