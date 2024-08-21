@@ -28,9 +28,10 @@ services:
     depends_on:
       - db
       - redis
+    restart: always
 
   db:
-    image: h2:latest
+    image: oscarfonts/h2:latest
     ports:
       - "1521:1521"
       - "8082:8082"
