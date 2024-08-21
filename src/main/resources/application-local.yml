@@ -36,7 +36,7 @@ spring:
   data:
     redis:
       port: 6379
-      host: localhost
+      host: ${SPRING_REDIS_HOST}
       auction:
         expire-key: 'auction-item:'
       confirm:
