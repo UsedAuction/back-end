@@ -62,7 +62,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         .social(provider)
         .socialProviderId(providerId)
         .siteAlarm(true)
-        .role(Role.USER)
+        .role(Role.ROLE_USER)
         .build();
 
     return memberRepository.save(user);
