@@ -12,6 +12,7 @@ import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto.Request;
 import com.ddang.usedauction.auction.dto.AuctionEndDto;
+import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
@@ -32,6 +33,7 @@ import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,6 +43,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -58,6 +61,9 @@ public class AuctionService {
     private final ImageService imageService;
     private final AuctionRedisService auctionRedisService;
     private final NotificationService notificationService;
+    private final RedisTemplate<String, AuctionRecentDto> redisTemplate;
+
+    private static final String RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX = "recently::";
 
     /**
      * 경매글 단건 조회
@@ -68,8 +74,17 @@ public class AuctionService {
     @Transactional(readOnly = true)
     public Auction getAuction(Long auctionId) {
 
-        return auctionRepository.findById(auctionId)
+        Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        String key =
+            RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX + "test@example.com"; // todo: 토큰을 통한 회원 이메일
+        redisTemplate.opsForList()
+            .leftPush(key, AuctionRecentDto.from(auction)); // 레디스에 저장
+        redisTemplate.opsForList().trim(key, 0, 4); // 리스트 길이 5로 유지
+        redisTemplate.expire(key, Duration.ofHours(12)); // 만료 시간 설정 (12시간)
+
+        return auction;
     }
 
     /**
@@ -100,6 +115,18 @@ public class AuctionService {
         }
 
         return auctionPageList;
+    }
+
+    /**
+     * 최근 본 경매 리스트 조회
+     *
+     * @return 최근 본 경매 리스트
+     */
+    public List<AuctionRecentDto> getAuctionRecentList() {
+
+        String key =
+            RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX + "test@example.com"; // todo: 토큰을 통한 회원 이메일
+        return redisTemplate.opsForList().range(key, 0, 4);
     }
 
     /**
@@ -279,7 +306,7 @@ public class AuctionService {
                 .build()
             ).forEach(auction::addImageList);
     }
-  
+
     // 경매 엔티티 빌드
     private Auction buildAuction(Request createDto, Member member, Category parentCategory,
         Category childCategory) {
@@ -421,7 +448,7 @@ public class AuctionService {
             DONE_INSTANT
         );
     }
-    
+
     // 구매 확정 알림 전송
     private void sendNotificationForConfirm(Member buyer, Auction auction) {
 
