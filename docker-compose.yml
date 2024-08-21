@@ -11,7 +11,6 @@ services:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
-      SPRING_REDIS_HOST: redis
       DB_PWD: ${DB_PWD}
       DB_USER_NAME: ${DB_USER_NAME}
       PAY_SECRET_KEY: ${PAY_SECRET_KEY}
@@ -43,6 +42,7 @@ services:
 
   redis:
     image: redis:7
+    hostname: redis
     ports:
       - "6379:6379"
     volumes:
