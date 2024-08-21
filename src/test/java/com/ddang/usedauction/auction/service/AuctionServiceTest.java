@@ -14,6 +14,7 @@ import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionEndDto;
+import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
@@ -33,6 +34,7 @@ import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -47,6 +49,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,6 +82,12 @@ class AuctionServiceTest {
     @Mock
     private NotificationService notificationService;
 
+    @Mock
+    private RedisTemplate<String, AuctionRecentDto> redisTemplate;
+
+    @Mock
+    private ListOperations<String, AuctionRecentDto> listOperations;
+
     @InjectMocks
     private AuctionService auctionService;
 
@@ -85,15 +95,28 @@ class AuctionServiceTest {
     @DisplayName("경매글 단건 조회")
     void getAuction() {
 
+        Image image = Image.builder()
+            .imageType(ImageType.THUMBNAIL)
+            .build();
+        List<Image> imageList = List.of(image);
+
         Auction auction = Auction.builder()
+            .id(1L)
             .title("title")
+            .imageList(imageList)
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(redisTemplate.opsForList()).thenReturn(listOperations);
 
         Auction result = auctionService.getAuction(1L);
 
         assertEquals("title", result.getTitle());
+        verify(redisTemplate.opsForList(), times(1)).leftPush(
+            argThat(arg -> arg.equals("recently::test@example.com")),
+            argThat(arg -> arg.getAuctionTitle().equals("title")));
+        verify(redisTemplate.opsForList(), times(1)).trim("recently::test@example.com", 0, 4);
+        verify(redisTemplate, times(1)).expire("recently::test@example.com", Duration.ofHours(12));
     }
 
     @Test
@@ -151,6 +174,24 @@ class AuctionServiceTest {
         Page<Auction> resultList = auctionService.getAuctionList(null, null, null, pageable);
 
         assertEquals(2, resultList.getTotalElements());
+    }
+
+    @Test
+    @DisplayName("최근 본 경매 리스트 조회")
+    void getAuctionRecentList() {
+
+        AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
+            .auctionTitle("title")
+            .build();
+        List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
+
+        when(redisTemplate.opsForList()).thenReturn(listOperations);
+        when(listOperations.range("recently::test@example.com", 0, 4)).thenReturn(
+            auctionRecentDtoList);
+
+        List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
+
+        assertEquals("title", auctionRecentList.get(0).getAuctionTitle());
     }
 
     @Test
@@ -424,21 +465,23 @@ class AuctionServiceTest {
             .sellerId(2L)
             .build();
 
+        Member seller = Member.builder()
+            .id(2L)
+            .memberId("seller")
+            .point(1000)
+            .build();
+
         Auction auction = Auction.builder()
             .id(1L)
             .title("title")
             .auctionState(AuctionState.END)
+            .seller(seller)
             .build();
 
         Member buyer = Member.builder()
             .id(1L)
             .memberId("buyer")
             .point(5000)
-            .build();
-
-        Member seller = Member.builder()
-            .memberId("seller")
-            .point(1000)
             .build();
 
         Transaction transaction = Transaction.builder()
