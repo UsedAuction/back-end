@@ -1,6 +1,8 @@
 package com.ddang.usedauction.config;
 
 import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
+import com.ddang.usedauction.security.jwt.JwtAccessDeniedHandler;
+import com.ddang.usedauction.security.jwt.JwtAuthenticationEntryPoint;
 import com.ddang.usedauction.security.jwt.JwtAuthenticationFilter;
 import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
 import com.ddang.usedauction.security.jwt.Oauth2SuccessHandler;
@@ -28,6 +30,8 @@ public class SecurityConfig {
   private final PrincipalOauth2UserService principalOauth2UserService;
   private final Oauth2SuccessHandler oauth2SuccessHandler;
   private final Oauth2FailureHandler oauth2FailureHandler;
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -52,7 +56,12 @@ public class SecurityConfig {
             .userInfoEndpoint(userInfo -> userInfo.userService(principalOauth2UserService))
         )
         .addFilterBefore(new JwtAuthenticationFilter(tokenProvider, refreshTokenService),
-            UsernamePasswordAuthenticationFilter.class);
+            UsernamePasswordAuthenticationFilter.class)
+
+        .exceptionHandling(exception -> exception
+            .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            .accessDeniedHandler(jwtAccessDeniedHandler));
+
     return http.build();
   }
 }
