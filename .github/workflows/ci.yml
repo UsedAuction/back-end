@@ -20,7 +20,7 @@ jobs:
           filters: |
             backend:
               - 'back-end/**'
-          list-files: true
+          list-files: "true"
 
   BE_CI:
     runs-on: ubuntu-latest
