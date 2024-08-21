@@ -26,5 +26,4 @@ jobs:
       - name: Test with Gradle
         id: gradle_test
         run: |
-          cd back-end
           ./gradlew test
