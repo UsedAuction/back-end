@@ -26,4 +26,5 @@ jobs:
       - name: Test with Gradle
         id: gradle_test
         run: |
+          sudo chmod +x ./gradlew
           ./gradlew test
