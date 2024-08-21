@@ -6,7 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ddang.usedauction.member.domain.entity.Member;
+import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.domain.enums.Role;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
@@ -58,7 +58,7 @@ class AuthServiceTest {
   void setUp() {
     member = Member.builder()
         .email("test@gmail.com")
-        .role(Role.USER)
+        .role(Role.ROLE_USER)
         .build();
 
     tokenDto = TokenDto.builder()
