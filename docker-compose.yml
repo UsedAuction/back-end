@@ -32,8 +32,8 @@ services:
   db:
     image: oscarfonts/h2:latest
     ports:
-      - 1521:1521
-      - 8082:8082
+      - "1521:1521"
+      - "8082:8082"
     environment:
       H2_OPTIONS: -ifNotExists
     volumes:
