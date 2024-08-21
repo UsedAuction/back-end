@@ -37,7 +37,7 @@ jobs:
       - name: Docker Image Build and Push
         uses: docker/build-push-action@v6
         with:
-          context: ./back-end
+          context: ./
           push: true
           tags: ${{ secrets.DOCKER_REPOSITORY_NAME }}:${{ github.sha }}
           platforms: linux/amd64
