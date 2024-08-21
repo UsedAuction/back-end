@@ -30,7 +30,7 @@ spring:
     username: ${DB_USER_NAME} # 환경 변수
     password: ${DB_PWD} # 환경 변수
     driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:test
+    url: jdbc:h2:tcp://h2:1521/test
 
   # redis
   data:
