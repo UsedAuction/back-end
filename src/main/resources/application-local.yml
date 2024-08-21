@@ -89,7 +89,7 @@ spring:
             user_name_attribute: response
 
 redisson:
-  host: localhost
+  host: ${SPRING_REDIS_HOST}
   port: 6379
   # multipart
   servlet:
@@ -97,7 +97,7 @@ redisson:
       enabled: true
       max-file-size: 20MB
       max-request-size: 20MB
-      
+
 # S3
 aws:
   s3:
