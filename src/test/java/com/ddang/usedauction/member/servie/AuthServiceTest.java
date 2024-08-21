@@ -58,7 +58,7 @@ class AuthServiceTest {
   void setUp() {
     member = Member.builder()
         .email("test@gmail.com")
-        .role(Role.USER)
+        .role(Role.ROLE_USER)
         .build();
 
     tokenDto = TokenDto.builder()

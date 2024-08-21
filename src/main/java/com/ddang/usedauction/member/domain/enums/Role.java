@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum Role {
-  USER("일반 회원");
+  ROLE_USER("일반 회원");
   private String value;
 }
