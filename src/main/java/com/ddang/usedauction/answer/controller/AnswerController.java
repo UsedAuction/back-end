@@ -54,3 +54,24 @@ public class AnswerController {
         return ResponseEntity.ok(AnswerGetDto.Response.from(answer));
     }
 
+    /**
+     * 회원이 작성한 답변 리스트 조회
+     *
+     * @param principalDetails 회원 정보
+     * @param pageable         페이징
+     * @return 성공 시 200 코드와 페이징된 답변 리스트, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping
+    public ResponseEntity<Page<AnswerGetDto.Response>> getAnswerListController(
+        @AuthenticationPrincipal
+        PrincipalDetails principalDetails,
+        @PageableDefault(sort = "createdAt", direction = Direction.DESC)
+        Pageable pageable) {
+
+        Page<Answer> answerPageList = answerService.getAnswerList(principalDetails.getName(),
+            pageable);
+
+        return ResponseEntity.ok(answerPageList.map(AnswerGetDto.Response::from));
+    }
+
