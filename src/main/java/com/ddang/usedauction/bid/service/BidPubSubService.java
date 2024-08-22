@@ -71,7 +71,7 @@ public class BidPubSubService {
     private void validationAndSendErrorMessage(Request message, Auction auction, Member member) {
 
         // 판매자가 입찰을 진행하려고 하는 경우
-        if (auction.getId().equals(member.getId())) {
+        if (auction.getSeller().getId().equals(member.getId())) {
             throw new IllegalStateException("판매자가 입찰을 진행할 수 없습니다.");
         }
 
