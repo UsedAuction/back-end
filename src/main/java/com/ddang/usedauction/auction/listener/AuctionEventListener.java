@@ -73,10 +73,10 @@ public class AuctionEventListener { // 경매 이벤트 리스너
     public void handleAuctionAutoConfirmEvent(AuctionAutoConfirmEvent auctionAutoConfirmEvent) {
 
         Long auctionId = auctionAutoConfirmEvent.getAuctionId();
-        String buyerId = auctionAutoConfirmEvent.getBuyerId();
+        String buyerEmail = auctionAutoConfirmEvent.getBuyerEmail();
         Request confirmDto = auctionAutoConfirmEvent.getConfirmDto();
 
-        Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(buyerId,
+        Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(buyerEmail,
                 auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역입니다."));
 
@@ -85,7 +85,7 @@ public class AuctionEventListener { // 경매 이벤트 리스너
             return; // 종료
         }
 
-        auctionService.confirmAuction(auctionId, buyerId, confirmDto);
+        auctionService.confirmAuction(auctionId, buyerEmail, confirmDto);
     }
 
     // 경매 종료 알림 전송

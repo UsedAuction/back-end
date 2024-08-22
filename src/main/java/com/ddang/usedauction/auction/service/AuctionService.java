@@ -132,19 +132,19 @@ public class AuctionService {
     /**
      * 경매글 생성 서비스
      *
-     * @param thumbnail 대표 이미지
-     * @param imageList 대표 이미지를 제외한 이미지 리스트
-     * @param memberId  경매글 작성자
-     * @param createDto 경매글 작성 정보
+     * @param thumbnail   대표 이미지
+     * @param imageList   대표 이미지를 제외한 이미지 리스트
+     * @param memberEmail 경매글 작성자
+     * @param createDto   경매글 작성 정보
      * @return 작성된 경매글의 serviceDto
      */
     @Transactional
     public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
-        String memberId, AuctionCreateDto.Request createDto) {
+        String memberEmail, AuctionCreateDto.Request createDto) {
 
         createValidation(imageList, createDto);
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByEmail(memberEmail)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
@@ -197,12 +197,12 @@ public class AuctionService {
     /**
      * 구매 확정 서비스
      *
-     * @param auctionId  경매글 PK
-     * @param memberId   구매자 아이디
-     * @param confirmDto 구매 확정 정보
+     * @param auctionId   경매글 PK
+     * @param memberEmail 구매자 이메일
+     * @param confirmDto  구매 확정 정보
      */
     @RedissonLock("#confirmDto.sellerId")
-    public void confirmAuction(Long auctionId, String memberId,
+    public void confirmAuction(Long auctionId, String memberEmail,
         AuctionConfirmDto.Request confirmDto) {
 
         Auction auction = auctionRepository.findById(auctionId)
@@ -212,7 +212,7 @@ public class AuctionService {
             throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
         }
 
-        Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(memberId,
+        Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(memberEmail,
                 auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
 
@@ -221,7 +221,7 @@ public class AuctionService {
             throw new IllegalStateException("이미 종료된 거래입니다.");
         }
 
-        Member buyer = memberRepository.findByMemberId(memberId)
+        Member buyer = memberRepository.findByEmail(memberEmail)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
@@ -242,16 +242,16 @@ public class AuctionService {
     /**
      * 즉시 구매 서비스
      *
-     * @param auctionId 즉시 구매할 경매글의 PK
-     * @param memberId  구매자 아이디
+     * @param auctionId   즉시 구매할 경매글의 PK
+     * @param memberEmail 구매자 이메일
      */
     @RedissonLock("#auctionId")
-    public void instantPurchaseAuction(Long auctionId, String memberId) {
+    public void instantPurchaseAuction(Long auctionId, String memberEmail) {
 
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        Member buyer = memberRepository.findByMemberId(memberId)
+        Member buyer = memberRepository.findByEmail(memberEmail)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         validationOfInstantPurchase(auction, buyer);
@@ -263,7 +263,7 @@ public class AuctionService {
 
         reducePointAndSaveTransaction(buyer, auction); // 구매자 포인트 감소 처리 및 거래 내역 저장
 
-        auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
+        auctionRedisService.createAutoConfirm(auctionId, memberEmail, auction.getInstantPrice(),
             auction.getSeller()
                 .getId()); // 일주일 후 자동 구매 확정 되도록 설정
 
