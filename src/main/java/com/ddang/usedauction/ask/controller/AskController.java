@@ -88,3 +88,23 @@ public class AskController {
             .body(AskGetDto.Response.from(ask));
     }
 
+    /**
+     * 문의 수정 컨트롤러
+     *
+     * @param askId            수정할 문의 pk
+     * @param updateDto        수정 정보
+     * @param principalDetails 회원 정보
+     * @return 성공 시 200 코드와 수정된 문의, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/{askId}")
+    public ResponseEntity<AskGetDto.Response> updateAskController(
+        @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long askId,
+        @Valid @RequestBody
+        AskUpdateDto updateDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        Ask ask = askService.updateAsk(askId, updateDto, principalDetails.getName());
+
+        return ResponseEntity.ok(AskGetDto.Response.from(ask));
+    }
+
