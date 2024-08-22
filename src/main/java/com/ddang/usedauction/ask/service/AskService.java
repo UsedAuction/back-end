@@ -38,3 +38,16 @@ public class AskService {
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
     }
 
+    /**
+     * 회원이 작성한 문의 리스트 조회
+     *
+     * @param memberEmail 회원 이메일
+     * @param pageable    페이징
+     * @return 페이징된 문의 리스트
+     */
+    @Transactional(readOnly = true)
+    public Page<Ask> getAskList(String memberEmail, Pageable pageable) {
+
+        return askRepository.findAllByMemberEmail(memberEmail, pageable);
+    }
+
