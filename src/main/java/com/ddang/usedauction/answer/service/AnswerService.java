@@ -144,3 +144,17 @@ public class AnswerService {
         answerRepository.save(answer);
     }
 
+    // 이미지 저장하는 메소드
+    private void saveImage(List<MultipartFile> imageList, Answer answer) {
+
+        if (imageList != null && !imageList.isEmpty()) {
+            List<Image> images = imageService.uploadImageList(imageList);
+
+            images.stream()
+                .map(i -> i.toBuilder()
+                    .answer(answer)
+                    .build())
+                .forEach(answer::addImage); // 이미지 리스트 저장
+        }
+    }
+}
