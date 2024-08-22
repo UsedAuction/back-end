@@ -120,3 +120,19 @@ public class AnswerController {
         return ResponseEntity.ok(AnswerGetDto.Response.from(answer));
     }
 
+    /**
+     * 회원이 작성한 답변 삭제 컨트롤러
+     *
+     * @param principalDetails 회원 정보
+     * @return 성공 시 200 코드와 삭제 메시지, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping
+    public ResponseEntity<String> deleteAnswerController(
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        answerService.deleteAnswer(principalDetails.getName());
+
+        return ResponseEntity.ok("삭제되었습니다.");
+    }
+}
