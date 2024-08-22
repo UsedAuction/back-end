@@ -91,11 +91,6 @@ public class TokenProvider {
         PrincipalDetails userDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(
             getEmailByToken(token));
 
-        log.info("userDetails = {} {}", userDetails.getAuthorities(), userDetails.getName());
-        log.info("role = {}",
-            new UsernamePasswordAuthenticationToken(userDetails, "",
-                userDetails.getAuthorities()).getAuthorities());
-
         return new UsernamePasswordAuthenticationToken(userDetails, "",
             userDetails.getAuthorities());
     }
