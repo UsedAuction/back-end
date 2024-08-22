@@ -254,13 +254,7 @@ public class AuctionService {
         Member buyer = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
-            throw new IllegalStateException("이미 종료된 경매입니다.");
-        }
-
-        if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
-            throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
-        }
+        validationOfInstantPurchase(auction, buyer);
 
         auction = auction.toBuilder()
             .auctionState(AuctionState.END) // 경매 종료 처리
@@ -278,6 +272,22 @@ public class AuctionService {
 
         // todo: 판매자 및 낙찰자 채팅방 생성
 
+    }
+
+    // 즉시 구매 시 validation
+    private void validationOfInstantPurchase(Auction auction, Member buyer) {
+        // 판매자가 즉시 구매를 진행하고자 하는 경우
+        if (auction.getSeller().getId().equals(buyer.getId())) {
+            throw new IllegalStateException("판매자가 직접 즉시 구매할 수 없습니다.");
+        }
+
+        if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
+            throw new IllegalStateException("이미 종료된 경매입니다.");
+        }
+
+        if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
+            throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
+        }
     }
 
     // 구매자 포인트 감소 처리 및 구매 내역 저장 메소드
