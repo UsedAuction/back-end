@@ -108,3 +108,19 @@ public class AskController {
         return ResponseEntity.ok(AskGetDto.Response.from(ask));
     }
 
+    /**
+     * 회원이 작성한 문의 삭제 컨트롤러
+     *
+     * @param principalDetails 회원 정보
+     * @return 성공 시 200 코드와 삭제메시지, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @DeleteMapping
+    public ResponseEntity<String> deleteAskController(
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        askService.deleteAsk(principalDetails.getName());
+
+        return ResponseEntity.ok("삭제되었습니다.");
+    }
+}
