@@ -15,12 +15,18 @@ import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
+import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
+import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
+import com.ddang.usedauction.security.jwt.Oauth2SuccessHandler;
+import com.ddang.usedauction.security.jwt.TokenProvider;
+import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -49,6 +55,21 @@ class AuctionControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private TokenProvider tokenProvider;
+
+    @MockBean
+    private RefreshTokenService refreshTokenService;
+
+    @MockBean
+    private PrincipalOauth2UserService principalOauth2UserService;
+
+    @MockBean
+    private Oauth2SuccessHandler oauth2SuccessHandler;
+
+    @MockBean
+    private Oauth2FailureHandler oauth2FailureHandler;
 
     @MockBean
     private AuctionService auctionService;
@@ -163,6 +184,32 @@ class AuctionControllerTest {
     void getAuctionListControllerFail1() throws Exception {
 
         mockMvc.perform(get("/api/auction"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("최근 본 경매 리스트 조회 컨트롤러")
+    void getAuctionRecentListController() throws Exception {
+
+        AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
+            .auctionTitle("title")
+            .build();
+        List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
+
+        when(auctionService.getAuctionRecentList()).thenReturn(auctionRecentDtoList);
+
+        mockMvc.perform(get("/api/auctions/recent"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].auctionTitle").value("title"));
+    }
+
+    @Test
+    @DisplayName("최근 본 경매 리스트 조회 컨트롤러 실패 - url 경로 다름")
+    void getAuctionRecentListControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/auction/recent"))
             .andDo(print())
             .andExpect(status().isNotFound());
     }
