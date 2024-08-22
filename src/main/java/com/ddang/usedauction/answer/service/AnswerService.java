@@ -89,3 +89,40 @@ public class AnswerService {
         return answerRepository.save(answer);
     }
 
+    /**
+     * 답변 수정
+     *
+     * @param answerId    수정할 답변 pk
+     * @param imageList   추가할 이미지
+     * @param updateDto   수정할 정보
+     * @param memberEmail 회원 이메일
+     * @return 수정된 답변
+     */
+    @Transactional
+    public Answer updateAnswer(Long answerId, List<MultipartFile> imageList,
+        AnswerUpdateDto updateDto, String memberEmail) {
+
+        Answer answer = answerRepository.findById(answerId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 답글입니다."));
+
+        // 작성자가 다른 경우
+        if (!answer.getAuction().getSeller().getEmail().equals(memberEmail)) {
+            throw new IllegalStateException("해당 문의글을 작성한 회원이 아닙니다.");
+        }
+
+        // 삭제하고자하는 이미지가 존재하는 경우
+        if (updateDto.getImageFileNameList() != null && !updateDto.getImageFileNameList()
+            .isEmpty()) {
+
+            updateDto.getImageFileNameList().forEach(imageService::deleteImage);
+        }
+
+        answer = answer.toBuilder()
+            .content(updateDto.getContent())
+            .build();
+
+        saveImage(imageList, answer);
+
+        return answerRepository.save(answer);
+    }
+
