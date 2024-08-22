@@ -55,3 +55,37 @@ public class AnswerService {
         return answerRepository.findAllByMemberEmail(memberEmail, pageable);
     }
 
+    /**
+     * 답변 생성 서비스
+     *
+     * @param imageList   이미지 리스트
+     * @param createDto   답변 생성 정보
+     * @param writerEmail 작성자 이메일
+     * @return 작성된 답변
+     */
+    @Transactional
+    public Answer createAnswer(List<MultipartFile> imageList, AnswerCreateDto createDto,
+        String writerEmail) {
+
+        Auction auction = auctionRepository.findById(createDto.getAuctionId())
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        Ask ask = askRepository.findById(createDto.getAskId())
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 질문글입니다."));
+
+        if (!auction.getSeller().getEmail().equals(writerEmail)) { // 판매자가 아닌 경우
+            throw new IllegalStateException("판매자만 답변을 작성할 수 있습니다.");
+        }
+
+        Answer answer = Answer.builder()
+            .ask(ask)
+            .auction(auction)
+            .title(createDto.getTitle())
+            .content(createDto.getContent())
+            .build();
+
+        saveImage(imageList, answer);
+
+        return answerRepository.save(answer);
+    }
+
