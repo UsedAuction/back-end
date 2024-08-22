@@ -108,3 +108,21 @@ public class AskService {
         return askRepository.save(ask);
     }
 
+    /**
+     * 회원이 작성한 문의 삭제
+     *
+     * @param memberEmail 회원 정보
+     */
+    @Transactional
+    public void deleteAsk(String memberEmail) {
+
+        Ask ask = askRepository.findByMemberEmail(memberEmail)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
+
+        ask = ask.toBuilder()
+            .deletedAt(LocalDateTime.now())
+            .build();
+
+        askRepository.save(ask);
+    }
+}
