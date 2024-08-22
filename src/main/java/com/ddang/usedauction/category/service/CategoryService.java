@@ -3,6 +3,7 @@ package com.ddang.usedauction.category.service;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.dto.CategoryByParentDto;
 import com.ddang.usedauction.category.dto.ChildCategoryDto;
+import com.ddang.usedauction.category.dto.ParentCategoryDto;
 import com.ddang.usedauction.category.repository.CategoryRepository;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,11 +19,13 @@ public class CategoryService {
 
   private final CategoryRepository categoryRepository;
 
-  public List<Category> getAllParentCategories() {
-    return categoryRepository.findAllParentCategories();
+  public List<ParentCategoryDto> findAllParentCategories() {
+    return categoryRepository.findAllParentCategories().stream()
+        .map(ParentCategoryDto::from)
+        .collect(Collectors.toList());
   }
 
-  public CategoryByParentDto getCategoriesByParentId(Long parentId) {
+  public CategoryByParentDto findCategoriesByParentId(Long parentId) {
     Category parentCategory = categoryRepository.findById(parentId)
         .orElseThrow(() -> new NoSuchElementException("존재하지 않는 카테고리입니다."));
 
