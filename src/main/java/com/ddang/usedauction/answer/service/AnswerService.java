@@ -126,3 +126,21 @@ public class AnswerService {
         return answerRepository.save(answer);
     }
 
+    /**
+     * 회원이 작성한 답변 삭제
+     *
+     * @param memberEmail 회원 이메일
+     */
+    @Transactional
+    public void deleteAnswer(String memberEmail) {
+
+        Answer answer = answerRepository.findByMemberEmail(memberEmail)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 답변입니다."));
+
+        answer = answer.toBuilder()
+            .deletedAt(LocalDateTime.now())
+            .build();
+
+        answerRepository.save(answer);
+    }
+
