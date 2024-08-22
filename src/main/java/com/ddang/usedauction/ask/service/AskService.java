@@ -51,3 +51,34 @@ public class AskService {
         return askRepository.findAllByMemberEmail(memberEmail, pageable);
     }
 
+    /**
+     * 문의 생성
+     *
+     * @param createDto   문의 정보
+     * @param memberEmail 작성자 이메일
+     * @return 생성된 문의
+     */
+    @Transactional
+    public Ask createAsk(AskCreateDto createDto, String memberEmail) {
+
+        Auction auction = auctionRepository.findById(createDto.getAuctionId())
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        Member member = memberRepository.findByEmail(memberEmail)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        // 이미 경매가 종료된 경우
+        if (auction.getAuctionState().equals(AuctionState.END)) {
+            throw new IllegalStateException("종료된 경매에는 문의글을 남길 수 없습니다.");
+        }
+
+        Ask ask = Ask.builder()
+            .title(createDto.getTitle())
+            .writer(member)
+            .content(createDto.getContent())
+            .auction(auction)
+            .build();
+
+        return askRepository.save(ask);
+    }
+
