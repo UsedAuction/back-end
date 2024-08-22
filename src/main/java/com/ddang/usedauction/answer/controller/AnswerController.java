@@ -97,3 +97,26 @@ public class AnswerController {
             .body(AnswerGetDto.Response.from(answer));
     }
 
+    /**
+     * 답변 수정 컨트롤러
+     *
+     * @param answerId         수정할 답변 pk
+     * @param imageList        추가할 이미지
+     * @param updateDto        수정할 정보
+     * @param principalDetails 회원 정보
+     * @return 성공 시 200 코드와 수정된 답변, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping("/{answerId}")
+    public ResponseEntity<AnswerGetDto.Response> updateAnswerController(
+        @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long answerId,
+        @RequestPart(required = false) List<@IsImage(message = "올바른 이미지 파일이 아닙니다.") MultipartFile> imageList,
+        @Valid @RequestPart AnswerUpdateDto updateDto,
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        Answer answer = answerService.updateAnswer(answerId, imageList, updateDto,
+            principalDetails.getName());
+
+        return ResponseEntity.ok(AnswerGetDto.Response.from(answer));
+    }
+
