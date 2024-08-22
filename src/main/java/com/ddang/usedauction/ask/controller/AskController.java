@@ -51,3 +51,22 @@ public class AskController {
         return ResponseEntity.ok(AskGetDto.Response.from(ask));
     }
 
+    /**
+     * 회원이 작성한 문의 리스트 조회 컨트롤러
+     *
+     * @param principalDetails 회원 정보
+     * @param pageable         페이징
+     * @return 성공 시 200 코드와 페이징된 문의 리스트, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping
+    public ResponseEntity<Page<AskGetDto.Response>> getAskList(@AuthenticationPrincipal
+    PrincipalDetails principalDetails,
+        @PageableDefault(sort = "createdAt", direction = Direction.DESC)
+        Pageable pageable) {
+
+        Page<Ask> askPageList = askService.getAskList(principalDetails.getName(), pageable);
+
+        return ResponseEntity.ok(askPageList.map(AskGetDto.Response::from));
+    }
+
