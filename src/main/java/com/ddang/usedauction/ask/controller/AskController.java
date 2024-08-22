@@ -70,3 +70,21 @@ public class AskController {
         return ResponseEntity.ok(askPageList.map(AskGetDto.Response::from));
     }
 
+    /**
+     * 문의 생성 컨트롤러
+     *
+     * @param createDto        문의 정보
+     * @param principalDetails 회원 정보
+     * @return 성공 시 200 코드와 생성된 문의, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping
+    public ResponseEntity<AskGetDto.Response> createAskController(@Valid AskCreateDto createDto,
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        Ask ask = askService.createAsk(createDto, principalDetails.getName());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(AskGetDto.Response.from(ask));
+    }
+
