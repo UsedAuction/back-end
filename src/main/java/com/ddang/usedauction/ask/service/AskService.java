@@ -82,3 +82,29 @@ public class AskService {
         return askRepository.save(ask);
     }
 
+    /**
+     * 문의 수정
+     *
+     * @param askId       수정할 문의 pk
+     * @param updateDto   수정 정보
+     * @param memberEmail 회원 정보
+     * @return 수정된 문의
+     */
+    @Transactional
+    public Ask updateAsk(Long askId, AskUpdateDto updateDto, String memberEmail) {
+
+        Ask ask = askRepository.findById(askId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
+
+        // 작성자가 다른 경우
+        if (!ask.getWriter().getEmail().equals(memberEmail)) {
+            throw new IllegalStateException("문의글을 작성한 본인만 수정할 수 있습니다.");
+        }
+
+        ask = ask.toBuilder()
+            .content(updateDto.getContent())
+            .build();
+
+        return askRepository.save(ask);
+    }
+
