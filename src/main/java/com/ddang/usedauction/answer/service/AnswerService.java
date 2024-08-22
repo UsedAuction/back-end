@@ -42,3 +42,16 @@ public class AnswerService {
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 질문입니다."));
     }
 
+    /**
+     * 회원이 작성한 답변 리스트 조회
+     *
+     * @param memberEmail 회원 이메일
+     * @param pageable    페이징
+     * @return 페이징 처리된 답변 리스트
+     */
+    @Transactional(readOnly = true)
+    public Page<Answer> getAnswerList(String memberEmail, Pageable pageable) {
+
+        return answerRepository.findAllByMemberEmail(memberEmail, pageable);
+    }
+
