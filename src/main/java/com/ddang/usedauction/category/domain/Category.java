@@ -22,16 +22,19 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class Category extends BaseTimeEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false)
-    private String categoryName;
+  @Column(nullable = false)
+  private String categoryName;
 
-    @Column
-    private Long parentId; // 부모 카테고리 PK
+  @Column
+  private Long parentId; // 부모 카테고리 PK
 
-    @Column
-    private LocalDateTime deletedAt;
+  @Column
+  private String imageUrl;
+
+  @Column
+  private LocalDateTime deletedAt;
 }
