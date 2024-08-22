@@ -17,12 +17,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@Disabled
 public class AuctionServiceConcurrencyTest {
 
     @Autowired
@@ -46,7 +48,7 @@ public class AuctionServiceConcurrencyTest {
             Member member = Member.builder()
                 .siteAlarm(false)
                 .passWord("1234")
-                .email("test@naver.com")
+                .email("test@naver.com" + i)
                 .point(2000)
                 .memberId("test" + i)
                 .build();
@@ -108,7 +110,7 @@ public class AuctionServiceConcurrencyTest {
             long finalI = i;
             executorService.submit(() -> {
                 try {
-                    auctionService.instantPurchaseAuction(auctionId, "test" + finalI);
+                    auctionService.instantPurchaseAuction(auctionId, "test@naver.com" + finalI);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();

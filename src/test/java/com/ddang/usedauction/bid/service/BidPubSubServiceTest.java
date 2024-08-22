@@ -62,17 +62,23 @@ class BidPubSubServiceTest {
             .memberId("test")
             .build();
 
+        Member seller = Member.builder()
+            .id(2L)
+            .build();
+
         auction = Auction.builder()
             .id(1L)
             .currentPrice(2000)
             .instantPrice(4000)
             .startPrice(2000)
             .auctionState(AuctionState.CONTINUE)
+            .seller(seller)
             .build();
 
         member = Member.builder()
             .id(1L)
             .memberId("test")
+            .email("test@naver.com")
             .point(10000)
             .build();
     }

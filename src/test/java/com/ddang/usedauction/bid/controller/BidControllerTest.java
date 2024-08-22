@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.bid.service.BidService;
@@ -28,22 +29,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest({
-    BidController.class, SecurityConfig.class
-})
+@WebMvcTest({BidController.class, SecurityConfig.class})
 class BidControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private BidService bidService;
-
-    @MockBean
-    private TokenProvider tokenProvider;
-
-    @MockBean
-    private RefreshTokenService refreshTokenService;
 
     @MockBean
     private PrincipalOauth2UserService principalOauth2UserService;
@@ -54,7 +44,17 @@ class BidControllerTest {
     @MockBean
     private Oauth2FailureHandler oauth2FailureHandler;
 
+    @MockBean
+    private TokenProvider tokenProvider;
+
+    @MockBean
+    private RefreshTokenService refreshTokenService;
+
+    @MockBean
+    private BidService bidService;
+
     @Test
+    @WithCustomMockUser
     @DisplayName("회원의 입찰 목록 조회 컨트롤러")
     void getBidListController() throws Exception {
 
@@ -76,7 +76,7 @@ class BidControllerTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Bid> bidPageList = new PageImpl<>(bidList, pageable, bidList.size());
 
-        when(bidService.getBidList("test", pageable)).thenReturn(bidPageList);
+        when(bidService.getBidList("test@naver.com", pageable)).thenReturn(bidPageList);
 
         mockMvc.perform(get("/api/bids"))
             .andDo(print())
