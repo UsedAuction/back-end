@@ -71,6 +71,6 @@ jobs:
           script: |
             cd /dc
             export BACKEND_APP_IMAGE_NAME=${{ secrets.DOCKER_REPOSITORY_NAME }}:${{ github.sha }}
-            sudo docker-compose -f docker-compose.yml pull
-            sudo docker-compose -f docker-compose.yml up -d
+            sudo docker compose -f docker-compose.yml pull
+            sudo docker compose -f docker-compose.yml up -d
             sudo docker image prune -f
