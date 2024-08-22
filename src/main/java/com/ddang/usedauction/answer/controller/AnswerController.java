@@ -75,3 +75,25 @@ public class AnswerController {
         return ResponseEntity.ok(answerPageList.map(AnswerGetDto.Response::from));
     }
 
+    /**
+     * 답변 생성 컨트롤러
+     *
+     * @param imageList        이미지
+     * @param createDto        답변 생성 정보
+     * @param principalDetails 회원 정보
+     * @return 성공 시 200 코드와 작성된 답변, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping
+    public ResponseEntity<AnswerGetDto.Response> createAnswerController(
+        @RequestPart(required = false) List<@IsImage(message = "올바른 이미지 파일이 아닙니다.") MultipartFile> imageList,
+        @Valid @RequestPart
+        AnswerCreateDto createDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        Answer answer = answerService.createAnswer(imageList, createDto,
+            principalDetails.getName());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(AnswerGetDto.Response.from(answer));
+    }
+
