@@ -6,6 +6,7 @@ import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.security.auth.PrincipalDetails;
 import com.ddang.usedauction.validation.IsImage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -16,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -87,21 +90,24 @@ public class AuctionController {
     /**
      * 경매글 생성 컨트롤러
      *
-     * @param thumbnail 대표 이미지
-     * @param imageList 추가 이미지 리스트
-     * @param createDto 경매글 작성 정보
+     * @param thumbnail        대표 이미지
+     * @param imageList        추가 이미지 리스트
+     * @param createDto        경매글 작성 정보
+     * @param principalDetails 회원 정보
      * @return 성공 시 201코드와 작성된 경매글의 PK와 제목, 실패 시 에러코드와 에러메시지
      */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping
     public ResponseEntity<AuctionCreateDto.Response> createAuctionController(
         @IsImage(message = "이미지 파일이 아니거나 올바르지 않은 이미지 입니다. (허용하는 확장자 : .jpg, .jpeg, .png)") @RequestPart
         MultipartFile thumbnail,
         @RequestPart(required = false) List<@IsImage(message = "이미지 파일이 아니거나 올바르지 않은 이미지 입니다. (허용하는 확장자 : .jpg, .jpeg, .png)") MultipartFile> imageList,
-        @Valid @RequestPart AuctionCreateDto.Request createDto) {
+        @Valid @RequestPart AuctionCreateDto.Request createDto, @AuthenticationPrincipal
+    PrincipalDetails principalDetails) {
 
-        String memberId = "test"; // todo: 토큰을 통해 조회
+        String memberEmail = principalDetails.getName();
 
-        Auction auction = auctionService.createAuction(thumbnail, imageList, memberId,
+        Auction auction = auctionService.createAuction(thumbnail, imageList, memberEmail,
             createDto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -111,19 +117,22 @@ public class AuctionController {
     /**
      * 구매 확정 컨트롤러
      *
-     * @param auctionId  경매글 PK
-     * @param confirmDto 구매 확정 정보
+     * @param auctionId        경매글 PK
+     * @param confirmDto       구매 확정 정보
+     * @param principalDetails 회원 정보
      * @return 성공 시 200 코드, 실패 시 에러코드와 에러메시지
      */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{auctionId}/confirm")
     public ResponseEntity<String> confirmAuctionController(
         @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId,
         @Valid @RequestBody
-        AuctionConfirmDto.Request confirmDto) {
+        AuctionConfirmDto.Request confirmDto,
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberId = "test"; // todo : 토큰을 통해 조회
+        String memberEmail = principalDetails.getName();
 
-        auctionService.confirmAuction(auctionId, memberId, confirmDto);
+        auctionService.confirmAuction(auctionId, memberEmail, confirmDto);
 
         return ResponseEntity.ok("구매 확정 완료");
     }
@@ -131,16 +140,19 @@ public class AuctionController {
     /**
      * 즉시 구매 컨트롤러
      *
-     * @param auctionId 즉시 구매할 경매글 PK
+     * @param auctionId        즉시 구매할 경매글 PK
+     * @param principalDetails 회원 정보
      * @return 성공 시 200 코드, 실패 시 에러코드와 에러메시지
      */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/{auctionId}")
     public ResponseEntity<String> instantPurchaseAuctionController(
-        @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId) {
+        @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId,
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberId = "test"; // todo: 토큰을 통해 조회
+        String memberEmail = principalDetails.getName();
 
-        auctionService.instantPurchaseAuction(auctionId, memberId);
+        auctionService.instantPurchaseAuction(auctionId, memberEmail);
 
         return ResponseEntity.ok("즉시 구매 성공");
     }

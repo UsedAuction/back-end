@@ -18,7 +18,7 @@ public class TransactionService {
     /**
      * 판매 내역 조회 서비스
      *
-     * @param sellerId        판매자 아이디
+     * @param sellerEmail     판매자 이메일
      * @param word            검색어
      * @param transTypeString 거래 진행 중 또는 거래 종료
      * @param sorted          정렬
@@ -28,18 +28,18 @@ public class TransactionService {
      * @return 페이징된 거래 내역 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Transaction> getTransactionListBySeller(String sellerId, String word,
+    public Page<Transaction> getTransactionListBySeller(String sellerEmail, String word,
         String transTypeString, String sorted, LocalDate startDate, LocalDate endDate,
         Pageable pageable) {
 
         return transactionRepository.findAllByTransactionListBySeller(
-            sellerId, word, transTypeString, sorted, startDate, endDate, pageable);
+            sellerEmail, word, transTypeString, sorted, startDate, endDate, pageable);
     }
 
     /**
      * 구매 내역 조회 서비스
      *
-     * @param buyerId         구매자 아이디
+     * @param buyerEmail      구매자 이메일
      * @param word            검색어
      * @param transTypeString 거래 종료 또는 거래 진행 중
      * @param sorted          정렬
@@ -49,11 +49,11 @@ public class TransactionService {
      * @return 페이징 처리된 거래 내역 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Transaction> getTransactionListByBuyer(String buyerId, String word,
+    public Page<Transaction> getTransactionListByBuyer(String buyerEmail, String word,
         String transTypeString, String sorted, LocalDate startDate, LocalDate endDate,
         Pageable pageable) {
 
         return transactionRepository.findAllByTransactionListByBuyer(
-            buyerId, word, transTypeString, sorted, startDate, endDate, pageable);
+            buyerEmail, word, transTypeString, sorted, startDate, endDate, pageable);
     }
 }
