@@ -10,17 +10,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
+import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
+import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
+import com.ddang.usedauction.security.jwt.Oauth2SuccessHandler;
+import com.ddang.usedauction.security.jwt.TokenProvider;
+import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -49,6 +56,21 @@ class AuctionControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private PrincipalOauth2UserService principalOauth2UserService;
+
+    @MockBean
+    private Oauth2SuccessHandler oauth2SuccessHandler;
+
+    @MockBean
+    private Oauth2FailureHandler oauth2FailureHandler;
+
+    @MockBean
+    private TokenProvider tokenProvider;
+
+    @MockBean
+    private RefreshTokenService refreshTokenService;
 
     @MockBean
     private AuctionService auctionService;
@@ -168,6 +190,33 @@ class AuctionControllerTest {
     }
 
     @Test
+    @DisplayName("최근 본 경매 리스트 조회 컨트롤러")
+    void getAuctionRecentListController() throws Exception {
+
+        AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
+            .auctionTitle("title")
+            .build();
+        List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
+
+        when(auctionService.getAuctionRecentList()).thenReturn(auctionRecentDtoList);
+
+        mockMvc.perform(get("/api/auctions/recent"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].auctionTitle").value("title"));
+    }
+
+    @Test
+    @DisplayName("최근 본 경매 리스트 조회 컨트롤러 실패 - url 경로 다름")
+    void getAuctionRecentListControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/auction/recent"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomMockUser
     @DisplayName("경매글 생성 컨트롤러")
     void createAuctionController() throws Exception {
 
@@ -198,7 +247,7 @@ class AuctionControllerTest {
         when(auctionService.createAuction(
             argThat(arg -> arg.getName().equals("thumbnail")),
             argThat(arg -> arg.get(0).getName().equals("imageList")),
-            argThat(arg -> arg.equals("test")),
+            argThat(arg -> arg.equals("test@naver.com")),
             argThat(arg -> arg.getTitle().equals("title")))).thenReturn(auction);
 
         mockMvc.perform(MockMvcRequestBuilders
@@ -256,6 +305,7 @@ class AuctionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("경매글 생성 컨트롤러 실패 - 필수 RequestPart 값 존재하지 않음")
     void createAuctionControllerFail2() throws Exception {
 
@@ -292,6 +342,7 @@ class AuctionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("경매글 생성 컨트롤러 실패 - 이미지가 아닌 다른 파일인 경우")
     void createAuctionControllerFail3() throws Exception {
 
@@ -333,6 +384,7 @@ class AuctionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("경매글 생성 컨트롤러 실패 - request 유효성 검사 실패")
     void createAuctionControllerFail4() throws Exception {
 
@@ -374,6 +426,53 @@ class AuctionControllerTest {
     }
 
     @Test
+    @DisplayName("경매글 생성 컨트롤러 실패 - 로그인 x")
+    void createAuctionControllerFail5() throws Exception {
+
+        MockMultipartFile thumbnail = new MockMultipartFile("thumbnail", "thumbnail.png",
+            MediaType.IMAGE_PNG_VALUE,
+            "thumbnail".getBytes(StandardCharsets.UTF_8));
+
+        MockMultipartFile mockImage = new MockMultipartFile("imageList", "image.png",
+            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(3000)
+            .productDescription("설명")
+            .receiveType(ReceiveType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
+
+        when(auctionService.createAuction(
+            argThat(arg -> arg.getName().equals("thumbnail")),
+            argThat(arg -> arg.get(0).getName().equals("imageList")),
+            argThat(arg -> arg.equals("test@naver.com")),
+            argThat(arg -> arg.getTitle().equals("title")))).thenReturn(auction);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .multipart("/api/auctions")
+                .file(thumbnail)
+                .file(mockImage)
+                .file(new MockMultipartFile("createDto", "", "application/json",
+                    objectMapper.writeValueAsString(createDto).getBytes(StandardCharsets.UTF_8)))
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .accept(MediaType.APPLICATION_JSON))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomMockUser
     @DisplayName("구매 확정 컨트롤러")
     void confirmAuctionController() throws Exception {
 
@@ -406,6 +505,7 @@ class AuctionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("구매 확정 컨트롤러 실패 - pathVariable 유효성 검사 실패")
     void confirmAuctionControllerFail2() throws Exception {
 
@@ -422,6 +522,7 @@ class AuctionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("구매 확정 컨트롤러 실패 - dto 유효성 검사 실패")
     void confirmAuctionControllerFail3() throws Exception {
 
@@ -438,6 +539,23 @@ class AuctionControllerTest {
     }
 
     @Test
+    @DisplayName("구매 확정 컨트롤러 실패 - 로그인 x")
+    void confirmAuctionControllerFail4() throws Exception {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        mockMvc.perform(post("/api/auctions/1/confirm")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(confirmDto)))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomMockUser
     @DisplayName("즉시 구매 컨트롤러")
     void instancePurchaseAuctionController() throws Exception {
 
@@ -456,11 +574,21 @@ class AuctionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("즉시 구매 컨트롤러 실패 - PathVariable 유효성 검증 실패")
     void instancePurchaseAuctionControllerFail2() throws Exception {
 
         mockMvc.perform(post("/api/auctions/0"))
             .andDo(print())
             .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("즉시 구매 컨트롤러 실패 - 로그인 x")
+    void instancePurchaseAuctionControllerFail3() throws Exception {
+
+        mockMvc.perform(post("/api/auctions/1"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
     }
 }

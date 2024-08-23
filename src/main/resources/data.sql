@@ -11,8 +11,7 @@ VALUES (1,
         NULL,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP);
-
-
+        
 -- 대분류 카테고리 삽입
 INSERT INTO category (category_name, parent_id, created_at, updated_at)
 VALUES ('남성의류', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),

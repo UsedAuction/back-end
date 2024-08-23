@@ -1,4 +1,4 @@
-package com.ddang.usedauction.auction.service;
+package com.ddang.usedauction.bid.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -7,6 +7,7 @@ import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.bid.dto.BidMessageDto;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
 import com.ddang.usedauction.member.domain.Member;
@@ -24,22 +25,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-@Disabled
-public class AuctionServiceConcurrencyTest {
-
-    @Autowired
-    private MemberRepository memberRepository;
+@Disabled("Temporarily disabling this test")
+public class BidPubSubConcurrencyTest {
 
     @Autowired
     private AuctionRepository auctionRepository;
 
     @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
-    private AuctionService auctionService;
+    private BidPubSubService bidPubSubService;
 
-    Long auctionId;
+    Auction savedAuction;
 
     @BeforeEach
     void setup() {
@@ -48,7 +49,7 @@ public class AuctionServiceConcurrencyTest {
             Member member = Member.builder()
                 .siteAlarm(false)
                 .passWord("1234")
-                .email("test@naver.com" + i)
+                .email("test@naver.com")
                 .point(2000)
                 .memberId("test" + i)
                 .build();
@@ -91,14 +92,14 @@ public class AuctionServiceConcurrencyTest {
             .parentCategory(savedParentCategory)
             .seller(savedSeller)
             .currentPrice(1000)
+            .instantPrice(3000)
             .build();
-        Auction savedAuction = auctionRepository.save(auction);
-        auctionId = savedAuction.getId();
+        savedAuction = auctionRepository.save(auction);
     }
 
     @Test
-    @DisplayName("즉시 구매 동시성 테스트")
-    void instantPurchaseAuctionWithoutLock() throws InterruptedException {
+    @DisplayName("입찰 동시성 테스트")
+    void bidWithLock() throws InterruptedException {
 
         long memberCount = 30;
         ExecutorService executorService = Executors.newFixedThreadPool((int) memberCount);
@@ -110,7 +111,8 @@ public class AuctionServiceConcurrencyTest {
             long finalI = i;
             executorService.submit(() -> {
                 try {
-                    auctionService.instantPurchaseAuction(auctionId, "test@naver.com" + finalI);
+                    bidPubSubService.createBid(BidMessageDto.Request.builder().bidAmount(2000)
+                        .auctionId(savedAuction.getId()).memberId("test" + finalI).build());
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();
@@ -122,7 +124,7 @@ public class AuctionServiceConcurrencyTest {
 
         latch.await();
 
-        assertEquals(1, successCount.get()); // 1개 성공
-        assertEquals(memberCount - 1, failCount.get()); // 나머지 29개 실패
+        assertEquals(1, successCount.get());
+        assertEquals(memberCount - 1, failCount.get());
     }
 }

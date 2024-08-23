@@ -6,12 +6,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
+import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
+import com.ddang.usedauction.security.jwt.Oauth2SuccessHandler;
+import com.ddang.usedauction.security.jwt.TokenProvider;
+import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
@@ -34,6 +40,21 @@ class TransactionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private PrincipalOauth2UserService principalOauth2UserService;
+
+    @MockBean
+    private Oauth2SuccessHandler oauth2SuccessHandler;
+
+    @MockBean
+    private Oauth2FailureHandler oauth2FailureHandler;
+
+    @MockBean
+    private TokenProvider tokenProvider;
+
+    @MockBean
+    private RefreshTokenService refreshTokenService;
 
     @MockBean
     private TransactionService transactionService;
@@ -80,6 +101,7 @@ class TransactionControllerTest {
 
         Member buyer = Member.builder()
             .memberId("buyer")
+            .email("buyer@naver.com")
             .build();
 
         Transaction transaction1 = Transaction.builder()
@@ -102,6 +124,7 @@ class TransactionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("판매 내역 조회 컨트롤러")
     void getTransactionListBySellerController() throws Exception {
 
@@ -110,7 +133,8 @@ class TransactionControllerTest {
             transactionList.size());
 
         when(
-            transactionService.getTransactionListBySeller("test", "name", "end", null, null, null,
+            transactionService.getTransactionListBySeller("test@naver.com", "name", "end", null,
+                null, null,
                 pageable)).thenReturn(transactionPageList);
 
         mockMvc.perform(get("/api/transactions/sales?word=name&transTypeString=end"))
@@ -131,6 +155,7 @@ class TransactionControllerTest {
     }
 
     @Test
+    @WithCustomMockUser
     @DisplayName("구매 내역 조회 컨트롤러")
     void getTransactionListByBuyerController() throws Exception {
 
@@ -139,7 +164,8 @@ class TransactionControllerTest {
             transactionList.size());
 
         when(
-            transactionService.getTransactionListByBuyer("test", "name", "end", null, null, null,
+            transactionService.getTransactionListByBuyer("test@naver.com", "name", "end", null,
+                null, null,
                 pageable)).thenReturn(transactionPageList);
 
         mockMvc.perform(get("/api/transactions/purchases?word=name&transTypeString=end"))

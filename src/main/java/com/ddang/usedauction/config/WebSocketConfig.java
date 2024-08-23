@@ -10,22 +10,26 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  /**
-   * /sub : 메시지 브로커가 /sub으로 시작하는 주소를 구독한 Subscriber들에게 메시지 전달 /pub : 클라이언트가 서버로 메시지를 발송할 수 있는 경로
-   */
-  @Override
-  public void configureMessageBroker(MessageBrokerRegistry config) {
-    config.enableSimpleBroker("/sub");
-    config.setApplicationDestinationPrefixes("/pub");
-  }
+    /**
+     * /sub : 메시지 브로커가 /sub으로 시작하는 주소를 구독한 Subscriber들에게 메시지 전달 /pub : 클라이언트가 서버로 메시지를 발송할 수 있는 경로
+     */
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.enableSimpleBroker("/sub");
+        config.setApplicationDestinationPrefixes("/pub");
+    }
 
-  /**
-   * 소켓 연결을 위한 엔드포인트 지정, CORS를 피하기 위해 AllowedOriginPatterns "*"으로 지정 테스트를 위해 .withSockJS() 주석처리
-   */
-  @Override
-  public void registerStompEndpoints(StompEndpointRegistry registry) {
-    registry.addEndpoint("/chat-ws")
-        .setAllowedOriginPatterns("*");
+    /**
+     * 소켓 연결을 위한 엔드포인트 지정, CORS를 피하기 위해 AllowedOriginPatterns "*"으로 지정 테스트를 위해 .withSockJS() 주석처리
+     */
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/chat-ws")
+            .setAllowedOriginPatterns("*");
 //        .withSockJS();
-  }
+
+        registry.addEndpoint("/auction-websocket") // 경매 관련 엔드포인트
+            .setAllowedOriginPatterns("*");
+//        .withSockJS()
+    }
 }
