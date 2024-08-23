@@ -79,7 +79,8 @@ public class AskController {
      */
     @PreAuthorize("hasRole('USER')")
     @PostMapping
-    public ResponseEntity<AskGetDto.Response> createAskController(@Valid AskCreateDto createDto,
+    public ResponseEntity<AskGetDto.Response> createAskController(
+        @Valid @RequestBody AskCreateDto createDto,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         Ask ask = askService.createAsk(createDto, principalDetails.getName());
