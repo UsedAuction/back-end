@@ -130,7 +130,7 @@ public class AuctionService {
         RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX + "test@example.com"; // todo: 토큰을 통한 회원 이메일
     return redisTemplate.opsForList().range(key, 0, 4);
   }
-      
+
   /**
    * 경매글 생성 서비스
    *
@@ -142,7 +142,7 @@ public class AuctionService {
    */
   @Transactional
   public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
-    String memberEmail, AuctionCreateDto.Request createDto) {
+      String memberEmail, AuctionCreateDto.Request createDto) {
 
     createValidation(imageList, createDto);
 
@@ -207,38 +207,38 @@ public class AuctionService {
   public void confirmAuction(Long auctionId, String memberEmail,
       AuctionConfirmDto.Request confirmDto) {
 
-      Auction auction = auctionRepository.findById(auctionId)
-          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+    Auction auction = auctionRepository.findById(auctionId)
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-      if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
-          throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
-      }
+    if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
+      throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
+    }
 
-      Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(memberEmail,
-              auctionId)
-          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
+    Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(memberEmail,
+            auctionId)
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
 
-      // 이미 구매확정이 진행된 경우
-      if (transaction.getTransType().equals(TransType.SUCCESS)) {
-          throw new IllegalStateException("이미 종료된 거래입니다.");
-      }
+    // 이미 구매확정이 진행된 경우
+    if (transaction.getTransType().equals(TransType.SUCCESS)) {
+      throw new IllegalStateException("이미 종료된 거래입니다.");
+    }
 
-      Member buyer = memberRepository.findByEmail(memberEmail)
-          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+    Member buyer = memberRepository.findByEmail(memberEmail)
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-      Member seller = memberRepository.findById(confirmDto.getSellerId())
-          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+    Member seller = memberRepository.findById(confirmDto.getSellerId())
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-      seller = seller.toBuilder()
-          .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
-          .build();
-      memberRepository.save(seller);
+    seller = seller.toBuilder()
+        .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
+        .build();
+    memberRepository.save(seller);
 
-      // 포인트 히스토리와 거래 내역 저장
-      savePointAndTransaction(confirmDto, buyer, seller, transaction);
+    // 포인트 히스토리와 거래 내역 저장
+    savePointAndTransaction(confirmDto, buyer, seller, transaction);
 
-      // 구매 확정 알림 전송
-      sendNotificationForConfirm(buyer, auction);
+    // 구매 확정 알림 전송
+    sendNotificationForConfirm(buyer, auction);
   }
 
   /**
@@ -265,7 +265,7 @@ public class AuctionService {
 
     reducePointAndSaveTransaction(buyer, auction); // 구매자 포인트 감소 처리 및 거래 내역 저장
 
-    auctionRedisService.createAutoConfirm(auctionId, memberId, auction.getInstantPrice(),
+    auctionRedisService.createAutoConfirm(auctionId, buyer.getEmail(), auction.getInstantPrice(),
         auction.getSeller()
             .getId()); // 일주일 후 자동 구매 확정 되도록 설정
     // 알림 전송
@@ -273,21 +273,21 @@ public class AuctionService {
 
     chatRoomService.createChatRoom(buyer.getId(), auction.getId());
   }
-  
+
   // 즉시 구매 시 validation
   private void validationOfInstantPurchase(Auction auction, Member buyer) {
-      // 판매자가 즉시 구매를 진행하고자 하는 경우
-      if (auction.getSeller().getId().equals(buyer.getId())) {
-          throw new IllegalStateException("판매자가 직접 즉시 구매할 수 없습니다.");
-      }
+    // 판매자가 즉시 구매를 진행하고자 하는 경우
+    if (auction.getSeller().getId().equals(buyer.getId())) {
+      throw new IllegalStateException("판매자가 직접 즉시 구매할 수 없습니다.");
+    }
 
-      if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
-          throw new IllegalStateException("이미 종료된 경매입니다.");
-      }
+    if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
+      throw new IllegalStateException("이미 종료된 경매입니다.");
+    }
 
-      if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
-          throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
-      }
+    if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
+      throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
+    }
   }
 
   // 구매자 포인트 감소 처리 및 구매 내역 저장 메소드

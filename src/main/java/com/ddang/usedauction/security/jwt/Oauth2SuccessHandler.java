@@ -23,7 +23,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
   private int accessTokenExpiration;
   private static final String URI = "/";
   private final TokenProvider tokenProvider;
-  private final RefreshTokenService RefreshTokenService;
+  private final RefreshTokenService refreshTokenService;
 
   @Override
   public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -33,7 +33,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
     Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
     TokenDto token = tokenProvider.generateToken(email, authorities);
-    RefreshTokenService.save(email, token.getAccessToken(), token.getRefreshToken());
+    refreshTokenService.save(email, token.getAccessToken(), token.getRefreshToken());
 
     CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
 //    테스트하기 위해 주석처리
