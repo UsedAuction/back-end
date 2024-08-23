@@ -21,12 +21,12 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<Transaction> findAllByTransactionListBySeller(String sellerId, String word,
+    public Page<Transaction> findAllByTransactionListBySeller(String sellerEmail, String word,
         String transTypeString, String sorted, LocalDate startDate, LocalDate endDate,
         Pageable pageable) {
 
         List<Transaction> transactionList = jpaQueryFactory.selectFrom(transaction)
-            .where(transaction.auction.seller.memberId.eq(sellerId), containsWord(word),
+            .where(transaction.auction.seller.email.eq(sellerEmail), containsWord(word),
                 eqTransType(transTypeString), betweenDate(startDate, endDate))
             .orderBy(getOrderSpecifier(sorted))
             .offset(pageable.getOffset())
@@ -34,7 +34,7 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
             .fetch();
 
         int size = jpaQueryFactory.selectFrom(transaction)
-            .where(transaction.auction.seller.memberId.eq(sellerId), containsWord(word),
+            .where(transaction.auction.seller.memberId.eq(sellerEmail), containsWord(word),
                 eqTransType(transTypeString))
             .fetch()
             .size();
@@ -43,12 +43,12 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
     }
 
     @Override
-    public Page<Transaction> findAllByTransactionListByBuyer(String buyerId, String word,
+    public Page<Transaction> findAllByTransactionListByBuyer(String buyerEmail, String word,
         String transTypeString, String sorted, LocalDate startDate, LocalDate endDate,
         Pageable pageable) {
 
         List<Transaction> transactionList = jpaQueryFactory.selectFrom(transaction)
-            .where(transaction.buyer.memberId.eq(buyerId), containsWord(word),
+            .where(transaction.buyer.email.eq(buyerEmail), containsWord(word),
                 eqTransType(transTypeString), betweenDate(startDate, endDate))
             .orderBy(getOrderSpecifier(sorted))
             .offset(pageable.getOffset())
@@ -56,7 +56,7 @@ public class TransactionRepositoryCustomImpl implements TransactionRepositoryCus
             .fetch();
 
         int size = jpaQueryFactory.selectFrom(transaction)
-            .where(transaction.buyer.memberId.eq(buyerId), containsWord(word),
+            .where(transaction.buyer.memberId.eq(buyerEmail), containsWord(word),
                 eqTransType(transTypeString))
             .fetch()
             .size();

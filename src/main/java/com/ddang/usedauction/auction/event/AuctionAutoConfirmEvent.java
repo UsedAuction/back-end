@@ -14,15 +14,15 @@ import lombok.NoArgsConstructor;
 public class AuctionAutoConfirmEvent { // 자동 구매 확정 이벤트
 
     private Long auctionId;
-    private String buyerId;
+    private String buyerEmail;
     private AuctionConfirmDto.Request confirmDto;
 
-    public static AuctionAutoConfirmEvent of(Long auctionId, String buyerId,
+    public static AuctionAutoConfirmEvent of(Long auctionId, String buyerEmail,
         AuctionConfirmDto.Request confirmDto) {
 
         return AuctionAutoConfirmEvent.builder()
             .auctionId(auctionId)
-            .buyerId(buyerId)
+            .buyerEmail(buyerEmail)
             .confirmDto(confirmDto)
             .build();
     }

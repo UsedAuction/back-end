@@ -17,13 +17,13 @@ public class BidService {
     /**
      * 회원의 입찰 목록 조회
      *
-     * @param memberId 회원 아이디
-     * @param pageable 페이징
+     * @param memberEmail 회원 이메일
+     * @param pageable    페이징
      * @return 페이징 처리된 입찰 목록
      */
     @Transactional(readOnly = true)
-    public Page<Bid> getBidList(String memberId, Pageable pageable) {
+    public Page<Bid> getBidList(String memberEmail, Pageable pageable) {
 
-        return bidRepository.findAllByMemberId(memberId, pageable);
+        return bidRepository.findAllByMemberEmail(memberEmail, pageable);
     }
 }

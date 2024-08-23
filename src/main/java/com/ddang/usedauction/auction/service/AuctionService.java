@@ -130,23 +130,23 @@ public class AuctionService {
         RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX + "test@example.com"; // todo: 토큰을 통한 회원 이메일
     return redisTemplate.opsForList().range(key, 0, 4);
   }
-
+      
   /**
    * 경매글 생성 서비스
    *
-   * @param thumbnail 대표 이미지
-   * @param imageList 대표 이미지를 제외한 이미지 리스트
-   * @param memberId  경매글 작성자
-   * @param createDto 경매글 작성 정보
+   * @param thumbnail   대표 이미지
+   * @param imageList   대표 이미지를 제외한 이미지 리스트
+   * @param memberEmail 경매글 작성자
+   * @param createDto   경매글 작성 정보
    * @return 작성된 경매글의 serviceDto
    */
   @Transactional
   public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
-      String memberId, AuctionCreateDto.Request createDto) {
+    String memberEmail, AuctionCreateDto.Request createDto) {
 
     createValidation(imageList, createDto);
 
-    Member member = memberRepository.findByMemberId(memberId)
+    Member member = memberRepository.findByEmail(memberEmail)
         .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
     Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
@@ -199,70 +199,64 @@ public class AuctionService {
   /**
    * 구매 확정 서비스
    *
-   * @param auctionId  경매글 PK
-   * @param memberId   구매자 아이디
-   * @param confirmDto 구매 확정 정보
+   * @param auctionId   경매글 PK
+   * @param memberEmail 구매자 이메일
+   * @param confirmDto  구매 확정 정보
    */
   @RedissonLock("#confirmDto.sellerId")
-  public void confirmAuction(Long auctionId, String memberId,
+  public void confirmAuction(Long auctionId, String memberEmail,
       AuctionConfirmDto.Request confirmDto) {
 
-    Auction auction = auctionRepository.findById(auctionId)
-        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+      Auction auction = auctionRepository.findById(auctionId)
+          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-    if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
-      throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
-    }
+      if (auction.getAuctionState().equals(AuctionState.CONTINUE)) { // 아직 진행중인 경매인 경우
+          throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
+      }
 
-    Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(memberId,
-            auctionId)
-        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
+      Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(memberEmail,
+              auctionId)
+          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
 
-    // 이미 구매확정이 징행된 경우
-    if (transaction.getTransType().equals(TransType.SUCCESS)) {
-      throw new IllegalStateException("이미 종료된 거래입니다.");
-    }
+      // 이미 구매확정이 진행된 경우
+      if (transaction.getTransType().equals(TransType.SUCCESS)) {
+          throw new IllegalStateException("이미 종료된 거래입니다.");
+      }
 
-    Member buyer = memberRepository.findByMemberId(memberId)
-        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+      Member buyer = memberRepository.findByEmail(memberEmail)
+          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-    Member seller = memberRepository.findById(confirmDto.getSellerId())
-        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+      Member seller = memberRepository.findById(confirmDto.getSellerId())
+          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-    seller = seller.toBuilder()
-        .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
-        .build();
-    memberRepository.save(seller);
+      seller = seller.toBuilder()
+          .point(seller.getPoint() + confirmDto.getPrice()) // 판매자의 포인트 증가
+          .build();
+      memberRepository.save(seller);
 
-    // 포인트 히스토리와 거래 내역 저장
-    savePointAndTransaction(confirmDto, buyer, seller, transaction);
+      // 포인트 히스토리와 거래 내역 저장
+      savePointAndTransaction(confirmDto, buyer, seller, transaction);
 
-    // 구매 확정 알림 전송
-    sendNotificationForConfirm(buyer, auction);
+      // 구매 확정 알림 전송
+      sendNotificationForConfirm(buyer, auction);
   }
 
   /**
    * 즉시 구매 서비스
    *
-   * @param auctionId 즉시 구매할 경매글의 PK
-   * @param memberId  구매자 아이디
+   * @param auctionId   즉시 구매할 경매글의 PK
+   * @param memberEmail 구매자 이메일
    */
   @RedissonLock("#auctionId")
-  public void instantPurchaseAuction(Long auctionId, String memberId) {
+  public void instantPurchaseAuction(Long auctionId, String memberEmail) {
 
     Auction auction = auctionRepository.findById(auctionId)
         .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-    Member buyer = memberRepository.findByMemberId(memberId)
+    Member buyer = memberRepository.findByEmail(memberEmail)
         .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-    if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
-      throw new IllegalStateException("이미 종료된 경매입니다.");
-    }
-
-    if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
-      throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
-    }
+    validationOfInstantPurchase(auction, buyer);
 
     auction = auction.toBuilder()
         .auctionState(AuctionState.END) // 경매 종료 처리
@@ -278,6 +272,22 @@ public class AuctionService {
     sendNotificationForInstant(auction, buyer);
 
     chatRoomService.createChatRoom(buyer.getId(), auction.getId());
+  }
+  
+  // 즉시 구매 시 validation
+  private void validationOfInstantPurchase(Auction auction, Member buyer) {
+      // 판매자가 즉시 구매를 진행하고자 하는 경우
+      if (auction.getSeller().getId().equals(buyer.getId())) {
+          throw new IllegalStateException("판매자가 직접 즉시 구매할 수 없습니다.");
+      }
+
+      if (auction.getAuctionState().equals(AuctionState.END)) { // 종료된 경매에 즉시 구매 요청인 경우
+          throw new IllegalStateException("이미 종료된 경매입니다.");
+      }
+
+      if (buyer.getPoint() < auction.getInstantPrice()) { // 구매자의 포인트가 부족한 경우
+          throw new MemberPointOutOfBoundsException(buyer.getPoint(), auction.getInstantPrice());
+      }
   }
 
   // 구매자 포인트 감소 처리 및 구매 내역 저장 메소드
@@ -331,7 +341,7 @@ public class AuctionService {
         .build();
   }
 
-  // 생성 시 체그해야할 사항 validation
+  // 생성 시 체크해야할 사항 validation
   private void createValidation(List<MultipartFile> imageList, Request createDto) {
 
     if (imageList != null && imageList.size() > 5) { // 썸네일 포함 6개 초과인 경우

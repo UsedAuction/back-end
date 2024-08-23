@@ -153,7 +153,7 @@ class AuctionServiceTest {
     Category category2 = Category.builder()
         .categoryName("category2")
         .build();
-
+    
     Auction auction1 = Auction.builder()
         .title("title")
         .parentCategory(category1)
@@ -184,518 +184,521 @@ class AuctionServiceTest {
   @DisplayName("최근 본 경매 리스트 조회")
   void getAuctionRecentList() {
 
-    AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
-        .auctionTitle("title")
-        .build();
-    List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
+      AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
+          .auctionTitle("title")
+          .build();
+      List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
 
-    when(redisTemplate.opsForList()).thenReturn(listOperations);
-    when(listOperations.range("recently::test@example.com", 0, 4)).thenReturn(
-        auctionRecentDtoList);
+      when(redisTemplate.opsForList()).thenReturn(listOperations);
+      when(listOperations.range("recently::test@example.com", 0, 4)).thenReturn(
+          auctionRecentDtoList);
 
-    List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
+      List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
 
-    assertEquals("title", auctionRecentList.get(0).getAuctionTitle());
+      assertEquals("title", auctionRecentList.get(0).getAuctionTitle());
   }
 
   @Test
   @DisplayName("경매글 생성")
   void createAuction() {
 
-    MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-        MediaType.IMAGE_PNG_VALUE,
-        "thumbnail".getBytes());
-
-    MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-        MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-    List<MultipartFile> imageList = List.of(mockImage, mockImage);
-
-    Member member = Member.builder()
-        .memberId("test")
-        .build();
-
-    Category parentCategory = Category.builder()
-        .categoryName("category1")
-        .build();
-
-    Category childCategory = Category.builder()
-        .categoryName("category2")
-        .build();
-
-    Image image = Image.builder()
-        .imageName("imageName")
-        .imageType(ImageType.THUMBNAIL)
-        .imageUrl("url")
-        .build();
-
-    Image normalImage1 = Image.builder()
-        .imageName("imageName2")
-        .imageType(ImageType.NORMAL)
-        .imageUrl("url")
-        .build();
-
-    Image normalImage2 = Image.builder()
-        .imageName("imageName2")
-        .imageType(ImageType.NORMAL)
-        .imageUrl("url")
-        .build();
-    List<Image> uploadImageList = List.of(normalImage1, normalImage2);
-
-    Auction auction = Auction.builder()
-        .title("title")
-        .parentCategory(parentCategory)
-        .childCategory(childCategory)
-        .imageList(uploadImageList)
-        .seller(member)
-        .build();
-
-    AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-        .title("title")
-        .contactPlace("place")
-        .deliveryPrice("price")
-        .deliveryType(DeliveryType.PREPAY)
-        .endedAt(LocalDateTime.now().plusDays(2))
-        .instantPrice(4000)
-        .productName("name")
-        .productStatus(3.5)
-        .startPrice(1000)
-        .productDescription("설명")
-        .receiveType(ReceiveType.ALL)
-        .productColor("color")
-        .childCategoryId(2L)
-        .parentCategoryId(1L)
-        .build();
-
-    when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
-    when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
-    when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
-    when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
-    when(imageService.uploadImageList(imageList)).thenReturn(uploadImageList);
-    when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
-        auction);
-
-    Auction result = auctionService.createAuction(thumbnail, imageList, "test",
-        createDto);
-
-    assertEquals("title", result.getTitle());
-  }
-
-  @Test
-  @DisplayName("경매글 생성 실패 - 이미지가 6개보다 많은 경우")
-  void createAuctionFail1() {
-
-    MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-        MediaType.IMAGE_PNG_VALUE,
-        "thumbnail".getBytes());
-
-    MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-        MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-    List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage,
-        mockImage, mockImage);
-
-    AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-        .title("title")
-        .contactPlace("place")
-        .deliveryPrice("price")
-        .deliveryType(DeliveryType.PREPAY)
-        .endedAt(LocalDateTime.now().plusDays(2))
-        .instantPrice(4000)
-        .productName("name")
-        .productStatus(3.5)
-        .startPrice(1000)
-        .productDescription("설명")
-        .receiveType(ReceiveType.ALL)
-        .productColor("color")
-        .childCategoryId(2L)
-        .parentCategoryId(1L)
-        .build();
-
-    assertThrows(ImageCountOutOfBoundsException.class,
-        () -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto));
-  }
-
-  @Test
-  @DisplayName("경매글 생성 실패 - 경매가 일주일보다 더 길게 진행되는 경우")
-  void createAuctionFail2() {
-
-    MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-        MediaType.IMAGE_PNG_VALUE,
-        "thumbnail".getBytes());
-
-    MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-        MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-    List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
-
-    AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-        .title("title")
-        .contactPlace("place")
-        .deliveryPrice("price")
-        .deliveryType(DeliveryType.PREPAY)
-        .endedAt(LocalDateTime.now().plusDays(8))
-        .instantPrice(4000)
-        .productName("name")
-        .productStatus(3.5)
-        .startPrice(1000)
-        .productDescription("설명")
-        .receiveType(ReceiveType.ALL)
-        .productColor("color")
-        .childCategoryId(2L)
-        .parentCategoryId(1L)
-        .build();
-
-    assertThrows(AuctionMaxDateOutOfBoundsException.class,
-        () -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto));
-  }
-
-  @Test
-  @DisplayName("경매글 생성 실패 - 즉시 구매가가 입찰 시작가보다 작거나 같은 경우")
-  void createAuctionFail3() {
-
-    MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-        MediaType.IMAGE_PNG_VALUE,
-        "thumbnail".getBytes());
-
-    MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-        MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-    List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
-
-    AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-        .title("title")
-        .contactPlace("place")
-        .deliveryPrice("price")
-        .deliveryType(DeliveryType.PREPAY)
-        .endedAt(LocalDateTime.now().plusDays(2))
-        .instantPrice(500)
-        .productName("name")
-        .productStatus(3.5)
-        .startPrice(1000)
-        .productDescription("설명")
-        .receiveType(ReceiveType.ALL)
-        .productColor("color")
-        .childCategoryId(2L)
-        .parentCategoryId(1L)
-        .build();
-
-    assertThrows(StartPriceOutOfBoundsException.class,
-        () -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto));
-  }
-
-  @Test
-  @DisplayName("경매글 생성 실패 - 존재하지 않는 회원인 경우")
-  void createAuctionFail4() {
-
-    MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-        MediaType.IMAGE_PNG_VALUE,
-        "thumbnail".getBytes());
-
-    MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-        MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-    List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
-
-    AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-        .title("title")
-        .contactPlace("place")
-        .deliveryPrice("price")
-        .deliveryType(DeliveryType.PREPAY)
-        .endedAt(LocalDateTime.now().plusDays(2))
-        .instantPrice(4000)
-        .productName("name")
-        .productStatus(3.5)
-        .startPrice(1000)
-        .productDescription("설명")
-        .receiveType(ReceiveType.ALL)
-        .productColor("color")
-        .childCategoryId(2L)
-        .parentCategoryId(1L)
-        .build();
-
-    when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
-
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto));
-  }
-
-  @Test
-  @DisplayName("경매글 생성 실패 - 존재하지 않는 카테고리인 경우")
-  void createAuctionFail5() {
-
-    MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-        MediaType.IMAGE_PNG_VALUE,
-        "thumbnail".getBytes());
-
-    MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-        MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-    List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
-
-    AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-        .title("title")
-        .contactPlace("place")
-        .deliveryPrice("price")
-        .deliveryType(DeliveryType.PREPAY)
-        .endedAt(LocalDateTime.now().plusDays(2))
-        .instantPrice(4000)
-        .productName("name")
-        .productStatus(3.5)
-        .startPrice(1000)
-        .productDescription("설명")
-        .receiveType(ReceiveType.ALL)
-        .productColor("color")
-        .childCategoryId(2L)
-        .parentCategoryId(1L)
-        .build();
-
-    Member member = Member.builder()
-        .memberId("test")
-        .build();
-
-    when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
-    when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.createAuction(thumbnail, imageList, "test",
-            createDto));
-  }
-
-  @Test
-  @DisplayName("구매 확정")
-  void confirmAuction() {
-
-    AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-        .price(1000)
-        .sellerId(2L)
-        .build();
-
-    Member seller = Member.builder()
-        .id(2L)
-        .memberId("seller")
-        .point(1000)
-        .build();
-
-    Auction auction = Auction.builder()
-        .id(1L)
-        .title("title")
-        .auctionState(AuctionState.END)
-        .seller(seller)
-        .build();
-
-    Member buyer = Member.builder()
-        .id(1L)
-        .memberId("buyer")
-        .point(5000)
-        .build();
-
-    Transaction transaction = Transaction.builder()
-        .buyer(buyer)
-        .transType(TransType.CONTINUE)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
-    when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-    when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
-        Optional.of(transaction));
-
-    auctionService.confirmAuction(1L, "buyer", confirmDto);
-
-    verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 2000));
-    verify(pointRepository, times(1)).save(
-        argThat(arg -> arg.getPointType().equals(PointType.USE)));
-    verify(pointRepository, times(1)).save(
-        argThat(arg -> arg.getPointType().equals(PointType.GET)));
-    verify(transactionRepository, times(1)).save(
-        argThat(arg -> arg.getTransType().equals(TransType.SUCCESS)));
-  }
-
-  @Test
-  @DisplayName("구매 확정 실패 - 없는 경매글")
-  void confirmAuctionFail1() {
-
-    AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-        .price(1000)
-        .sellerId(2L)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
-
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.confirmAuction(1L, "test", confirmDto));
-  }
-
-  @Test
-  @DisplayName("구매 확정 실패 - 없는 거래 내역")
-  void confirmAuctionFail2() {
-
-    AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-        .price(1000)
-        .sellerId(2L)
-        .build();
-
-    Auction auction = Auction.builder()
-        .id(1L)
-        .title("title")
-        .auctionState(AuctionState.END)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
-        Optional.empty());
-
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.confirmAuction(1L, "test", confirmDto));
-  }
-
-  @Test
-  @DisplayName("구매 확정 실패 - 없는 회원")
-  void confirmAuctionFail3() {
-
-    AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-        .price(1000)
-        .sellerId(2L)
-        .build();
-
-    Auction auction = Auction.builder()
-        .id(1L)
-        .title("title")
-        .auctionState(AuctionState.END)
-        .build();
-
-    Member buyer = Member.builder()
-        .id(1L)
-        .memberId("buyer")
-        .point(5000)
-        .build();
-
-    Transaction transaction = Transaction.builder()
-        .buyer(buyer)
-        .transType(TransType.CONTINUE)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
-        Optional.of(transaction));
-    when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
-
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.confirmAuction(1L, "test", confirmDto));
-  }
-
-  @Test
-  @DisplayName("구매 확정 실패 - 진행중인 경매인 경우")
-  void confirmAuctionFail4() {
-
-    AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-        .price(1000)
-        .sellerId(2L)
-        .build();
-
-    Auction auction = Auction.builder()
-        .id(1L)
-        .title("title")
-        .auctionState(AuctionState.CONTINUE)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-
-    assertThrows(IllegalStateException.class,
-        () -> auctionService.confirmAuction(1L, "test", confirmDto));
-  }
-
-  @Test
-  @DisplayName("구매 확정 실패 - 없는 거래 내역")
-  void confirmAuctionFail5() {
-
-    AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
-        .price(1000)
-        .sellerId(2L)
-        .build();
-
-    Auction auction = Auction.builder()
-        .id(1L)
-        .title("title")
-        .auctionState(AuctionState.END)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
-        Optional.empty());
-
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.confirmAuction(1L, "buyer", confirmDto));
-  }
-
-  @Test
-  @DisplayName("경매 종료")
-  void endAuction() {
-
-    Member member1 = Member.builder()
-        .id(1L)
-        .point(2000)
-        .build();
-
-    Member member2 = Member.builder()
-        .id(2L)
-        .point(2000)
-        .build();
-
-    Member seller = Member.builder()
-        .id(3L)
-        .point(0)
-        .build();
-
-    Bid bid1 = Bid.builder()
-        .id(1L)
-        .member(member1)
-        .bidPrice(1000)
-        .build();
-
-    Bid bid2 = Bid.builder()
-        .id(2L)
-        .member(member2)
-        .bidPrice(2000)
-        .build();
-
-    List<Bid> bidList = List.of(bid1, bid2);
-
-    Auction auction = Auction.builder()
-        .id(1L)
-        .auctionState(AuctionState.CONTINUE)
-        .bidList(bidList)
-        .seller(seller)
-        .build();
-
-    Member afterMember2 = member2.toBuilder()
-        .point(0)
-        .build();
-
-    Auction afterAuction = auction.toBuilder()
-        .auctionState(AuctionState.END)
-        .build();
-
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(memberRepository.save(argThat(arg -> arg.getId().equals(2L)))).thenReturn(
-        afterMember2);
-    when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
-        afterAuction);
-
-    AuctionEndDto auctionEndDto = auctionService.endAuction(1L);
-
-    verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
-
-    assertEquals(1, auctionEndDto.getAuctionId());
-    assertEquals(2, auctionEndDto.getBuyerId());
-  }
+      MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+          MediaType.IMAGE_PNG_VALUE,
+          "thumbnail".getBytes());
+
+      MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+          MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+      List<MultipartFile> imageList = List.of(mockImage, mockImage);
+
+      Member member = Member.builder()
+          .memberId("test")
+          .email("test@naver.com")
+          .build();
+
+      Category parentCategory = Category.builder()
+          .categoryName("category1")
+          .build();
+
+      Category childCategory = Category.builder()
+          .categoryName("category2")
+          .build();
+
+      Image image = Image.builder()
+          .imageName("imageName")
+          .imageType(ImageType.THUMBNAIL)
+          .imageUrl("url")
+          .build();
+
+      Image normalImage1 = Image.builder()
+          .imageName("imageName2")
+          .imageType(ImageType.NORMAL)
+          .imageUrl("url")
+          .build();
+
+      Image normalImage2 = Image.builder()
+          .imageName("imageName2")
+          .imageType(ImageType.NORMAL)
+          .imageUrl("url")
+          .build();
+      List<Image> uploadImageList = List.of(normalImage1, normalImage2);
+
+      Auction auction = Auction.builder()
+          .title("title")
+          .parentCategory(parentCategory)
+          .childCategory(childCategory)
+          .imageList(uploadImageList)
+          .seller(member)
+          .build();
+
+      AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+          .title("title")
+          .contactPlace("place")
+          .deliveryPrice("price")
+          .deliveryType(DeliveryType.PREPAY)
+          .endedAt(LocalDateTime.now().plusDays(2))
+          .instantPrice(4000)
+          .productName("name")
+          .productStatus(3.5)
+          .startPrice(1000)
+          .productDescription("설명")
+          .receiveType(ReceiveType.ALL)
+          .productColor("color")
+          .childCategoryId(2L)
+          .parentCategoryId(1L)
+          .build();
+
+      when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+      when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
+      when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
+      when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
+      when(imageService.uploadImageList(imageList)).thenReturn(uploadImageList);
+      when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
+          auction);
+
+      Auction result = auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+          createDto);
+
+      assertEquals("title", result.getTitle());
+    }
+
+    @Test
+    @DisplayName("경매글 생성 실패 - 이미지가 6개보다 많은 경우")
+    void createAuctionFail1() {
+
+        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+            MediaType.IMAGE_PNG_VALUE,
+            "thumbnail".getBytes());
+
+        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+        List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage,
+            mockImage, mockImage);
+
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(1000)
+            .productDescription("설명")
+            .receiveType(ReceiveType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
+
+        assertThrows(ImageCountOutOfBoundsException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
+    }
+
+    @Test
+    @DisplayName("경매글 생성 실패 - 경매가 일주일보다 더 길게 진행되는 경우")
+    void createAuctionFail2() {
+
+        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+            MediaType.IMAGE_PNG_VALUE,
+            "thumbnail".getBytes());
+
+        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+        List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
+
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(8))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(1000)
+            .productDescription("설명")
+            .receiveType(ReceiveType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
+
+        assertThrows(AuctionMaxDateOutOfBoundsException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
+    }
+
+    @Test
+    @DisplayName("경매글 생성 실패 - 즉시 구매가가 입찰 시작가보다 작거나 같은 경우")
+    void createAuctionFail3() {
+
+        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+            MediaType.IMAGE_PNG_VALUE,
+            "thumbnail".getBytes());
+
+        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+        List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
+
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(500)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(1000)
+            .productDescription("설명")
+            .receiveType(ReceiveType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
+
+        assertThrows(StartPriceOutOfBoundsException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test",
+                createDto));
+    }
+
+    @Test
+    @DisplayName("경매글 생성 실패 - 존재하지 않는 회원인 경우")
+    void createAuctionFail4() {
+
+        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+            MediaType.IMAGE_PNG_VALUE,
+            "thumbnail".getBytes());
+
+        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+        List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
+
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(1000)
+            .productDescription("설명")
+            .receiveType(ReceiveType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
+
+        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+                createDto));
+    }
+
+    @Test
+    @DisplayName("경매글 생성 실패 - 존재하지 않는 카테고리인 경우")
+    void createAuctionFail5() {
+
+        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+            MediaType.IMAGE_PNG_VALUE,
+            "thumbnail".getBytes());
+
+        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+        List<MultipartFile> imageList = List.of(mockImage, mockImage, mockImage, mockImage);
+
+        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+            .title("title")
+            .contactPlace("place")
+            .deliveryPrice("price")
+            .deliveryType(DeliveryType.PREPAY)
+            .endedAt(LocalDateTime.now().plusDays(2))
+            .instantPrice(4000)
+            .productName("name")
+            .productStatus(3.5)
+            .startPrice(1000)
+            .productDescription("설명")
+            .receiveType(ReceiveType.ALL)
+            .productColor("color")
+            .childCategoryId(2L)
+            .parentCategoryId(1L)
+            .build();
+
+        Member member = Member.builder()
+            .memberId("test")
+            .email("test@naver.com")
+            .build();
+
+        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+                createDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정")
+    void confirmAuction() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Member seller = Member.builder()
+            .id(2L)
+            .memberId("seller")
+            .point(1000)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.END)
+            .seller(seller)
+            .build();
+
+        Member buyer = Member.builder()
+            .id(1L)
+            .memberId("buyer")
+            .email("buyer@naver.com")
+            .point(5000)
+            .build();
+
+        Transaction transaction = Transaction.builder()
+            .buyer(buyer)
+            .transType(TransType.CONTINUE)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
+        when(transactionRepository.findByBuyerEmailAndAuctionId("buyer@naver.com", 1L)).thenReturn(
+            Optional.of(transaction));
+
+        auctionService.confirmAuction(1L, "buyer@naver.com", confirmDto);
+
+        verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 2000));
+        verify(pointRepository, times(1)).save(
+            argThat(arg -> arg.getPointType().equals(PointType.USE)));
+        verify(pointRepository, times(1)).save(
+            argThat(arg -> arg.getPointType().equals(PointType.GET)));
+        verify(transactionRepository, times(1)).save(
+            argThat(arg -> arg.getTransType().equals(TransType.SUCCESS)));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 경매글")
+    void confirmAuctionFail1() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 거래 내역")
+    void confirmAuctionFail2() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.END)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerEmailAndAuctionId("test", 1L)).thenReturn(
+            Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 회원")
+    void confirmAuctionFail3() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.END)
+            .build();
+
+        Member buyer = Member.builder()
+            .id(1L)
+            .memberId("buyer")
+            .point(5000)
+            .build();
+
+        Transaction transaction = Transaction.builder()
+            .buyer(buyer)
+            .transType(TransType.CONTINUE)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerEmailAndAuctionId("test@naver.com", 1L)).thenReturn(
+            Optional.of(transaction));
+        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "test@naver.com", confirmDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 진행중인 경매인 경우")
+    void confirmAuctionFail4() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.CONTINUE)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+
+        assertThrows(IllegalStateException.class,
+            () -> auctionService.confirmAuction(1L, "test", confirmDto));
+    }
+
+    @Test
+    @DisplayName("구매 확정 실패 - 없는 거래 내역")
+    void confirmAuctionFail5() {
+
+        AuctionConfirmDto.Request confirmDto = AuctionConfirmDto.Request.builder()
+            .price(1000)
+            .sellerId(2L)
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .auctionState(AuctionState.END)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(transactionRepository.findByBuyerEmailAndAuctionId("buyer", 1L)).thenReturn(
+            Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> auctionService.confirmAuction(1L, "buyer", confirmDto));
+    }
+
+    @Test
+    @DisplayName("경매 종료")
+    void endAuction() {
+
+        Member member1 = Member.builder()
+            .id(1L)
+            .point(2000)
+            .build();
+
+        Member member2 = Member.builder()
+            .id(2L)
+            .point(2000)
+            .build();
+
+        Member seller = Member.builder()
+            .id(3L)
+            .point(0)
+            .build();
+
+        Bid bid1 = Bid.builder()
+            .id(1L)
+            .member(member1)
+            .bidPrice(1000)
+            .build();
+
+        Bid bid2 = Bid.builder()
+            .id(2L)
+            .member(member2)
+            .bidPrice(2000)
+            .build();
+
+        List<Bid> bidList = List.of(bid1, bid2);
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .auctionState(AuctionState.CONTINUE)
+            .bidList(bidList)
+            .seller(seller)
+            .build();
+
+        Member afterMember2 = member2.toBuilder()
+            .point(0)
+            .build();
+
+        Auction afterAuction = auction.toBuilder()
+            .auctionState(AuctionState.END)
+            .build();
+
+        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+        when(memberRepository.save(argThat(arg -> arg.getId().equals(2L)))).thenReturn(
+            afterMember2);
+        when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
+            afterAuction);
+
+        AuctionEndDto auctionEndDto = auctionService.endAuction(1L);
+
+        verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
+
+        assertEquals(1, auctionEndDto.getAuctionId());
+        assertEquals(2, auctionEndDto.getBuyerId());
+    }
 
   @Test
   @DisplayName("경매 종료 실패 - 존재하지 않는 경매")
   void endAuctionFail1() {
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+      when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
-    assertThrows(NoSuchElementException.class, () -> auctionService.endAuction(1L));
+      assertThrows(NoSuchElementException.class, () -> auctionService.endAuction(1L));
   }
 
   @Test
@@ -715,36 +718,32 @@ class AuctionServiceTest {
   @DisplayName("즉시 구매")
   void instantPurchaseAuction() {
 
-    Member seller = Member.builder()
-        .id(2L)
-        .build();
+      Member seller = Member.builder()
+          .id(2L)
+          .build();
 
-    Auction auction = Auction.builder()
-        .id(1L)
-        .auctionState(AuctionState.CONTINUE)
-        .instantPrice(2000)
-        .seller(seller)
-        .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.CONTINUE)
+          .instantPrice(2000)
+          .seller(seller)
+          .build();
 
-    Member buyer = Member.builder()
-        .id(3L)
-        .memberId("buyer")
-        .point(2000)
-        .build();
+      Member buyer = Member.builder()
+          .memberId("buyer")
+          .email("buyer@naver.com")
+          .point(2000)
+          .build();
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
 
-    auctionService.instantPurchaseAuction(1L, "buyer");
+      auctionService.instantPurchaseAuction(1L, "buyer@naver.com");
 
-    verify(auctionRepository, times(1)).save(
-        argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
-    verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 0));
-    verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
-    verify(chatRoomService, times(1)).createChatRoom(
-        argThat(buyerId -> buyerId.equals(buyer.getId())),
-        argThat(auctionId -> auctionId.equals(auction.getId()))
-    );
+      verify(auctionRepository, times(1)).save(
+          argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
+      verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 0));
+      verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
 
   }
 
@@ -762,60 +761,74 @@ class AuctionServiceTest {
   @DisplayName("즉시 구매 실패 - 존재하지 않는 회원")
   void instantPurchaseAuctionFail2() {
 
-    Auction auction = Auction.builder()
-        .id(1L)
-        .auctionState(AuctionState.CONTINUE)
-        .instantPrice(2000)
-        .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.CONTINUE)
+          .instantPrice(2000)
+          .build();
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.empty());
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.empty());
 
-    assertThrows(NoSuchElementException.class,
-        () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+      assertThrows(NoSuchElementException.class,
+          () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
   }
 
   @Test
   @DisplayName("즉시 구매 실패 - 이미 종료된 경매")
   void instantPurchaseAuctionFail3() {
 
-    Auction auction = Auction.builder()
-        .id(1L)
-        .auctionState(AuctionState.END)
-        .instantPrice(2000)
-        .build();
+      Member seller = Member.builder()
+          .id(2L)
+          .build();
 
-    Member buyer = Member.builder()
-        .memberId("buyer")
-        .point(2000)
-        .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.END)
+          .instantPrice(2000)
+          .seller(seller)
+          .build();
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+      Member buyer = Member.builder()
+          .id(1L)
+          .memberId("buyer")
+          .email("buyer@naver.com")
+          .point(2000)
+          .build();
 
-    assertThrows(IllegalStateException.class,
-        () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+
+      assertThrows(IllegalStateException.class,
+          () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
   }
 
   @Test
   @DisplayName("즉시 구매 실패 - 구매자의 포인트가 부족한 경우")
   void instantPurchaseAuctionFail4() {
 
-    Auction auction = Auction.builder()
-        .id(1L)
-        .auctionState(AuctionState.CONTINUE)
-        .instantPrice(2000)
-        .build();
+      Member seller = Member.builder()
+          .id(2L)
+          .build();
 
-    Member buyer = Member.builder()
-        .memberId("buyer")
-        .point(1000)
-        .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.CONTINUE)
+          .instantPrice(2000)
+          .seller(seller)
+          .build();
 
-    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-    when(memberRepository.findByMemberId("buyer")).thenReturn(Optional.of(buyer));
+      Member buyer = Member.builder()
+          .id(1L)
+          .memberId("buyer")
+          .email("buyer@naver.com")
+          .point(1000)
+          .build();
 
-    assertThrows(MemberPointOutOfBoundsException.class,
-        () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+
+      assertThrows(MemberPointOutOfBoundsException.class,
+          () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
   }
 }

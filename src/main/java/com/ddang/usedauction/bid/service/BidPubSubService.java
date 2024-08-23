@@ -70,6 +70,11 @@ public class BidPubSubService {
     // 검증 및 에러 상황에 맞는 메시지를 해당 유저에게 발송
     private void validationAndSendErrorMessage(Request message, Auction auction, Member member) {
 
+        // 판매자가 입찰을 진행하려고 하는 경우
+        if (auction.getSeller().getId().equals(member.getId())) {
+            throw new IllegalStateException("판매자가 입찰을 진행할 수 없습니다.");
+        }
+
         // 종료된 경매인 경우
         if (auction.getAuctionState().equals(AuctionState.END)) {
             // 해당 회원에게 에러 메시지 발송
