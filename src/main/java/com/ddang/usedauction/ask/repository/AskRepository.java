@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface AskRepository extends JpaRepository<Ask, Long> {
 
     // 회원이 작성한 문의 조회
-    @Query("select a from Ask a where a.writer.email = :memberId")
+    @Query("select a from Ask a where a.writer.email = :memberEmail")
     Optional<Ask> findByMemberEmail(String memberEmail);
 
     // 회원이 작성한 문의 리스트 조회
