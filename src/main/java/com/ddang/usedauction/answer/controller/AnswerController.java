@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -107,7 +106,7 @@ public class AnswerController {
      * @return 성공 시 200 코드와 수정된 답변, 실패 시 에러코드와 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
-    @PutMapping("/{answerId}")
+    @PostMapping("/{answerId}")
     public ResponseEntity<AnswerGetDto.Response> updateAnswerController(
         @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long answerId,
         @RequestPart(required = false) List<@IsImage(message = "올바른 이미지 파일이 아닙니다.") MultipartFile> imageList,
