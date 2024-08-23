@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,13 +24,11 @@ public class ChatApiController {
   private final ChatMessageService chatMessageService;
 
   @MessageMapping("/chat/message")
-  public ResponseEntity<ChatMessageSendDto.Response> send(
+  public void send(
       @RequestBody ChatMessageSendDto.Request message) {
-
+    ChatMessageSendDto.Response.from(chatMessageService.sendMessage(message));
     redisPublisher.publish(chatRoomService.getTopic(message.getRoomId()), message);
 
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(ChatMessageSendDto.Response.from(chatMessageService.sendMessage(message)));
   }
 
   // TODO JWT 정보로 회원정보 받기
@@ -42,15 +39,4 @@ public class ChatApiController {
         .body(chatRoomService.findChatRoomsByMemberId(memberId));
   }
 
-  /**
-   * 임시로 만든 API - 채팅방 생성
-   */
-  @PostMapping("api/rooms/{memberId}")
-  public ResponseEntity<ChatRoomCreateDto.Response> createChatRoom(
-      @PathVariable(name = "memberId") Long memberId,
-      @RequestBody ChatRoomCreateDto.Request request) {
-    return ResponseEntity.status(HttpStatus.OK)
-        .body(chatRoomService.createChatRoom(memberId, request));
-
-  }
 }

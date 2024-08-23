@@ -10,6 +10,7 @@ import com.ddang.usedauction.auction.event.AuctionEndEvent;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.service.NotificationService;
@@ -28,74 +29,75 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuctionEventListener { // 경매 이벤트 리스너
 
-    private final MemberRepository memberRepository;
-    private final TransactionRepository transactionRepository;
-    private final AuctionService auctionService;
-    private final AuctionRedisService auctionRedisService;
-    private final NotificationService notificationService;
-    private final AuctionRepository auctionRepository;
+  private final MemberRepository memberRepository;
+  private final TransactionRepository transactionRepository;
+  private final AuctionService auctionService;
+  private final AuctionRedisService auctionRedisService;
+  private final NotificationService notificationService;
+  private final AuctionRepository auctionRepository;
+  private final ChatRoomService chatRoomService;
 
-    // 경매 종료 이벤트 리스너
-    @EventListener
-    @Transactional
-    public void handleAuctionEndEvent(AuctionEndEvent auctionEndEvent) {
+  // 경매 종료 이벤트 리스너
+  @EventListener
+  @Transactional
+  public void handleAuctionEndEvent(AuctionEndEvent auctionEndEvent) {
 
-        Long auctionId = auctionEndEvent.getAuctionId();
+    Long auctionId = auctionEndEvent.getAuctionId();
 
-        Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+    Auction auction = auctionRepository.findById(auctionId)
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        AuctionEndDto auctionEndDto = auctionService.endAuction(
-            auctionId);// 경매 종료 처리 및 낙찰자
+    AuctionEndDto auctionEndDto = auctionService.endAuction(
+        auctionId);// 경매 종료 처리 및 낙찰자
 
-        Long sellerId = auctionEndDto.getSellerId(); // 판매자 PK
-        Long buyerId = auctionEndDto.getBuyerId(); // 입찰자 PK, null인 경우 없음
-        long price = auctionEndDto.getPrice(); // 판매한 가격
+    Long sellerId = auctionEndDto.getSellerId(); // 판매자 PK
+    Long buyerId = auctionEndDto.getBuyerId(); // 입찰자 PK, null인 경우 없음
+    long price = auctionEndDto.getPrice(); // 판매한 가격
 
-        if (buyerId != null) { // 낙찰자가 있는 경우
-            Member buyer = memberRepository.findById(buyerId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+    if (buyerId != null) { // 낙찰자가 있는 경우
+      Member buyer = memberRepository.findById(buyerId)
+          .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-            // 일주일 후 자동 구매 확정 되도록 설정
-            auctionRedisService.createAutoConfirm(auctionId, buyer.getMemberId(), price, sellerId);
+      // 일주일 후 자동 구매 확정 되도록 설정
+      auctionRedisService.createAutoConfirm(auctionId, buyer.getMemberId(), price, sellerId);
 
-            // 구매자에게 경매 종료 알림보내기
-            sendNotificationForEnd(buyerId, auction);
+      // 구매자에게 경매 종료 알림보내기
+      sendNotificationForEnd(buyerId, auction);
 
-            // todo: 판매자 및 낙찰자 채팅방 생성
-        }
-
-        // 판매자에게 경매 종료 알림보내기
-        sendNotificationForEnd(sellerId, auction);
+      chatRoomService.createChatRoom(buyer.getId(), auction.getId());
     }
 
-    @EventListener
-    public void handleAuctionAutoConfirmEvent(AuctionAutoConfirmEvent auctionAutoConfirmEvent) {
+    // 판매자에게 경매 종료 알림보내기
+    sendNotificationForEnd(sellerId, auction);
+  }
 
-        Long auctionId = auctionAutoConfirmEvent.getAuctionId();
-        String buyerEmail = auctionAutoConfirmEvent.getBuyerEmail();
-        Request confirmDto = auctionAutoConfirmEvent.getConfirmDto();
+  @EventListener
+  public void handleAuctionAutoConfirmEvent(AuctionAutoConfirmEvent auctionAutoConfirmEvent) {
 
-        Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(buyerEmail,
-                auctionId)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역입니다."));
+    Long auctionId = auctionAutoConfirmEvent.getAuctionId();
+    String buyerEmail = auctionAutoConfirmEvent.getBuyerEmail();
+    Request confirmDto = auctionAutoConfirmEvent.getConfirmDto();
 
-        // 구매확정으로 인해 이미 거래가 종료된 경우
-        if (transaction.getTransType().equals(TransType.SUCCESS)) {
-            return; // 종료
-        }
+    Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(buyerEmail,
+            auctionId)
+        .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래 내역입니다."));
 
-        auctionService.confirmAuction(auctionId, buyerEmail, confirmDto);
+    // 구매확정으로 인해 이미 거래가 종료된 경우
+    if (transaction.getTransType().equals(TransType.SUCCESS)) {
+      return; // 종료
     }
 
-    // 경매 종료 알림 전송
-    private void sendNotificationForEnd(Long memberId, Auction auction) {
+    auctionService.confirmAuction(auctionId, buyerEmail, confirmDto);
+  }
 
-        notificationService.send(
-            memberId,
-            auction.getId(),
-            auction.getTitle() + " 경매가 종료되었습니다.",
-            DONE
-        );
-    }
+  // 경매 종료 알림 전송
+  private void sendNotificationForEnd(Long memberId, Auction auction) {
+
+    notificationService.send(
+        memberId,
+        auction.getId(),
+        auction.getTitle() + " 경매가 종료되었습니다.",
+        DONE
+    );
+  }
 }
