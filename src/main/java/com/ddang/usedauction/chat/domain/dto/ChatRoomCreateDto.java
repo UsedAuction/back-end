@@ -16,15 +16,6 @@ public class ChatRoomCreateDto {
   @AllArgsConstructor
   @NoArgsConstructor(access = AccessLevel.PROTECTED)
   @Builder
-  public static class Request implements Serializable {
-
-    private Long auctionId;
-  }
-
-  @Getter
-  @AllArgsConstructor
-  @NoArgsConstructor(access = AccessLevel.PROTECTED)
-  @Builder
   public static class Response implements Serializable {
 
     private Long id;

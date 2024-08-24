@@ -23,6 +23,7 @@ import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
+import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.image.service.ImageService;
@@ -58,223 +59,226 @@ import org.springframework.web.multipart.MultipartFile;
 @ExtendWith(MockitoExtension.class)
 class AuctionServiceTest {
 
-    @Mock
-    private AuctionRepository auctionRepository;
+  @Mock
+  private AuctionRepository auctionRepository;
 
-    @Mock
-    private CategoryRepository categoryRepository;
+  @Mock
+  private CategoryRepository categoryRepository;
 
-    @Mock
-    private MemberRepository memberRepository;
+  @Mock
+  private MemberRepository memberRepository;
 
-    @Mock
-    private TransactionRepository transactionRepository;
+  @Mock
+  private TransactionRepository transactionRepository;
 
-    @Mock
-    private PointRepository pointRepository;
+  @Mock
+  private PointRepository pointRepository;
 
-    @Mock
-    private ImageService imageService;
+  @Mock
+  private ImageService imageService;
 
-    @Mock
-    private AuctionRedisService auctionRedisService;
+  @Mock
+  private AuctionRedisService auctionRedisService;
 
-    @Mock
-    private NotificationService notificationService;
+  @Mock
+  private NotificationService notificationService;
 
-    @Mock
-    private RedisTemplate<String, AuctionRecentDto> redisTemplate;
+  @Mock
+  private ChatRoomService chatRoomService;
 
-    @Mock
-    private ListOperations<String, AuctionRecentDto> listOperations;
+  @Mock
+  private RedisTemplate<String, AuctionRecentDto> redisTemplate;
 
-    @InjectMocks
-    private AuctionService auctionService;
+  @Mock
+  private ListOperations<String, AuctionRecentDto> listOperations;
 
-    @Test
-    @DisplayName("경매글 단건 조회")
-    void getAuction() {
+  @InjectMocks
+  private AuctionService auctionService;
 
-        Image image = Image.builder()
-            .imageType(ImageType.THUMBNAIL)
-            .build();
-        List<Image> imageList = List.of(image);
+  @Test
+  @DisplayName("경매글 단건 조회")
+  void getAuction() {
 
-        Auction auction = Auction.builder()
-            .id(1L)
-            .title("title")
-            .imageList(imageList)
-            .build();
+    Image image = Image.builder()
+        .imageType(ImageType.THUMBNAIL)
+        .build();
+    List<Image> imageList = List.of(image);
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(redisTemplate.opsForList()).thenReturn(listOperations);
+    Auction auction = Auction.builder()
+        .id(1L)
+        .title("title")
+        .imageList(imageList)
+        .build();
 
-        Auction result = auctionService.getAuction(1L);
+    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+    when(redisTemplate.opsForList()).thenReturn(listOperations);
 
-        assertEquals("title", result.getTitle());
-        verify(redisTemplate.opsForList(), times(1)).leftPush(
-            argThat(arg -> arg.equals("recently::test@example.com")),
-            argThat(arg -> arg.getAuctionTitle().equals("title")));
-        verify(redisTemplate.opsForList(), times(1)).trim("recently::test@example.com", 0, 4);
-        verify(redisTemplate, times(1)).expire("recently::test@example.com", Duration.ofHours(12));
-    }
+    Auction result = auctionService.getAuction(1L);
 
-    @Test
-    @DisplayName("경매글 단건 조회 실패 - 등록되지 않은 경매글")
-    void getAuctionFail1() {
+    assertEquals("title", result.getTitle());
+    verify(redisTemplate.opsForList(), times(1)).leftPush(
+        argThat(arg -> arg.equals("recently::test@example.com")),
+        argThat(arg -> arg.getAuctionTitle().equals("title")));
+    verify(redisTemplate.opsForList(), times(1)).trim("recently::test@example.com", 0, 4);
+    verify(redisTemplate, times(1)).expire("recently::test@example.com", Duration.ofHours(12));
+  }
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+  @Test
+  @DisplayName("경매글 단건 조회 실패 - 등록되지 않은 경매글")
+  void getAuctionFail1() {
 
-        assertThrows(NoSuchElementException.class, () -> auctionService.getAuction(1L));
-    }
+    when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
-    @Test
-    @DisplayName("경매글 리스트 조회")
-    void getAuctionList() {
+    assertThrows(NoSuchElementException.class, () -> auctionService.getAuction(1L));
+  }
 
-        Pageable pageable = PageRequest.of(0, 10);
+  @Test
+  @DisplayName("경매글 리스트 조회")
+  void getAuctionList() {
 
-        Member member = Member.builder()
-            .memberId("test1")
-            .build();
+    Pageable pageable = PageRequest.of(0, 10);
 
-        Bid bid = Bid.builder()
-            .member(member)
-            .build();
+    Member member = Member.builder()
+        .memberId("test1")
+        .build();
 
-        Category category1 = Category.builder()
-            .categoryName("category1")
-            .build();
+    Bid bid = Bid.builder()
+        .member(member)
+        .build();
 
-        Category category2 = Category.builder()
-            .categoryName("category2")
-            .build();
+    Category category1 = Category.builder()
+        .categoryName("category1")
+        .build();
 
-        Auction auction1 = Auction.builder()
-            .title("title")
-            .parentCategory(category1)
-            .currentPrice(1000)
-            .endedAt(LocalDateTime.now())
-            .bidList(List.of(bid))
-            .build();
+    Category category2 = Category.builder()
+        .categoryName("category2")
+        .build();
+    
+    Auction auction1 = Auction.builder()
+        .title("title")
+        .parentCategory(category1)
+        .currentPrice(1000)
+        .endedAt(LocalDateTime.now())
+        .bidList(List.of(bid))
+        .build();
 
-        Auction auction2 = Auction.builder()
-            .title("abcd")
-            .parentCategory(category2)
-            .currentPrice(2000)
-            .endedAt(LocalDateTime.now().plusDays(1))
-            .build();
+    Auction auction2 = Auction.builder()
+        .title("abcd")
+        .parentCategory(category2)
+        .currentPrice(2000)
+        .endedAt(LocalDateTime.now().plusDays(1))
+        .build();
 
-        List<Auction> auctionList = List.of(auction1, auction2);
-        Page<Auction> auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
+    List<Auction> auctionList = List.of(auction1, auction2);
+    Page<Auction> auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
 
-        when(auctionRepository.findAllByOptions(null, null, null, pageable)).thenReturn(
-            auctionPageList);
+    when(auctionRepository.findAllByOptions(null, null, null, pageable)).thenReturn(
+        auctionPageList);
 
-        Page<Auction> resultList = auctionService.getAuctionList(null, null, null, pageable);
+    Page<Auction> resultList = auctionService.getAuctionList(null, null, null, pageable);
 
-        assertEquals(2, resultList.getTotalElements());
-    }
+    assertEquals(2, resultList.getTotalElements());
+  }
 
-    @Test
-    @DisplayName("최근 본 경매 리스트 조회")
-    void getAuctionRecentList() {
+  @Test
+  @DisplayName("최근 본 경매 리스트 조회")
+  void getAuctionRecentList() {
 
-        AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
-            .auctionTitle("title")
-            .build();
-        List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
+      AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
+          .auctionTitle("title")
+          .build();
+      List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
 
-        when(redisTemplate.opsForList()).thenReturn(listOperations);
-        when(listOperations.range("recently::test@example.com", 0, 4)).thenReturn(
-            auctionRecentDtoList);
+      when(redisTemplate.opsForList()).thenReturn(listOperations);
+      when(listOperations.range("recently::test@example.com", 0, 4)).thenReturn(
+          auctionRecentDtoList);
 
-        List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
+      List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
 
-        assertEquals("title", auctionRecentList.get(0).getAuctionTitle());
-    }
+      assertEquals("title", auctionRecentList.get(0).getAuctionTitle());
+  }
 
-    @Test
-    @DisplayName("경매글 생성")
-    void createAuction() {
+  @Test
+  @DisplayName("경매글 생성")
+  void createAuction() {
 
-        MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
-            MediaType.IMAGE_PNG_VALUE,
-            "thumbnail".getBytes());
+      MockMultipartFile thumbnail = new MockMultipartFile("경매 썸네일 이미지", "thumbnail.png",
+          MediaType.IMAGE_PNG_VALUE,
+          "thumbnail".getBytes());
 
-        MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
-            MediaType.IMAGE_PNG_VALUE, "image".getBytes());
-        List<MultipartFile> imageList = List.of(mockImage, mockImage);
+      MockMultipartFile mockImage = new MockMultipartFile("경매 일반 이미지", "image.png",
+          MediaType.IMAGE_PNG_VALUE, "image".getBytes());
+      List<MultipartFile> imageList = List.of(mockImage, mockImage);
 
-        Member member = Member.builder()
-            .memberId("test")
-            .email("test@naver.com")
-            .build();
+      Member member = Member.builder()
+          .memberId("test")
+          .email("test@naver.com")
+          .build();
 
-        Category parentCategory = Category.builder()
-            .categoryName("category1")
-            .build();
+      Category parentCategory = Category.builder()
+          .categoryName("category1")
+          .build();
 
-        Category childCategory = Category.builder()
-            .categoryName("category2")
-            .build();
+      Category childCategory = Category.builder()
+          .categoryName("category2")
+          .build();
 
-        Image image = Image.builder()
-            .imageName("imageName")
-            .imageType(ImageType.THUMBNAIL)
-            .imageUrl("url")
-            .build();
+      Image image = Image.builder()
+          .imageName("imageName")
+          .imageType(ImageType.THUMBNAIL)
+          .imageUrl("url")
+          .build();
 
-        Image normalImage1 = Image.builder()
-            .imageName("imageName2")
-            .imageType(ImageType.NORMAL)
-            .imageUrl("url")
-            .build();
+      Image normalImage1 = Image.builder()
+          .imageName("imageName2")
+          .imageType(ImageType.NORMAL)
+          .imageUrl("url")
+          .build();
 
-        Image normalImage2 = Image.builder()
-            .imageName("imageName2")
-            .imageType(ImageType.NORMAL)
-            .imageUrl("url")
-            .build();
-        List<Image> uploadImageList = List.of(normalImage1, normalImage2);
+      Image normalImage2 = Image.builder()
+          .imageName("imageName2")
+          .imageType(ImageType.NORMAL)
+          .imageUrl("url")
+          .build();
+      List<Image> uploadImageList = List.of(normalImage1, normalImage2);
 
-        Auction auction = Auction.builder()
-            .title("title")
-            .parentCategory(parentCategory)
-            .childCategory(childCategory)
-            .imageList(uploadImageList)
-            .seller(member)
-            .build();
+      Auction auction = Auction.builder()
+          .title("title")
+          .parentCategory(parentCategory)
+          .childCategory(childCategory)
+          .imageList(uploadImageList)
+          .seller(member)
+          .build();
 
-        AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
-            .title("title")
-            .contactPlace("place")
-            .deliveryPrice("price")
-            .deliveryType(DeliveryType.PREPAY)
-            .endedAt(LocalDateTime.now().plusDays(2))
-            .instantPrice(4000)
-            .productName("name")
-            .productStatus(3.5)
-            .startPrice(1000)
-            .productDescription("설명")
-            .receiveType(ReceiveType.ALL)
-            .productColor("color")
-            .childCategoryId(2L)
-            .parentCategoryId(1L)
-            .build();
+      AuctionCreateDto.Request createDto = AuctionCreateDto.Request.builder()
+          .title("title")
+          .contactPlace("place")
+          .deliveryPrice("price")
+          .deliveryType(DeliveryType.PREPAY)
+          .endedAt(LocalDateTime.now().plusDays(2))
+          .instantPrice(4000)
+          .productName("name")
+          .productStatus(3.5)
+          .startPrice(1000)
+          .productDescription("설명")
+          .receiveType(ReceiveType.ALL)
+          .productColor("color")
+          .childCategoryId(2L)
+          .parentCategoryId(1L)
+          .build();
 
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
-        when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
-        when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
-        when(imageService.uploadImageList(imageList)).thenReturn(uploadImageList);
-        when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
-            auction);
+      when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+      when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
+      when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
+      when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
+      when(imageService.uploadImageList(imageList)).thenReturn(uploadImageList);
+      when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
+          auction);
 
-        Auction result = auctionService.createAuction(thumbnail, imageList, "test@naver.com",
-            createDto);
+      Auction result = auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+          createDto);
 
-        assertEquals("title", result.getTitle());
+      assertEquals("title", result.getTitle());
     }
 
     @Test
@@ -688,143 +692,143 @@ class AuctionServiceTest {
         assertEquals(2, auctionEndDto.getBuyerId());
     }
 
-    @Test
-    @DisplayName("경매 종료 실패 - 존재하지 않는 경매")
-    void endAuctionFail1() {
+  @Test
+  @DisplayName("경매 종료 실패 - 존재하지 않는 경매")
+  void endAuctionFail1() {
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+      when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> auctionService.endAuction(1L));
-    }
+      assertThrows(NoSuchElementException.class, () -> auctionService.endAuction(1L));
+  }
 
-    @Test
-    @DisplayName("경매 종료 실패 - 이미 종료된 경매")
-    void endAuctionFail2() {
+  @Test
+  @DisplayName("경매 종료 실패 - 이미 종료된 경매")
+  void endAuctionFail2() {
 
-        Auction auction = Auction.builder()
-            .auctionState(AuctionState.END)
-            .build();
+    Auction auction = Auction.builder()
+        .auctionState(AuctionState.END)
+        .build();
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+    when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
 
-        assertThrows(IllegalStateException.class, () -> auctionService.endAuction(1L));
-    }
+    assertThrows(IllegalStateException.class, () -> auctionService.endAuction(1L));
+  }
 
-    @Test
-    @DisplayName("즉시 구매")
-    void instantPurchaseAuction() {
+  @Test
+  @DisplayName("즉시 구매")
+  void instantPurchaseAuction() {
 
-        Member seller = Member.builder()
-            .id(2L)
-            .build();
+      Member seller = Member.builder()
+          .id(2L)
+          .build();
 
-        Auction auction = Auction.builder()
-            .id(1L)
-            .auctionState(AuctionState.CONTINUE)
-            .instantPrice(2000)
-            .seller(seller)
-            .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.CONTINUE)
+          .instantPrice(2000)
+          .seller(seller)
+          .build();
 
-        Member buyer = Member.builder()
-            .memberId("buyer")
-            .email("buyer@naver.com")
-            .point(2000)
-            .build();
+      Member buyer = Member.builder()
+          .memberId("buyer")
+          .email("buyer@naver.com")
+          .point(2000)
+          .build();
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
 
-        auctionService.instantPurchaseAuction(1L, "buyer@naver.com");
+      auctionService.instantPurchaseAuction(1L, "buyer@naver.com");
 
-        verify(auctionRepository, times(1)).save(
-            argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
-        verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 0));
-        verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
+      verify(auctionRepository, times(1)).save(
+          argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
+      verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 0));
+      verify(transactionRepository, times(1)).save(argThat(arg -> arg.getPrice() == 2000));
 
-    }
+  }
 
-    @Test
-    @DisplayName("즉시 구매 실패 - 존재하지 않는 경매")
-    void instantPurchaseAuctionFail1() {
+  @Test
+  @DisplayName("즉시 구매 실패 - 존재하지 않는 경매")
+  void instantPurchaseAuctionFail1() {
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
+    when(auctionRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer"));
-    }
+    assertThrows(NoSuchElementException.class,
+        () -> auctionService.instantPurchaseAuction(1L, "buyer"));
+  }
 
-    @Test
-    @DisplayName("즉시 구매 실패 - 존재하지 않는 회원")
-    void instantPurchaseAuctionFail2() {
+  @Test
+  @DisplayName("즉시 구매 실패 - 존재하지 않는 회원")
+  void instantPurchaseAuctionFail2() {
 
-        Auction auction = Auction.builder()
-            .id(1L)
-            .auctionState(AuctionState.CONTINUE)
-            .instantPrice(2000)
-            .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.CONTINUE)
+          .instantPrice(2000)
+          .build();
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.empty());
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
-    }
+      assertThrows(NoSuchElementException.class,
+          () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
+  }
 
-    @Test
-    @DisplayName("즉시 구매 실패 - 이미 종료된 경매")
-    void instantPurchaseAuctionFail3() {
+  @Test
+  @DisplayName("즉시 구매 실패 - 이미 종료된 경매")
+  void instantPurchaseAuctionFail3() {
 
-        Member seller = Member.builder()
-            .id(2L)
-            .build();
+      Member seller = Member.builder()
+          .id(2L)
+          .build();
 
-        Auction auction = Auction.builder()
-            .id(1L)
-            .auctionState(AuctionState.END)
-            .instantPrice(2000)
-            .seller(seller)
-            .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.END)
+          .instantPrice(2000)
+          .seller(seller)
+          .build();
 
-        Member buyer = Member.builder()
-            .id(1L)
-            .memberId("buyer")
-            .email("buyer@naver.com")
-            .point(2000)
-            .build();
+      Member buyer = Member.builder()
+          .id(1L)
+          .memberId("buyer")
+          .email("buyer@naver.com")
+          .point(2000)
+          .build();
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
 
-        assertThrows(IllegalStateException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
-    }
+      assertThrows(IllegalStateException.class,
+          () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
+  }
 
-    @Test
-    @DisplayName("즉시 구매 실패 - 구매자의 포인트가 부족한 경우")
-    void instantPurchaseAuctionFail4() {
+  @Test
+  @DisplayName("즉시 구매 실패 - 구매자의 포인트가 부족한 경우")
+  void instantPurchaseAuctionFail4() {
 
-        Member seller = Member.builder()
-            .id(2L)
-            .build();
+      Member seller = Member.builder()
+          .id(2L)
+          .build();
 
-        Auction auction = Auction.builder()
-            .id(1L)
-            .auctionState(AuctionState.CONTINUE)
-            .instantPrice(2000)
-            .seller(seller)
-            .build();
+      Auction auction = Auction.builder()
+          .id(1L)
+          .auctionState(AuctionState.CONTINUE)
+          .instantPrice(2000)
+          .seller(seller)
+          .build();
 
-        Member buyer = Member.builder()
-            .id(1L)
-            .memberId("buyer")
-            .email("buyer@naver.com")
-            .point(1000)
-            .build();
+      Member buyer = Member.builder()
+          .id(1L)
+          .memberId("buyer")
+          .email("buyer@naver.com")
+          .point(1000)
+          .build();
 
-        when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+      when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
+      when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
 
-        assertThrows(MemberPointOutOfBoundsException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
-    }
+      assertThrows(MemberPointOutOfBoundsException.class,
+          () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
+  }
 }

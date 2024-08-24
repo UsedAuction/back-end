@@ -48,15 +48,15 @@ public class ChatRoomService {
     topics = new HashMap<>();
   }
 
-  public ChatRoomCreateDto.Response createChatRoom(Long memberId, ChatRoomCreateDto.Request dto) {
-    if (chatRoomRepository.existsByAuctionId(dto.getAuctionId())) {
+  public ChatRoomCreateDto.Response createChatRoom(Long memberId, Long auctionId) {
+    if (chatRoomRepository.existsByAuctionId(auctionId)) {
       throw new IllegalStateException("이미 존재하는 채팅방입니다.");
     }
 
     Member buyer = memberRepository.findById(memberId)
         .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
-    Auction auction = auctionRepository.findById(dto.getAuctionId())
+    Auction auction = auctionRepository.findById(auctionId)
         .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 경매입니다."));
     ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
         .seller(auction.getSeller())
@@ -77,19 +77,9 @@ public class ChatRoomService {
         .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
     return opsHashChatRoom.values(CHAT_ROOMS).stream()
-        .filter(chatRoom -> chatRoom.getSeller().getId().equals(memberId) ||
-            chatRoom.getBuyer().getId().equals(memberId))
+        .filter(chatRoom -> chatRoom.getSeller().getId().equals(member.getId()) ||
+            chatRoom.getBuyer().getId().equals(member.getId()))
         .collect(Collectors.toList());
-  }
-
-  public void enterChatRoom(Long roomId) {
-    String roomIdStr = roomId.toString();
-    ChannelTopic topic = topics.get(roomId);
-    if (topic == null) {
-      topic = new ChannelTopic(roomIdStr);
-      redisMessageListener.addMessageListener(redisSubscriber, topic);
-      topics.put(roomIdStr, topic);
-    }
   }
 
   public ChannelTopic getTopic(Long roomId) {
