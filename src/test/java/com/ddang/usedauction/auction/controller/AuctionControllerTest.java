@@ -18,6 +18,7 @@ import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.image.domain.Image;
@@ -185,6 +186,55 @@ class AuctionControllerTest {
     void getAuctionListControllerFail1() throws Exception {
 
         mockMvc.perform(get("/api/auction"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("top5 경매 리스트 조회 컨트롤러")
+    void getTop5Controller() throws Exception {
+
+        Member member1 = Member.builder()
+            .memberId("test1")
+            .build();
+
+        Member member2 = Member.builder()
+            .memberId("test2")
+            .build();
+
+        Bid bid1 = Bid.builder()
+            .member(member1)
+            .auction(auction)
+            .build();
+
+        Bid bid2 = Bid.builder()
+            .member(member2)
+            .auction(auction)
+            .build();
+
+        Auction auction1 = auction.toBuilder()
+            .bidList(List.of(bid1, bid2))
+            .build();
+
+        Auction auction2 = auction.toBuilder()
+            .bidList(List.of(bid1))
+            .build();
+
+        when(auctionService.getTop5()).thenReturn(List.of(auction1, auction2));
+
+        mockMvc.perform(get("/api/auctions/top5"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].bidList[0].memberId").value("test1"))
+            .andExpect(jsonPath("$[0].bidList[1].memberId").value("test2"))
+            .andExpect(jsonPath("$[1].bidList[0].memberId").value("test1"));
+    }
+
+    @Test
+    @DisplayName("top5 경매 리스트 조회 컨트롤러 실패 - url 경로 다름")
+    void getTop5ControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/auction/top5"))
             .andDo(print())
             .andExpect(status().isNotFound());
     }
