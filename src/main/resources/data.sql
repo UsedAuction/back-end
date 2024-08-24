@@ -1,7 +1,6 @@
-INSERT INTO member (id, member_id, pass_word, email, site_alarm, point, social, social_provider_id,
+INSERT INTO member (member_id, pass_word, email, site_alarm, point, social, social_provider_id,
                     deleted_at, created_at, updated_at)
-VALUES (1,
-        'loginId',
+VALUES ('loginId',
         '1231231312',
         'test@example.com',
         false,
@@ -11,7 +10,7 @@ VALUES (1,
         NULL,
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP);
-        
+
 -- 대분류 카테고리 삽입
 INSERT INTO category (category_name, parent_id, created_at, updated_at)
 VALUES ('남성의류', NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
