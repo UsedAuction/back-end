@@ -4,13 +4,14 @@ import com.ddang.usedauction.ask.dto.AskGetDto;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
-import com.ddang.usedauction.auction.domain.TransactionType;
+import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.bid.dto.BidGetDto;
 import com.ddang.usedauction.category.dto.CategoryGetDto;
 import com.ddang.usedauction.image.dto.ImageGetDto;
 import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ public class AuctionGetDto {
     @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @Builder(toBuilder = true)
-    public static class Response {
+    public static class Response implements Serializable {
 
         private Long id;
         private String title; // 경매 제목
@@ -35,7 +36,7 @@ public class AuctionGetDto {
         private String productColor; // 상품 색상
         private double productStatus; // 상품 상태
         private String productDescription; // 상품 설명
-        private TransactionType transactionType; // 거래 방식
+        private ReceiveType receiveType; // 거래 방식
         private String contactPlace; // 대면 거래 장소
         private DeliveryType deliveryType; // 택배비 타입
         private String deliveryPrice; // 택배비
@@ -68,7 +69,7 @@ public class AuctionGetDto {
                 .productColor(auction.getProductColor())
                 .productStatus(auction.getProductStatus())
                 .productDescription(auction.getProductDescription())
-                .transactionType(auction.getTransactionType())
+                .receiveType(auction.getReceiveType())
                 .contactPlace(auction.getContactPlace())
                 .deliveryType(auction.getDeliveryType())
                 .deliveryPrice(auction.getDeliveryPrice())

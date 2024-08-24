@@ -2,7 +2,8 @@ package com.ddang.usedauction.ask.dto;
 
 import com.ddang.usedauction.answer.dto.AnswerGetDto;
 import com.ddang.usedauction.ask.domain.Ask;
-import com.ddang.usedauction.member.dto.MemberGetDto;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,8 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
-public class AskGetDto {
+public class AskGetDto { // 질문 조회 시 dto
 
     @Getter
     @AllArgsConstructor
@@ -22,10 +22,14 @@ public class AskGetDto {
     public static class Response {
 
         private Long id;
-        private String title;
-        private String content;
-        private MemberGetDto.Response writer;
-        private List<AnswerGetDto.Response> answerList;
+        private Long auctionId; // 경매 pk
+        private String auctionTitle; // 경매 제목
+        private String title; // 제목
+        private String content; // 내용
+        private String writerId; // 작성자 아이디
+        private List<AnswerGetDto.Response> answerList; // 답변 리스트
+
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime createdAt;
 
         // entity -> getResponse
@@ -33,9 +37,11 @@ public class AskGetDto {
 
             return AskGetDto.Response.builder()
                 .id(ask.getId())
+                .auctionId(ask.getAuction().getId())
+                .auctionTitle(ask.getAuction().getTitle())
                 .title(ask.getTitle())
                 .content(ask.getContent())
-                .writer(MemberGetDto.Response.from(ask.getWriter()))
+                .writerId(ask.getWriter().getMemberId())
                 .answerList(ask.getAnswerList() != null && !ask.getAnswerList().isEmpty()
                     ? ask.getAnswerList().stream().map(AnswerGetDto.Response::from).toList()
                     : new ArrayList<>())
