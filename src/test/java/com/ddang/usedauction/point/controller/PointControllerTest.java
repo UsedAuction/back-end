@@ -31,6 +31,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest({PointController.class, SecurityConfig.class})
@@ -82,7 +83,7 @@ class PointControllerTest {
     }
 
     @Test
-    @WithCustomMockUser
+    @WithAnonymousUser
     @DisplayName("포인트 잔액 조회 - 실패 (인증되지 않은 사용자)")
     void getPointBalanceFail_1() throws Exception {
         //given
@@ -90,8 +91,7 @@ class PointControllerTest {
         //then
         mockMvc.perform(
             get("/api/members/points")
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(anonymous()))
+                .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
@@ -156,7 +156,7 @@ class PointControllerTest {
     }
 
     @Test
-    @WithCustomMockUser
+    @WithAnonymousUser
     @DisplayName("포인트 잔액 조회 - 실패 (인증되지 않은 사용자)")
     void getPointListFail_1() throws Exception {
         //given
@@ -164,8 +164,7 @@ class PointControllerTest {
         //then
         mockMvc.perform(
             get("/api/members/points/history")
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(anonymous()))
+                .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }

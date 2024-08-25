@@ -3,7 +3,6 @@ package com.ddang.usedauction.payment.controller;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -34,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest({PaymentController.class, SecurityConfig.class})
@@ -108,7 +108,7 @@ class PaymentControllerTest {
     }
 
     @Test
-    @WithCustomMockUser
+    @WithAnonymousUser
     @DisplayName("결제 준비 - 실패 (인증되지 않은 유저)")
     void paymentReadyFail_1() throws Exception {
         //given
@@ -123,8 +123,7 @@ class PaymentControllerTest {
         mockMvc.perform(
                 post("/api/members/payment/ready")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request))
-                    .with(anonymous()))
+                    .content(objectMapper.writeValueAsString(request)))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
