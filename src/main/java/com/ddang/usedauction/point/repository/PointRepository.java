@@ -13,11 +13,11 @@ import org.springframework.stereotype.Repository;
 public interface PointRepository extends JpaRepository<PointHistory, Long> {
 
     @Query("SELECT p FROM point_history p " +
-        "WHERE p.member.email =:username " +
+        "WHERE p.member.email =:email " +
         "AND p.createdAt BETWEEN :startDate AND :endDate " +
         "ORDER BY p.createdAt ASC")
     Page<PointHistory> findAllPoint(
-        @Param("username") String username,
+        @Param("email") String email,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         Pageable pageable

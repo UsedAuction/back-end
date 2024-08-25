@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/transactions/sales").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/transactions/purchases").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/members/orders/create").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/members/points").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/members/points/history").authenticated()
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception
