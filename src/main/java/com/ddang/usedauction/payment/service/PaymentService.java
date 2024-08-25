@@ -1,6 +1,7 @@
 package com.ddang.usedauction.payment.service;
 
-import static com.ddang.usedauction.point.type.PointType.CHARGE;
+
+import static com.ddang.usedauction.point.domain.PointType.CHARGE;
 
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
