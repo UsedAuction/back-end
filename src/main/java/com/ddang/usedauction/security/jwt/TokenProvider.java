@@ -109,13 +109,13 @@ public class TokenProvider {
         }
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String accessToken) {
         try {
             Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token);
-            if (refreshTokenService.hasKeyBlackList(token)) {
+                .parseClaimsJws(accessToken);
+            if (refreshTokenService.hasKeyBlackList(accessToken)) {
                 return false;
             }
             return true;
@@ -147,8 +147,8 @@ public class TokenProvider {
         return claims.getSubject();
     }
 
-    public Long getExpiration(String accessToken) {
-        Claims claims = parseClaims(accessToken);
+    public Long getExpiration(String token) {
+        Claims claims = parseClaims(token);
         Date expiration = claims.getExpiration();
 
         return expiration.getTime() - new Date().getTime();
