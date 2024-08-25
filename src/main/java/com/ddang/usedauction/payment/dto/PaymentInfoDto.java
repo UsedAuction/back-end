@@ -25,6 +25,6 @@ public class PaymentInfoDto {
         private Long memberId; // 회원 id
 
         @Min(value = 1, message = "상품가격은 1 이상이어야 합니다.")
-        private int price; // 상품가격
+        private long price; // 상품가격
     }
 }
