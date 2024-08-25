@@ -9,7 +9,6 @@ import com.ddang.usedauction.payment.service.PaymentService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members/payment")
@@ -76,6 +74,7 @@ public class PaymentController {
     /**
      * 결제 취소
      */
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/cancel")
     public ResponseEntity<PaymentCancelDto.Response> paymentCancel() {
         return ResponseEntity.ok(new PaymentCancelDto.Response("결제를 취소했습니다."));
@@ -84,6 +83,7 @@ public class PaymentController {
     /**
      * 결제 실패
      */
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/fail")
     public ResponseEntity<PaymentFailDto.Response> paymentFail() {
         return ResponseEntity.ok(new PaymentFailDto.Response("결제가 실패되었습니다."));
