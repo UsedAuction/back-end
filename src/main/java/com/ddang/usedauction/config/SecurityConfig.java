@@ -55,6 +55,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/members/orders/create").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/points").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/points/history").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/members/payment/ready").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/members/payment/approve").authenticated()
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception

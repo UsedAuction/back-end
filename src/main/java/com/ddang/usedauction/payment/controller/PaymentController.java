@@ -6,10 +6,13 @@ import com.ddang.usedauction.payment.dto.PaymentFailDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
 import com.ddang.usedauction.payment.service.PaymentService;
+import com.ddang.usedauction.security.auth.PrincipalDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,11 +38,14 @@ public class PaymentController {
      * @param request 주문 상세 정보
      * @return 성공 시 200 코드와 결제 승인에 필요한 정보(tid, redirect_url 등), 실패 시 에러코드와 에러메시지
      */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/ready")
     public ResponseEntity<PaymentReadyDto.Response> paymentReady(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid PaymentInfoDto.Request request
     ) {
-        return ResponseEntity.ok(paymentService.ready(request));
+        String email = principalDetails.getName();
+        return ResponseEntity.ok(paymentService.ready(email, request));
     }
 
     /**
@@ -56,12 +62,15 @@ public class PaymentController {
      * @param pgToken 결제 준비 완료후 결제 인증(faceID 등 본인인증)을 통과하면 카카오쪽에서 pgToken을 응답으로 줌
      * @return 성공 시 200 코드와 결제 정보(아이템명, 수량 등), 실패 시 에러코드와 에러메시지
      */
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/approve")
     public ResponseEntity<PaymentApproveDto.Response> paymentApprove(
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestParam("partner_order_id") String partnerOrderId,
         @RequestParam("pg_token") String pgToken
     ) {
-        return ResponseEntity.ok(paymentService.approve(partnerOrderId, pgToken));
+        String email = principalDetails.getName();
+        return ResponseEntity.ok(paymentService.approve(email, partnerOrderId, pgToken));
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.ddang.usedauction.payment.service;
 
-
 import static com.ddang.usedauction.point.domain.PointType.CHARGE;
 
 import com.ddang.usedauction.member.domain.Member;
@@ -51,10 +50,10 @@ public class PaymentService {
     private final PointRepository pointRepository;
 
     // 결제 준비
-    public PaymentReadyDto.Response ready(PaymentInfoDto.Request request) {
+    public PaymentReadyDto.Response ready(String email, PaymentInfoDto.Request request) {
 
-        Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
         Orders order = orderRepository.findById(request.getOrderId())
             .orElseThrow(() -> new EntityNotFoundException("주문내역이 존재하지 않습니다."));
@@ -121,10 +120,10 @@ public class PaymentService {
     }
 
     // 결제 승인
-    public PaymentApproveDto.Response approve(String partnerOrderId, String pgToken) {
+    public PaymentApproveDto.Response approve(String email, String partnerOrderId, String pgToken) {
 
-        Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
         Long orderId = Long.valueOf(partnerOrderId);
         Orders order = orderRepository.findById(orderId)
