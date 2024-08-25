@@ -8,6 +8,7 @@ import com.ddang.usedauction.point.service.PointService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/members/points")
@@ -26,7 +28,12 @@ public class PointController {
 
     private final PointService pointService;
 
-    // 포인트 잔액 조회
+    /**
+     * 포인트 잔액 조회
+     *
+     * @param principalDetails 회원정보
+     * @return 성공 시 200 코드와 포인트잔액, 실패 시 에러코드와 에러메시지
+     */
     @PreAuthorize("hasRole('USER')")
     @GetMapping()
     public ResponseEntity<PointBalanceDto.Response> getPointBalance(
@@ -38,17 +45,27 @@ public class PointController {
         return ResponseEntity.ok(PointBalanceDto.Response.from(pointBalance));
     }
 
-    // 포인트 충전/사용 내역 조회
+    /**
+     * 포인트 충전/사용 내역 조회
+     *
+     * @param principalDetails 회원정보
+     * @param startDate 시작일
+     * @param endDate 종료일
+     * @param sorted 정렬
+     * @param pageable 페이징
+     * @return 성공 시 200 코드와 포인트잔액, 실패 시 에러코드와 에러메시지
+     */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/history")
     public ResponseEntity<Page<PointHistoryDto.Response>> getPointList(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestParam(value = "startDate") LocalDate startDate,
-        @RequestParam(value = "endDate") LocalDate endDate,
+        @RequestParam(required = false) LocalDate startDate,
+        @RequestParam(required = false) LocalDate endDate,
+        @RequestParam(defaultValue = "latest") String sorted,
         @PageableDefault Pageable pageable
     ) {
         String email = principalDetails.getName();
-        Page<PointHistory> pointHistoryPage = pointService.getPointList(email, startDate, endDate, pageable);
+        Page<PointHistory> pointHistoryPage = pointService.getPointList(email, startDate, endDate, sorted, pageable);
         return ResponseEntity.ok(pointHistoryPage.map(Response::from));
     }
 }
