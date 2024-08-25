@@ -85,9 +85,9 @@ class OrderControllerTest {
         //when
         //then
         mockMvc.perform(
-                post("/api/members/orders/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+            post("/api/members/orders/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.orderId").value(1L))
@@ -106,9 +106,9 @@ class OrderControllerTest {
         //when
         //then
         mockMvc.perform(
-                post("/api/members/orders/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
+            post("/api/members/orders/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
             .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$[0]").value("상품가격은 1이상이어야 합니다."));
@@ -126,9 +126,9 @@ class OrderControllerTest {
         //when
         //then
         mockMvc.perform(
-                post("/api/members/orders/create")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(new ObjectMapper().writeValueAsString(request)))
+            post("/api/members/orders/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$[0]").value("상품가격은 1이상이어야 합니다."));
     }
