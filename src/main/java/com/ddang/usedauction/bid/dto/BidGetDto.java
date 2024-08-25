@@ -1,6 +1,8 @@
 package com.ddang.usedauction.bid.dto;
 
 import com.ddang.usedauction.bid.domain.Bid;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,8 @@ public class BidGetDto {
         private long bidPrice; // 입찰가
         private Long auctionId; // 입찰한 경매 PK
         private String memberId; // 입찰한 회원 id
+
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd TT:mm", timezone = "Asia/seoul")
         private LocalDateTime createdAt; // 생성 날짜
 
         // entity -> getResponse
