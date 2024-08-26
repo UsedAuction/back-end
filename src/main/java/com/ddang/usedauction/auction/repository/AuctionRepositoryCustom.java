@@ -6,5 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface AuctionRepositoryCustom {
 
-    Page<Auction> findAllByOptions(String word, String category, String sorted, Pageable pageable);
+    Page<Auction> findAllByOptions(String word, String mainCategory, String subCategory,
+        String sorted, Pageable pageable);
 }

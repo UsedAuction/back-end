@@ -35,21 +35,21 @@ public class Ask extends BaseTimeEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String title;
+    private String title; // 제목
 
     @Column(nullable = false, length = 5000)
-    private String content;
+    private String content; // 내용
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "writer_id", nullable = false)
-    private Member writer;
+    private Member writer; // 작성자
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "auction_id", nullable = false)
-    private Auction auction;
+    private Auction auction; // 경매
 
     @OneToMany(mappedBy = "ask", fetch = FetchType.LAZY)
-    private List<Answer> answerList;
+    private List<Answer> answerList; // 답변
 
     @Column
     private LocalDateTime deletedAt;

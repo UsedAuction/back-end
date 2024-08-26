@@ -2,6 +2,8 @@ package com.ddang.usedauction.image.dto;
 
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -17,14 +19,16 @@ public class ImageGetDto {
   @NoArgsConstructor(access = AccessLevel.PROTECTED)
   @Builder(toBuilder = true)
   public static class Response implements Serializable {
+    
+        private Long id;
+        private String imageUrl;
+        private String imageName;
+        private ImageType imageType;
+        private Long answerId;
+        private Long auctionId;
 
-    private Long id;
-    private String imageUrl;
-    private String imageName;
-    private ImageType imageType;
-    private Long answerId;
-    private Long auctionId;
-    private LocalDateTime createdAt;
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
+        private LocalDateTime createdAt;
 
     // entity -> getResponse
     public static ImageGetDto.Response from(Image image) {
