@@ -7,6 +7,7 @@ import com.ddang.usedauction.security.auth.userInfo.GoogleUserInfo;
 import com.ddang.usedauction.security.auth.userInfo.KakaoUserInfo;
 import com.ddang.usedauction.security.auth.userInfo.NaverUserInfo;
 import com.ddang.usedauction.security.auth.userInfo.Oauth2UserInfo;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,7 +44,8 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
         String providerId = oauth2UserInfo.getProviderId();
         String email = oauth2UserInfo.getEmail() + provider;
-        String memberId = oauth2UserInfo.getProvider() + "_" + providerId;
+        String memberId =
+            oauth2UserInfo.getProvider() + "_" + UUID.randomUUID().toString().substring(0, 6);
         String passWord = passwordEncoder.encode("passWord");
 
         // 플랫폼별 로그인 시 이메일이 중복되어도 개별적으로 회원가입 가능
