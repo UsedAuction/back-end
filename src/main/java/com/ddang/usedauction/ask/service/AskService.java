@@ -138,7 +138,7 @@ public class AskService {
         notificationService.send(
             auction.getSeller().getId(),
             auction.getId(),
-            memberId + "님이 " + auction.getTitle() + " 경매에 질문을 남겼습니다.",
+            memberId + "님이 " + auction.getTitle() + " 경매에 문의를 남겼습니다.",
             QUESTION
         );
     }
