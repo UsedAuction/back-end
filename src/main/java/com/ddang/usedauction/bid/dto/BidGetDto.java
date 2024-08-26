@@ -22,6 +22,7 @@ public class BidGetDto {
         private Long id;
         private long bidPrice; // 입찰가
         private Long auctionId; // 입찰한 경매 PK
+        private String auctionTitle; // 경매 제목
         private String thumbnailImageUrl; // 대표이미지 url
         private String memberId; // 입찰한 회원 id
 
@@ -35,6 +36,7 @@ public class BidGetDto {
                 .id(bid.getId())
                 .bidPrice(bid.getBidPrice())
                 .auctionId(bid.getAuction().getId())
+                .auctionTitle(bid.getAuction().getTitle())
                 .thumbnailImageUrl(
                     bid.getAuction().getImageList().stream().filter(i -> i.getImageType().equals(
                             ImageType.THUMBNAIL)).findFirst()
