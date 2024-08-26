@@ -66,6 +66,7 @@ class NotificationServiceQuestionTest {
 
         auction = Auction.builder()
             .id(1L)
+            .title("title")
             .auctionState(CONTINUE)
             .seller(seller)
             .build();
@@ -103,7 +104,7 @@ class NotificationServiceQuestionTest {
             .send(
                 seller.getId(),
                 auction.getId(),
-                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 질문을 남겼습니다.",
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 문의를 남겼습니다.",
                 QUESTION
             );
     }
@@ -123,7 +124,7 @@ class NotificationServiceQuestionTest {
             .send(
                 seller.getId(),
                 auction.getId(),
-                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 질문을 남겼습니다.",
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 문의를 남겼습니다.",
                 QUESTION
             );
     }
@@ -144,7 +145,7 @@ class NotificationServiceQuestionTest {
             .send(
                 seller.getId(),
                 auction.getId(),
-                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 질문을 남겼습니다.",
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 문의를 남겼습니다.",
                 QUESTION
             );
     }
@@ -171,7 +172,7 @@ class NotificationServiceQuestionTest {
             .send(
                 seller.getId(),
                 auction.getId(),
-                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 질문을 남겼습니다.",
+                buyer.getMemberId() + "님이 " + auction.getTitle() + " 경매에 문의를 남겼습니다.",
                 QUESTION
             );
     }

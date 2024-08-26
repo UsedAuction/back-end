@@ -79,6 +79,7 @@ class NotificationServiceAnswerTest {
 
         auction = Auction.builder()
             .id(1L)
+            .title("title")
             .auctionState(CONTINUE)
             .seller(seller)
             .build();
