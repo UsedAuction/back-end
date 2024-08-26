@@ -172,7 +172,8 @@ class AuctionControllerTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Auction> auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
 
-        when(auctionService.getAuctionList(null, null, null, pageable)).thenReturn(auctionPageList);
+        when(auctionService.getAuctionList(null, null, null, null, pageable)).thenReturn(
+            auctionPageList);
 
         mockMvc.perform(get("/api/auctions"))
             .andDo(print())
