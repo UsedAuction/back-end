@@ -57,6 +57,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/members/points/history").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/members/payment/ready").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/payment/approve").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/members/notification/subscribe").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/members/notification").authenticated()
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception
