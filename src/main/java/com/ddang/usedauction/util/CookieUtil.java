@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import org.springframework.http.ResponseCookie;
 
 public class CookieUtil {
 
@@ -25,12 +26,16 @@ public class CookieUtil {
 
     public static void addCookie(HttpServletResponse response, String name, String value,
         int maxAge) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(maxAge);
-        cookie.setPath("/");
-        cookie.setDomain("https://dddang.vercel.app/");
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+            .domain("https://dddang.vercel.app")
+            .maxAge(maxAge)
+            .path("/")
+            .httpOnly(true)
+            .sameSite("NONE")
+            .secure(true)
+            .build();
+
+        response.setHeader("Set-Cookie", cookie.toString());
     }
 
 
@@ -43,7 +48,7 @@ public class CookieUtil {
         cookie.setValue("");
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setDomain("https://dddang.vercel.app/");
+        cookie.setDomain("https://dddang.vercel.app");
         response.addCookie(cookie);
     }
 }
