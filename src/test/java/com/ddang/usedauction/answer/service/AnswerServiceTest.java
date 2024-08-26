@@ -18,6 +18,7 @@ import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.notification.service.NotificationService;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -50,6 +51,9 @@ class AnswerServiceTest {
 
     @Mock
     private ImageService imageService;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private AnswerService answerService;
@@ -126,8 +130,13 @@ class AnswerServiceTest {
             .seller(seller)
             .build();
 
+        Member writer = Member.builder()
+            .id(1L)
+            .build();
+
         Ask ask = Ask.builder()
             .id(1L)
+            .writer(writer)
             .build();
 
         AnswerCreateDto createDto = AnswerCreateDto.builder()
