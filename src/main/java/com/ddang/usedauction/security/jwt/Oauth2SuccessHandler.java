@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${spring.jwt.access.expiration}")
-    private int accessTokenExpiration;
+    @Value("${spring.jwt.refresh.expiration}")
+    private int refreshTokenExpirationValue;
     private static final String URI = "/";
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
@@ -38,7 +38,8 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
         refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
             refreshTokenExpiration);
 
-        CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
-        response.sendRedirect(URI);
+        CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
+            refreshTokenExpirationValue);
+        response.sendRedirect(URI + "?accessToken=" + token.getAccessToken());
     }
 }
