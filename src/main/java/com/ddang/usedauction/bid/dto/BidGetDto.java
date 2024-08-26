@@ -26,7 +26,7 @@ public class BidGetDto {
         private String thumbnailImageUrl; // 대표이미지 url
         private String memberId; // 입찰한 회원 id
 
-        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime createdAt; // 생성 날짜
 
         // entity -> getResponse

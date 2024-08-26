@@ -78,6 +78,21 @@ public class AuctionController {
     }
 
     /**
+     * top5 경매 리스트 조회 컨트롤러
+     *
+     * @return 조회된 경매 리스트
+     */
+    @GetMapping("/top5")
+    public ResponseEntity<List<AuctionGetDto.Response>> getTop5Controller(
+        @RequestParam(required = false) String mainCategory,
+        @RequestParam(required = false) String subCategory) {
+
+        List<Auction> auctionList = auctionService.getTop5(mainCategory, subCategory);
+
+        return ResponseEntity.ok(auctionList.stream().map(AuctionGetDto.Response::from).toList());
+    }
+
+    /**
      * 최근 본 경매 리스트 조회 컨트롤러
      *
      * @return 성공 시 200 코드와 최근 본 경매 리스트, 없으면 200 코드와 빈 리스트, 실패 시 에러코드와 에러메시지

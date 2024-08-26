@@ -93,7 +93,8 @@ public class AuctionService {
      * 경매글 리스트 조회
      *
      * @param word         검색어
-     * @param mainCategory 카테고리
+     * @param mainCategory 대분류 카테고리
+     * @param subCategory  소분류 카테고리
      * @param sorted       정렬 방법
      * @param pageable     페이징
      * @return 페이징 처리된 경매 서비스 dto
@@ -104,7 +105,7 @@ public class AuctionService {
         Pageable pageable) {
 
         final String VIEW = "view";
-
+      
         Page<Auction> auctionPageList = auctionRepository.findAllByOptions(word, mainCategory,
             subCategory, sorted,
             pageable);
@@ -119,6 +120,17 @@ public class AuctionService {
         }
 
         return auctionPageList;
+    }
+
+    /**
+     * 현재 경매에 참여한 인원이 가장 많은 5개의 경매 리스트 조회
+     *
+     * @return 조회된 경매 리스트
+     */
+    @Transactional(readOnly = true)
+    public List<Auction> getTop5(String mainCategory, String subCategory) {
+
+        return auctionRepository.findTop5(mainCategory, subCategory);
     }
 
     /**

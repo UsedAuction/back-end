@@ -179,6 +179,43 @@ class AuctionServiceTest {
 
         assertEquals(2, resultList.getTotalElements());
     }
+  
+    @Test
+    @DisplayName("top5 경매 리스트 조회")
+    void getTop5() {
+
+        Member member1 = Member.builder()
+            .memberId("test1")
+            .build();
+
+        Member member2 = Member.builder()
+            .memberId("test2")
+            .build();
+
+        Bid bid1 = Bid.builder()
+            .member(member1)
+            .build();
+
+        Bid bid2 = Bid.builder()
+            .member(member2)
+            .build();
+
+        Auction auction1 = Auction.builder()
+            .bidList(List.of(bid1, bid2))
+            .build();
+
+        Auction auction2 = Auction.builder()
+            .bidList(List.of(bid1))
+            .build();
+
+        when(auctionRepository.findTop5(null, null)).thenReturn(List.of(auction1, auction2));
+
+        List<Auction> auctionList = auctionService.getTop5(null, null);
+
+        assertEquals(2, auctionList.size());
+        assertEquals(2, auctionList.get(0).getBidList().size());
+        assertEquals(1, auctionList.get(1).getBidList().size());
+    } 
 
     @Test
     @DisplayName("최근 본 경매 리스트 조회")
