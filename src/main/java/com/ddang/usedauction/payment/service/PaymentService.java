@@ -1,6 +1,6 @@
 package com.ddang.usedauction.payment.service;
 
-import static com.ddang.usedauction.point.type.PointType.CHARGE;
+import static com.ddang.usedauction.point.domain.PointType.CHARGE;
 
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
@@ -13,10 +13,9 @@ import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import com.ddang.usedauction.payment.exception.PaymentApproveException;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -50,13 +48,13 @@ public class PaymentService {
     private final PointRepository pointRepository;
 
     // 결제 준비
-    public PaymentReadyDto.Response ready(PaymentInfoDto.Request request) {
+    public PaymentReadyDto.Response ready(String email, PaymentInfoDto.Request request) {
 
-        Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Orders order = orderRepository.findById(request.getOrderId())
-            .orElseThrow(() -> new EntityNotFoundException("주문내역이 존재하지 않습니다."));
+            .orElseThrow(() -> new NoSuchElementException("주문내역이 존재하지 않습니다."));
 
         // 로그인한 유저와 요청으로 받은 유저의 id가 동일한지 비교
         if (!member.getId().equals(request.getMemberId())) {
@@ -120,14 +118,14 @@ public class PaymentService {
     }
 
     // 결제 승인
-    public PaymentApproveDto.Response approve(String partnerOrderId, String pgToken) {
+    public PaymentApproveDto.Response approve(String email, String partnerOrderId, String pgToken) {
 
-        Member member = memberRepository.findById(1L)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다.")); // TODO 토큰을 받아 처리하는 것으로 수정
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Long orderId = Long.valueOf(partnerOrderId);
         Orders order = orderRepository.findById(orderId)
-            .orElseThrow(() -> new EntityNotFoundException("주문내역이 존재하지 않습니다."));
+            .orElseThrow(() -> new NoSuchElementException("주문내역이 존재하지 않습니다."));
 
         // 요청으로 받은 값들을 String으로 변환
         String tidStr = String.valueOf(order.getTid());
