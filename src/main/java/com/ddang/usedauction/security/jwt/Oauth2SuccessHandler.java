@@ -21,7 +21,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${spring.jwt.access.expiration}")
     private int accessTokenExpiration;
-    private static final String URI = "/";
+    private static final String URI = "https://dddang.vercel.app";
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
