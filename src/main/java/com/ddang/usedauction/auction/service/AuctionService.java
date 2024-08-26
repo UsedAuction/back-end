@@ -28,8 +28,8 @@ import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.service.NotificationService;
 import com.ddang.usedauction.point.domain.PointHistory;
+import com.ddang.usedauction.point.domain.PointType;
 import com.ddang.usedauction.point.repository.PointRepository;
-import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
@@ -92,19 +92,22 @@ public class AuctionService {
     /**
      * 경매글 리스트 조회
      *
-     * @param word     검색어
-     * @param category 카테고리
-     * @param sorted   정렬 방법
-     * @param pageable 페이징
+     * @param word         검색어
+     * @param mainCategory 대분류 카테고리
+     * @param subCategory  소분류 카테고리
+     * @param sorted       정렬 방법
+     * @param pageable     페이징
      * @return 페이징 처리된 경매 서비스 dto
      */
     @Transactional(readOnly = true)
-    public Page<Auction> getAuctionList(String word, String category, String sorted,
+    public Page<Auction> getAuctionList(String word, String mainCategory, String subCategory,
+        String sorted,
         Pageable pageable) {
 
         final String VIEW = "view";
-
-        Page<Auction> auctionPageList = auctionRepository.findAllByOptions(word, category, sorted,
+      
+        Page<Auction> auctionPageList = auctionRepository.findAllByOptions(word, mainCategory,
+            subCategory, sorted,
             pageable);
 
         if (sorted != null && sorted.equals(VIEW)) { // 경메에 참여한 회원순으로 정렬해야하는 경우

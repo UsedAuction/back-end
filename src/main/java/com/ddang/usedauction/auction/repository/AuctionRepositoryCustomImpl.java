@@ -23,21 +23,23 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<Auction> findAllByOptions(String word, String categoryName, String sorted,
+    public Page<Auction> findAllByOptions(String word, String mainCategory, String subCategory,
+        String sorted,
         Pageable pageable) {
 
         List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
             .leftJoin(auction.askList, ask)
             .leftJoin(auction.bidList, bid)
             .leftJoin(auction.imageList, image)
-            .where(containsTitle(word), containsCategory(categoryName), auction.deletedAt.isNull())
+            .where(containsTitle(word), eqMainCategory(mainCategory), eqSubCategory(subCategory),
+                auction.deletedAt.isNull())
             .orderBy(getOrderSpecifier(sorted))
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
 
         long totalElements = jpaQueryFactory.selectFrom(auction)
-            .where(containsTitle(word), containsCategory(categoryName), auction.deletedAt.isNull())
+            .where(containsTitle(word), eqMainCategory(mainCategory), auction.deletedAt.isNull())
             .fetch()
             .size();
 
@@ -93,18 +95,27 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
         return auction.title.containsIgnoreCase(title);
     }
 
-    // 카테고리 일치 여부
-    private BooleanExpression containsCategory(String categoryName) {
+    // 대분류 카테고리 일치 여부
+    private BooleanExpression eqMainCategory(String mainCategoryName) {
 
-        if (!StringUtils.hasText(categoryName)) {
+        if (!StringUtils.hasText(mainCategoryName)) {
             return null;
         }
 
         QCategory parentCategory = auction.parentCategory;
+
+        return parentCategory.categoryName.eq(mainCategoryName);
+    }
+
+    private BooleanExpression eqSubCategory(String subCategoryName) {
+
+        if (!StringUtils.hasText(subCategoryName)) {
+            return null;
+        }
+
         QCategory childCategory = auction.childCategory;
 
-        return parentCategory.categoryName.eq(categoryName)
-            .or(childCategory.categoryName.eq(categoryName));
+        return childCategory.categoryName.eq(subCategoryName);
     }
 
     // 정렬 방법

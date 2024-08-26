@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
@@ -62,7 +63,7 @@ class NotificationServiceTest {
     private NotificationService notificationService;
 
     String lastEventId;
-    private Member seller;
+    private Member member;
     private Auction auction;
 
     @BeforeEach
@@ -70,16 +71,16 @@ class NotificationServiceTest {
 
         lastEventId = "123";
 
-        seller = Member.builder()
+        member = Member.builder()
             .id(1L)
-            .memberId("seller")
+            .memberId("member")
             .build();
 
         auction = Auction.builder()
             .id(1L)
             .auctionState(CONTINUE)
             .instantPrice(2000)
-            .seller(seller)
+            .seller(member)
             .bidList(null)
             .build();
     }
@@ -90,31 +91,38 @@ class NotificationServiceTest {
         //given
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
-        given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
-
-        ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
-        ArgumentCaptor<SseEmitter> emitterCaptor = ArgumentCaptor.forClass(SseEmitter.class);
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(emitterRepository.save(
+            argThat(arg -> arg.startsWith(member.getId() + "_")),
+            argThat(arg -> arg != null))
+        ).willReturn(sseEmitter);
 
         //when
-        SseEmitter resultEmitter = notificationService.subscribe(seller.getId(), lastEventId);
+        SseEmitter resultEmitter = notificationService.subscribe(member.getEmail(), lastEventId);
 
         //then
         assertNotNull(resultEmitter);
         assertEquals(sseEmitter, resultEmitter);
-        verify(emitterRepository).save(emitterIdCaptor.capture(), emitterCaptor.capture());
+        verify(emitterRepository).save(
+            argThat(arg -> arg.startsWith(member.getId() + "_")),
+            argThat(arg -> arg != null)
+        );
     }
 
     @Test
     @DisplayName("알림 구독 - 실패 (emitterRepository 저장 실패)")
     void subscribeFail_emitterRepositorySave() {
         //given
-        given(emitterRepository.save(anyString(), any(SseEmitter.class)))
-            .willThrow(new RuntimeException());
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(emitterRepository.save(
+            argThat(arg -> arg.startsWith(member.getId() + "_")),
+            argThat(arg -> arg != null))
+        ).willThrow(new RuntimeException());
 
         //when
         //then
         assertThrows(RuntimeException.class,
-            () -> notificationService.subscribe(seller.getId(), lastEventId));
+            () -> notificationService.subscribe(member.getEmail(), lastEventId));
     }
 
     @Test
@@ -123,13 +131,18 @@ class NotificationServiceTest {
         //given
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
-        given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(emitterRepository.save(
+            argThat(arg -> arg.startsWith(member.getId() + "_")),
+            argThat(arg -> arg != null))
+        ).willReturn(sseEmitter);
+
         doThrow(new IOException()).when(sseEmitter).send(any(SseEmitter.SseEventBuilder.class));
 
         ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
 
         // when
-        notificationService.subscribe(seller.getId(), lastEventId);
+        notificationService.subscribe(member.getEmail(), lastEventId);
 
         // then
         verify(emitterRepository, times(1)).deleteById(emitterIdCaptor.capture());
@@ -141,13 +154,17 @@ class NotificationServiceTest {
         //given
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
-        given(emitterRepository.save(anyString(), any(SseEmitter.class))).willReturn(sseEmitter);
-        given(emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(seller.getId())))
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(emitterRepository.save(
+            argThat(arg -> arg.startsWith(member.getId() + "_")),
+            argThat(arg -> arg != null))
+        ).willReturn(sseEmitter);
+        given(emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(member.getId())))
             .willThrow(new RuntimeException("findAllEventCacheStartWithMemberId 실패"));
 
         //when
         RuntimeException e = assertThrows(RuntimeException.class,
-            () -> notificationService.subscribe(seller.getId(), lastEventId));
+            () -> notificationService.subscribe(member.getEmail(), lastEventId));
 
         //then
         assertEquals("findAllEventCacheStartWithMemberId 실패", e.getMessage());
@@ -163,7 +180,7 @@ class NotificationServiceTest {
         Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
-            .member(seller)
+            .member(member)
             .build();
 
         Map<String, SseEmitter> emitters = new HashMap<>();
@@ -172,19 +189,27 @@ class NotificationServiceTest {
         emitters.put("1_1", sseEmitter1);
         emitters.put("1_2", sseEmitter2);
 
-        given(notificationRepository.save(any(Notification.class))).willReturn(notification);
-        given(emitterRepository.findAllEmitterStartWithMemberId("1")).willReturn(emitters);
-        given(memberRepository.findById(1L)).willReturn(Optional.of(seller));
+        given(notificationRepository.save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member))))
+            .willReturn(notification);
+        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()))).willReturn(emitters);
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
 
         //when
-        notificationService.send(seller.getId(), auction.getId(), content, notificationType);
+        notificationService.send(member.getId(), auction.getId(), content, notificationType);
 
         //then
-        verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
-        verify(emitterRepository, times(2)).saveEventCache(anyString(), any(Notification.class));
-        verify(memberRepository, times(1)).findById(1L);
+        verify(notificationRepository, times(1)).save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member)));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
+        verify(emitterRepository, times(1)).saveEventCache(eq("1_1"), eq(notification));
+        verify(emitterRepository, times(1)).saveEventCache(eq("1_2"), eq(notification));
+        verify(memberRepository, times(1)).findById(member.getId());
         verify(auctionRepository, times(1)).findById(auction.getId());
     }
 
@@ -195,18 +220,28 @@ class NotificationServiceTest {
         NotificationType notificationType = NotificationType.DONE;
         String content = "경매가 종료되었습니다.";
 
-        given(memberRepository.findById(seller.getId())).willReturn(Optional.empty());
+        Notification notification = Notification.builder()
+            .content(content)
+            .notificationType(notificationType)
+            .member(member)
+            .build();
+
+        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
 
         //when
-        NoSuchElementException e = assertThrows(NoSuchElementException.class,
-            () -> notificationService.send(seller.getId(), auction.getId(), content,
-                notificationType));
+        NoSuchElementException e = assertThrows(
+            NoSuchElementException.class,
+            () -> notificationService.send(member.getId(), auction.getId(), content, notificationType));
 
         //then
         assertEquals("존재하지 않는 회원입니다.", e.getMessage());
-        verify(notificationRepository, times(0)).save(any(Notification.class));
-        verify(emitterRepository, times(0)).findAllEmitterStartWithMemberId("1");
-        verify(emitterRepository, times(0)).saveEventCache(anyString(), any(Notification.class));
+        verify(notificationRepository, times(0)).save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member)));
+        verify(emitterRepository, times(0)).findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
+        verify(emitterRepository, times(0)).saveEventCache(eq("1_1"), eq(notification));
+        verify(emitterRepository, times(0)).saveEventCache(eq("1_2"), eq(notification));
         verify(auctionRepository, times(0)).findById(auction.getId());
     }
 
@@ -220,26 +255,33 @@ class NotificationServiceTest {
         Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
-            .member(seller)
+            .member(member)
             .build();
 
-        given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
+        given(notificationRepository.save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member))))
+            .willReturn(notification);
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(notificationRepository.save(any(Notification.class))).willReturn(notification);
         given(emitterRepository.findAllEmitterStartWithMemberId(
-            String.valueOf(seller.getId()))).willThrow(new RuntimeException("찾기 실패"));
+            String.valueOf(member.getId()))).willThrow(new RuntimeException("찾기 실패"));
 
         //when
         RuntimeException e = assertThrows(RuntimeException.class,
-            () -> notificationService.send(seller.getId(), auction.getId(), content,
+            () -> notificationService.send(member.getId(), auction.getId(), content,
                 notificationType));
 
         //then
         assertEquals("찾기 실패", e.getMessage());
-        verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(
-            String.valueOf(seller.getId()));
-        verify(emitterRepository, times(0)).saveEventCache(anyString(), any(Notification.class));
+        verify(notificationRepository, times(1)).save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member)));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
+        verify(emitterRepository, times(0)).saveEventCache(eq("1_1"), eq(notification));
+        verify(emitterRepository, times(0)).saveEventCache(eq("1_2"), eq(notification));
     }
 
     @Test
@@ -252,29 +294,36 @@ class NotificationServiceTest {
         Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
-            .member(seller)
+            .member(member)
             .build();
 
         SseEmitter emitter = mock(SseEmitter.class);
         Map<String, SseEmitter> emitters = Collections.singletonMap("1_1234", emitter);
 
-        given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(notificationRepository.save(any(Notification.class))).willReturn(notification);
-        given(emitterRepository.findAllEmitterStartWithMemberId(
-            String.valueOf(seller.getId()))).willReturn(emitters);
-        doThrow(new RuntimeException("저장 실패")).when(emitterRepository)
-            .saveEventCache(anyString(), any(Notification.class));
+        given(notificationRepository.save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member))))
+            .willReturn(notification);
+        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()))).willReturn(emitters);
+
+        doThrow(new RuntimeException("저장 실패")).when(emitterRepository).saveEventCache(anyString(), any(Notification.class));
 
         //when
         assertThrows(RuntimeException.class, () -> {
-            notificationService.send(seller.getId(), auction.getId(), content, notificationType);
+            notificationService.send(member.getId(), auction.getId(), content, notificationType);
         });
 
         //then
-        verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
-        verify(emitterRepository, times(1)).saveEventCache(anyString(), any(Notification.class));
+        verify(notificationRepository, times(1)).save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member)));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
+        verify(emitterRepository, times(0)).saveEventCache(eq("1_1"), eq(notification));
+        verify(emitterRepository, times(0)).saveEventCache(eq("1_2"), eq(notification));
     }
 
     @Test
@@ -287,15 +336,19 @@ class NotificationServiceTest {
         Notification notification = Notification.builder()
             .content(content)
             .notificationType(notificationType)
-            .member(seller)
+            .member(member)
             .build();
 
         SseEmitter emitter = mock(SseEmitter.class);
         Map<String, SseEmitter> emitters = Collections.singletonMap("1_1234", emitter);
 
-        given(notificationRepository.save(any(Notification.class))).willReturn(notification);
-        given(emitterRepository.findAllEmitterStartWithMemberId("1")).willReturn(emitters);
-        given(memberRepository.findById(1L)).willReturn(Optional.of(seller));
+        given(notificationRepository.save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member))))
+            .willReturn(notification);
+        given(emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()))).willReturn(emitters);
+        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
 
         doThrow(new IOException("전송 실패")).when(emitter).send(any(SseEmitter.SseEventBuilder.class));
@@ -303,12 +356,15 @@ class NotificationServiceTest {
         ArgumentCaptor<String> emitterIdCaptor = ArgumentCaptor.forClass(String.class);
 
         //when
-        notificationService.send(seller.getId(), auction.getId(), content, notificationType);
+        notificationService.send(member.getId(), auction.getId(), content, notificationType);
 
         // then
         verify(emitterRepository, times(1)).deleteById(emitterIdCaptor.capture());
-        verify(notificationRepository, times(1)).save(any(Notification.class));
-        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId("1");
+        verify(notificationRepository, times(1)).save(
+            argThat(arg -> arg.getContent().equals(content) &&
+                arg.getNotificationType().equals(notificationType) &&
+                arg.getMember().equals(member)));
+        verify(emitterRepository, times(1)).findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
         verify(emitterRepository, times(1)).saveEventCache(anyString(), any(Notification.class));
         verify(emitterRepository, times(1)).deleteById("1_1234");
         verify(memberRepository, times(1)).findById(1L);
@@ -326,32 +382,32 @@ class NotificationServiceTest {
                     .id(1L)
                     .content("알림1")
                     .notificationType(NotificationType.DONE)
-                    .member(seller)
+                    .member(member)
                     .build(),
                 Notification.builder()
                     .id(2L)
                     .content("알림2")
                     .notificationType(NotificationType.CONFIRM)
-                    .member(seller)
+                    .member(member)
                     .build(),
                 Notification.builder()
                     .id(3L)
                     .content("알림3")
                     .notificationType(NotificationType.QUESTION)
-                    .member(seller)
+                    .member(member)
                     .build()),
             pageable,
             3
         );
 
-        given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
-        given(notificationRepository.findNotificationList(eq(seller.getId()),
-            any(LocalDateTime.class), eq(pageable)))
-            .willReturn(notificationPage);
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(notificationRepository.findNotificationList(
+            eq(member.getEmail()), any(LocalDateTime.class), eq(pageable))
+        ).willReturn(notificationPage);
 
         //when
-        Page<Notification> result = notificationService.getNotificationList(seller.getId(),
-            pageable);
+        Page<Notification> result = notificationService.getNotificationList(
+            member.getEmail(), pageable);
 
         //then
         assertEquals(notificationPage.getContent().size(), result.getTotalElements());
@@ -362,8 +418,8 @@ class NotificationServiceTest {
         assertEquals(notificationPage.getContent().get(2).getContent(),
             result.getContent().get(2).getContent());
 
-        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()),
-            any(LocalDateTime.class), eq(pageable));
+        verify(notificationRepository, times(1)).findNotificationList(
+            eq(member.getEmail()), any(LocalDateTime.class), eq(pageable));
     }
 
     @Test
@@ -372,16 +428,18 @@ class NotificationServiceTest {
         //given
         Pageable pageable = PageRequest.of(0, 10);
 
-        given(memberRepository.findById(seller.getId())).willReturn(Optional.empty());
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.empty());
+
+        ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
 
         //when
         assertThrows(NoSuchElementException.class,
-            () -> notificationService.getNotificationList(seller.getId(), pageable));
+            () -> notificationService.getNotificationList(member.getEmail(), pageable));
 
         //then
-        verify(memberRepository, times(1)).findById(seller.getId());
-        verify(notificationRepository, times(0)).findNotificationList(eq(seller.getId()),
-            any(LocalDateTime.class), eq(pageable));
+        verify(memberRepository, times(1)).findByEmail(member.getEmail());
+        verify(notificationRepository, times(0)).findNotificationList(
+            eq(member.getEmail()), dateTimeCaptor.capture(), eq(pageable));
     }
 
     @Test
@@ -391,19 +449,19 @@ class NotificationServiceTest {
         LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
         Pageable pageable = PageRequest.of(0, 10);
 
-        given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
-        given(notificationRepository.findNotificationList(seller.getId(), beforeOneMonth, pageable))
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(notificationRepository.findNotificationList(member.getEmail(), beforeOneMonth, pageable))
             .willThrow(new RuntimeException());
 
         ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
 
         //when
         assertThrows(RuntimeException.class,
-            () -> notificationService.getNotificationList(seller.getId(), pageable));
+            () -> notificationService.getNotificationList(member.getEmail(), pageable));
 
         //then
-        verify(memberRepository, times(1)).findById(seller.getId());
-        verify(notificationRepository, times(1)).findNotificationList(eq(seller.getId()),
-            dateTimeCaptor.capture(), eq(pageable));
+        verify(memberRepository, times(1)).findByEmail(member.getEmail());
+        verify(notificationRepository, times(1)).findNotificationList(
+            eq(member.getEmail()), dateTimeCaptor.capture(), eq(pageable));
     }
 }

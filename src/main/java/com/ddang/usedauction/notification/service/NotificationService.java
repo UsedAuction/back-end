@@ -35,16 +35,13 @@ public class NotificationService {
     private final MemberRepository memberRepository;
     private final AuctionRepository auctionRepository;
 
-    /**
-     * 알림 구독
-     *
-     * @param memberId 회원 pk
-     * @param lastEventId 마지막 이벤트 id
-     * @return SseEmitter
-     */
-    public SseEmitter subscribe(long memberId, String lastEventId) {
+    // 알림 구독
+    public SseEmitter subscribe(String email, String lastEventId) {
 
-        String emitterId = memberId + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        String emitterId = member.getId() + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
         SseEmitter sseEmitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         // 콜백
@@ -53,12 +50,12 @@ public class NotificationService {
         sseEmitter.onError((e) -> emitterRepository.deleteById(emitterId));
 
         // 503 에러방지를 위한 더미 이벤트 전송
-        sendNotification(sseEmitter, emitterId, "연결 완료 / memberId: " + memberId);
+        sendNotification(sseEmitter, emitterId, "연결 완료 / memberId: " + member.getId());
 
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
             Map<String, Object> cacheEvents =
-                emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(memberId));
+                emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(member.getId()));
             cacheEvents.entrySet().stream()
                 .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                 .forEach(entry -> sendNotification(sseEmitter, entry.getKey(), entry.getValue()));
@@ -67,14 +64,7 @@ public class NotificationService {
         return sseEmitter;
     }
 
-    /**
-     * 알림 전송
-     *
-     * @param memberId 회원 pk
-     * @param auctionId 경매 pk
-     * @param content 알림 내용
-     * @param notificationType 알림 타입
-     */
+    // 알림 전송
     @Transactional
     public void send(Long memberId, Long auctionId, String content, NotificationType notificationType) {
 
@@ -92,24 +82,19 @@ public class NotificationService {
         );
     }
 
-    /**
-     * 알림 전체 목록 조회
-     *
-     * @param memberId 회원 pk
-     * @param pageable page, size
-     * @return Page<Notification>
-     */
+    // 알림 전체 목록 조회
     @Transactional(readOnly = true)
-    public Page<Notification> getNotificationList(Long memberId, Pageable pageable) {
+    public Page<Notification> getNotificationList(String email, Pageable pageable) {
 
-        memberRepository.findById(memberId)
+        memberRepository.findByEmail(email)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
 
-        return notificationRepository.findNotificationList(memberId, beforeOneMonth, pageable);
+        return notificationRepository.findNotificationList(email, beforeOneMonth, pageable);
     }
 
+    // 실제로 알림을 전송하는 메서드
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
         try {
             sseEmitter.send(SseEmitter.event()
@@ -123,6 +108,7 @@ public class NotificationService {
         }
     }
 
+    // 알림 생성 메서드
     private Notification createNotification(Long memberId, Long auctionId, String content, NotificationType notificationType) {
 
         Member member = memberRepository.findById(memberId)

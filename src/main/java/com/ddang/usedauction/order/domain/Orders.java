@@ -38,7 +38,7 @@ public class Orders extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Min(value = 1, message = "아이템 가격은 1이상이어야 합니다.")
-    private int price; // 아이템 가격
+    private long price; // 아이템 가격
 
     @Setter
     private String tid; // 결제 고유 번호 (결제준비요청 후 받는 응답에 존재. 결제승인처리 로직에 필요. 초기값은 null)

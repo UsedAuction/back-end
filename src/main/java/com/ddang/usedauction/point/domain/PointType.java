@@ -1,4 +1,4 @@
-package com.ddang.usedauction.point.type;
+package com.ddang.usedauction.point.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

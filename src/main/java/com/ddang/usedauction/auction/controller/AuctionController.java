@@ -56,19 +56,22 @@ public class AuctionController {
     /**
      * 경매글 리스트 조회 컨트롤러
      *
-     * @param word     검색어
-     * @param category 카테고리
-     * @param sorted   정렬 방법
+     * @param word         검색어
+     * @param mainCategory 대분류 카테고리
+     * @param subCategory  소분류 카테고리
+     * @param sorted       정렬 방법
      * @return 성공 시 200 코드와 페이징 처리된 경매글 리스트, 실패 시 에러코드와 에러메시지
      */
     @GetMapping
     public ResponseEntity<Page<AuctionGetDto.Response>> getAuctionListController(
         @RequestParam(required = false) String word,
-        @RequestParam(required = false) String category,
+        @RequestParam(required = false) String mainCategory,
+        @RequestParam(required = false) String subCategory,
         @RequestParam(required = false) String sorted,
         @PageableDefault Pageable pageable) {
 
-        Page<Auction> auctionList = auctionService.getAuctionList(word, category, sorted,
+        Page<Auction> auctionList = auctionService.getAuctionList(word, mainCategory, subCategory,
+            sorted,
             pageable);
 
         return ResponseEntity.ok(auctionList.map(AuctionGetDto.Response::from));

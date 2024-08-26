@@ -2,7 +2,6 @@ package com.ddang.usedauction.point.domain;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.point.type.PointType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -30,8 +30,8 @@ import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.service.NotificationService;
+import com.ddang.usedauction.point.domain.PointType;
 import com.ddang.usedauction.point.repository.PointRepository;
-import com.ddang.usedauction.point.type.PointType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
@@ -172,14 +172,14 @@ class AuctionServiceTest {
         List<Auction> auctionList = List.of(auction1, auction2);
         Page<Auction> auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
 
-        when(auctionRepository.findAllByOptions(null, null, null, pageable)).thenReturn(
+        when(auctionRepository.findAllByOptions(null, null, null, null, pageable)).thenReturn(
             auctionPageList);
 
-        Page<Auction> resultList = auctionService.getAuctionList(null, null, null, pageable);
+        Page<Auction> resultList = auctionService.getAuctionList(null, null, null, null, pageable);
 
         assertEquals(2, resultList.getTotalElements());
     }
-
+  
     @Test
     @DisplayName("top5 경매 리스트 조회")
     void getTop5() {
@@ -215,7 +215,7 @@ class AuctionServiceTest {
         assertEquals(2, auctionList.size());
         assertEquals(2, auctionList.get(0).getBidList().size());
         assertEquals(1, auctionList.get(1).getBidList().size());
-    }
+    } 
 
     @Test
     @DisplayName("최근 본 경매 리스트 조회")

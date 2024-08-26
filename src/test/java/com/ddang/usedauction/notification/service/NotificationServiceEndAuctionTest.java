@@ -14,11 +14,9 @@ import com.ddang.usedauction.auction.listener.AuctionEventListener;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
-import com.ddang.usedauction.bid.domain.Bid;
+import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,13 +45,15 @@ class NotificationServiceEndAuctionTest {
     @Mock
     private AuctionRepository auctionRepository;
 
+    @Mock
+    private ChatRoomService chatRoomService;
+
     @InjectMocks
     private AuctionEventListener auctionEventListener;
 
     private AuctionEndEvent auctionEndEvent;
     private Member seller;
     private Member buyer;
-    private List<Bid> bidList;
     private Auction auction;
 
     @BeforeEach
@@ -73,19 +73,10 @@ class NotificationServiceEndAuctionTest {
             .memberId("buyer")
             .build();
 
-        Bid bid = Bid.builder()
-            .bidPrice(1000)
-            .build();
-
-        bidList = new ArrayList<>();
-        bidList.add(bid);
-
         auction = Auction.builder()
             .id(1L)
             .auctionState(CONTINUE)
-            .instantPrice(2000)
             .seller(seller)
-            .bidList(bidList)
             .build();
     }
 
@@ -97,7 +88,6 @@ class NotificationServiceEndAuctionTest {
         AuctionEndDto auctionEndDto = AuctionEndDto.builder()
             .sellerId(seller.getId())
             .buyerId(buyer.getId())
-            .price(2000)
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
@@ -159,7 +149,6 @@ class NotificationServiceEndAuctionTest {
         AuctionEndDto auctionEndDto = AuctionEndDto.builder()
             .sellerId(seller.getId())
             .buyerId(buyer.getId())
-            .price(2000)
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
@@ -185,12 +174,10 @@ class NotificationServiceEndAuctionTest {
         AuctionEndDto auctionEndDto = AuctionEndDto.builder()
             .sellerId(seller.getId())
             .buyerId(null)
-            .price(2000)
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
         given(auctionService.endAuction(auction.getId())).willReturn(auctionEndDto);
-
 
         //when
         auctionEventListener.handleAuctionEndEvent(auctionEndEvent);
@@ -228,7 +215,7 @@ class NotificationServiceEndAuctionTest {
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.ofNullable(auction));
         given(auctionService.endAuction(auction.getId())).willThrow(new IllegalStateException("현재 경매가 이미 종료되었습니다."));
-      
+
         //when
         assertThrows(IllegalStateException.class,
             () -> auctionEventListener.handleAuctionEndEvent(auctionEndEvent));
