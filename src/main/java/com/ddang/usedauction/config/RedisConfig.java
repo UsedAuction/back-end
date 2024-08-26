@@ -50,21 +50,6 @@ public class RedisConfig {
             .build();
     }
 
-    @Bean(name = "categoryCacheManager")
-    public CacheManager categoryRedisCacheManager(RedisConnectionFactory redisConnectionFactory) {
-        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
-            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                new StringRedisSerializer()))
-            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                new GenericJackson2JsonRedisSerializer()))
-            .entryTtl(Duration.ofMinutes(60));
-
-        return RedisCacheManager.RedisCacheManagerBuilder
-            .fromConnectionFactory(redisConnectionFactory)
-            .cacheDefaults(configuration)
-            .build();
-    }
-
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
 

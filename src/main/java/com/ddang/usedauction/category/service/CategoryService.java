@@ -18,7 +18,7 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    @Cacheable(value = "categories", key = "'allCategories'", cacheManager = "categoryCacheManager")
+    @Cacheable(value = "categories", key = "'allCategories'")
     public List<CategoryDto> getAllCategories() {
         List<Category> parentCategories = categoryRepository.findByParentIdIsNull();
 
