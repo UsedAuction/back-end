@@ -23,7 +23,6 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-
     public Page<Auction> findAllByOptions(String word, String categoryName, String sorted,
         Pageable pageable) {
 
@@ -43,6 +42,45 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
             .size();
 
         return new PageImpl<>(auctionList, pageable, totalElements);
+    }
+
+    @Override
+    public List<Auction> findTop5(String mainCategory, String subCategory) {
+
+        List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
+            .leftJoin(auction.askList, ask)
+            .innerJoin(auction.bidList, bid)
+            .leftJoin(auction.imageList, image)
+            .where(eqMainCategory(mainCategory), eqSubCategory(subCategory),
+                auction.deletedAt.isNull())
+            .limit(5)
+            .fetch();
+
+        return auctionList;
+    }
+
+    // 대분류 카테고리 일치 여부
+    private BooleanExpression eqMainCategory(String mainCategory) {
+
+        if (!StringUtils.hasText(mainCategory)) {
+            return null;
+        }
+
+        QCategory parentCategory = auction.parentCategory;
+
+        return parentCategory.categoryName.eq(mainCategory);
+    }
+
+    // 소분류 카테고리 일치 여부
+    private BooleanExpression eqSubCategory(String subCategory) {
+
+        if (!StringUtils.hasText(subCategory)) {
+            return null;
+        }
+
+        QCategory childCategory = auction.childCategory;
+
+        return childCategory.categoryName.eq(subCategory);
     }
 
     // 검색어와 경매글 제목의 포함 여부

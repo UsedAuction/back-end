@@ -124,9 +124,10 @@ public class AuctionService {
      *
      * @return 조회된 경매 리스트
      */
-    public List<Auction> getTop5() {
+    @Transactional(readOnly = true)
+    public List<Auction> getTop5(String mainCategory, String subCategory) {
 
-        return auctionRepository.findTop5ByBidMemberCount();
+        return auctionRepository.findTop5(mainCategory, subCategory);
     }
 
     /**

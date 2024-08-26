@@ -80,9 +80,11 @@ public class AuctionController {
      * @return 조회된 경매 리스트
      */
     @GetMapping("/top5")
-    public ResponseEntity<List<AuctionGetDto.Response>> getTop5Controller() {
+    public ResponseEntity<List<AuctionGetDto.Response>> getTop5Controller(
+        @RequestParam(required = false) String mainCategory,
+        @RequestParam(required = false) String subCategory) {
 
-        List<Auction> auctionList = auctionService.getTop5();
+        List<Auction> auctionList = auctionService.getTop5(mainCategory, subCategory);
 
         return ResponseEntity.ok(auctionList.stream().map(AuctionGetDto.Response::from).toList());
     }
