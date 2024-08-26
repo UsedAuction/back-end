@@ -109,25 +109,29 @@ public class TokenProvider {
         }
     }
 
-    public boolean validateToken(String token) {
+    public boolean validateToken(String accessToken) {
         try {
             Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token);
-            if (refreshTokenService.hasKeyBlackList(token)) {
+                .parseClaimsJws(accessToken);
+            if (refreshTokenService.hasKeyBlackList(accessToken)) {
                 return false;
             }
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
         } catch (ExpiredJwtException e) {
-            throw new CustomJwtException(JwtErrorCode.EXPIRED_TOKEN);
+            log.info("만료된 토큰입니다.");
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("유효하지 않은 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            throw new CustomJwtException(JwtErrorCode.UNSUPPORTED_TOKEN);
-        } catch (IllegalArgumentException | SignatureException e) {
-            throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
+            log.info("지원되지 않는 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.info("토큰이 비어있습니다.");
+        } catch (SignatureException e) {
+            log.info("잘못된 서명의 토큰입니다.");
         }
+
+        return false;
     }
 
     public boolean isExpiredToken(String token) {
@@ -147,8 +151,8 @@ public class TokenProvider {
         return claims.getSubject();
     }
 
-    public Long getExpiration(String accessToken) {
-        Claims claims = parseClaims(accessToken);
+    public Long getExpiration(String token) {
+        Claims claims = parseClaims(token);
         Date expiration = claims.getExpiration();
 
         return expiration.getTime() - new Date().getTime();

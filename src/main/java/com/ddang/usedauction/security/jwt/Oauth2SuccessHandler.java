@@ -33,7 +33,10 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
         TokenDto token = tokenProvider.generateToken(email, authorities);
-        refreshTokenService.save(email, token.getAccessToken(), token.getRefreshToken());
+
+        long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
+        refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
+            refreshTokenExpiration);
 
         CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
         response.sendRedirect(URI);
