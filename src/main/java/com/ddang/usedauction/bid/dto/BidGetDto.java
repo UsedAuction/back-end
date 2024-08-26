@@ -23,7 +23,7 @@ public class BidGetDto {
         private Long auctionId; // 입찰한 경매 PK
         private String memberId; // 입찰한 회원 id
 
-        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd TT:mm", timezone = "Asia/seoul")
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
         private LocalDateTime createdAt; // 생성 날짜
 
         // entity -> getResponse
