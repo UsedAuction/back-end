@@ -10,7 +10,7 @@ spring:
   # 데이터베이스
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     database: mysql
     properties:
       hibernate:
