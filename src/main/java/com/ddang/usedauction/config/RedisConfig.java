@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -33,6 +34,7 @@ public class RedisConfig {
     private String host;
 
     @Bean
+    @Primary
     public CacheManager redisCacheManager(RedisConnectionFactory redisConnectionFactory) {
 
         RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
@@ -41,6 +43,21 @@ public class RedisConfig {
             .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
                 new GenericJackson2JsonRedisSerializer())) // value serializer
             .entryTtl(Duration.ofMinutes(30));// 캐시 수명
+
+        return RedisCacheManager.RedisCacheManagerBuilder
+            .fromConnectionFactory(redisConnectionFactory)
+            .cacheDefaults(configuration)
+            .build();
+    }
+
+    @Bean(name = "categoryCacheManager")
+    public CacheManager categoryRedisCacheManager(RedisConnectionFactory redisConnectionFactory) {
+        RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig()
+            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(
+                new StringRedisSerializer()))
+            .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
+                new GenericJackson2JsonRedisSerializer()))
+            .entryTtl(Duration.ofMinutes(60));
 
         return RedisCacheManager.RedisCacheManagerBuilder
             .fromConnectionFactory(redisConnectionFactory)
