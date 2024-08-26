@@ -2,7 +2,6 @@ package com.ddang.usedauction.security.auth;
 
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.domain.enums.Role;
-import com.ddang.usedauction.member.exception.MemberEmailException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.auth.userInfo.GoogleUserInfo;
 import com.ddang.usedauction.security.auth.userInfo.KakaoUserInfo;
@@ -43,22 +42,12 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         }
 
         String providerId = oauth2UserInfo.getProviderId();
-        String email = oauth2UserInfo.getEmail();
+        String email = oauth2UserInfo.getEmail() + provider;
         String memberId = oauth2UserInfo.getProvider() + "_" + providerId;
         String passWord = passwordEncoder.encode("passWord");
 
-        // 로그인한 회원과 db에 저장된 회원의 social이 같다면 객체 생성
-        // 로그인한 회원의 social 값과 db에 저장된 회원의 social이 같지 않으면 예외처리
-        // 로그인한 회원의 정보가 db에 없다면 회원가입
+        // 플랫폼별 로그인 시 이메일이 중복되어도 개별적으로 회원가입 가능
         Member member = memberRepository.findByEmail(email)
-            .map(existingMember -> {
-                if (!existingMember.getSocial().equals(provider)) {
-                    log.error("MemberEmailException 발생 - Provider: {}", provider);
-
-                    throw new MemberEmailException(existingMember.getSocial());
-                }
-                return existingMember;
-            })
             .orElseGet(() -> signUp(memberId, passWord, email, provider, providerId));
 
         return new PrincipalDetails(member.getEmail(), member.getPassWord(),
