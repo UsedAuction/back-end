@@ -95,29 +95,6 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
         return auction.title.containsIgnoreCase(title);
     }
 
-    // 대분류 카테고리 일치 여부
-    private BooleanExpression eqMainCategory(String mainCategoryName) {
-
-        if (!StringUtils.hasText(mainCategoryName)) {
-            return null;
-        }
-
-        QCategory parentCategory = auction.parentCategory;
-
-        return parentCategory.categoryName.eq(mainCategoryName);
-    }
-
-    private BooleanExpression eqSubCategory(String subCategoryName) {
-
-        if (!StringUtils.hasText(subCategoryName)) {
-            return null;
-        }
-
-        QCategory childCategory = auction.childCategory;
-
-        return childCategory.categoryName.eq(subCategoryName);
-    }
-
     // 정렬 방법
     private OrderSpecifier<?> getOrderSpecifier(String sorted) {
 
