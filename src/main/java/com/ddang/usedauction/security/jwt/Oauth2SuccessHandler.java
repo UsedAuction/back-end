@@ -39,7 +39,6 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
             refreshTokenExpiration);
 
         CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
-//    테스트하기 위해 주석처리
-//    response.sendRedirect(URI);
+        response.sendRedirect(URI);
     }
 }

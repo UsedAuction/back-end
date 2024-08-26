@@ -2,7 +2,7 @@ package com.ddang.usedauction.notification.service;
 
 import static com.ddang.usedauction.auction.domain.AuctionState.CONTINUE;
 import static com.ddang.usedauction.auction.domain.AuctionState.END;
-import static com.ddang.usedauction.notification.domain.NotificationType.DONE;
+import static com.ddang.usedauction.notification.domain.NotificationType.DONE_INSTANT;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -13,6 +13,7 @@ import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
@@ -43,6 +44,9 @@ class NotificationServiceInstantPurchaseTest {
     @Mock
     private TransactionRepository transactionRepository;
 
+    @Mock
+    private ChatRoomService chatRoomService;
+
     @InjectMocks
     private AuctionService auctionService;
 
@@ -58,26 +62,35 @@ class NotificationServiceInstantPurchaseTest {
         Member buyer = Member.builder()
             .id(2L)
             .memberId("buyer")
-            .point(2000)
             .build();
 
         Auction auction = Auction.builder()
             .id(1L)
+            .title("제목")
             .auctionState(CONTINUE)
-            .instantPrice(2000)
             .seller(seller)
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
 
         //when
-        auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId());
+        auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail());
 
         //then
-        verify(notificationService).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
-        verify(auctionRedisService).createAutoConfirm(auction.getId(), buyer.getMemberId(), auction.getInstantPrice(), seller.getId());
+        verify(notificationService, times(1)).send(
+            seller.getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님의 즉시구매로 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
+
+        verify(notificationService, times(1)).send(
+            buyer.getId(),
+            auction.getId(),
+            "즉시구매를 하여 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
     }
 
     @Test
@@ -92,13 +105,11 @@ class NotificationServiceInstantPurchaseTest {
         Member buyer = Member.builder()
             .id(2L)
             .memberId("buyer")
-            .point(2000)
             .build();
 
         Auction auction = Auction.builder()
             .id(1L)
             .auctionState(CONTINUE)
-            .instantPrice(2000)
             .seller(seller)
             .build();
 
@@ -106,11 +117,22 @@ class NotificationServiceInstantPurchaseTest {
 
         // when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(
+            seller.getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님의 즉시구매로 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
+
+        verify(notificationService, times(0)).send(
+            buyer.getId(),
+            auction.getId(),
+            "즉시구매를 하여 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
     }
 
     @Test
@@ -125,26 +147,35 @@ class NotificationServiceInstantPurchaseTest {
         Member buyer = Member.builder()
             .id(2L)
             .memberId("buyer")
-            .point(2000)
             .build();
 
         Auction auction = Auction.builder()
             .id(1L)
             .auctionState(CONTINUE)
-            .instantPrice(2000)
             .seller(seller)
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.empty());
 
         // when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(
+            seller.getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님의 즉시구매로 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
+
+        verify(notificationService, times(0)).send(
+            buyer.getId(),
+            auction.getId(),
+            "즉시구매를 하여 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
     }
 
     @Test
@@ -159,26 +190,35 @@ class NotificationServiceInstantPurchaseTest {
         Member buyer = Member.builder()
             .id(2L)
             .memberId("buyer")
-            .point(2000)
             .build();
 
         Auction auction = Auction.builder()
             .id(1L)
             .auctionState(END)
-            .instantPrice(2000)
             .seller(seller)
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
 
         // when
         assertThrows(IllegalStateException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(
+            seller.getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님의 즉시구매로 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
+
+        verify(notificationService, times(0)).send(
+            buyer.getId(),
+            auction.getId(),
+            "즉시구매를 하여 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
     }
 
     @Test
@@ -204,14 +244,25 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
 
         // when
         assertThrows(MemberPointOutOfBoundsException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
 
         // then
-        verify(notificationService, times(0)).send(buyer.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
-        verify(notificationService, times(0)).send(seller.getId(), auction.getId(), "경매가 종료되었습니다.", DONE);
+        verify(notificationService, times(0)).send(
+            seller.getId(),
+            auction.getId(),
+            buyer.getMemberId() + "님의 즉시구매로 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
+
+        verify(notificationService, times(0)).send(
+            buyer.getId(),
+            auction.getId(),
+            "즉시구매를 하여 " + auction.getTitle() + " 경매가 종료되었습니다.",
+            DONE_INSTANT
+        );
     }
 }
