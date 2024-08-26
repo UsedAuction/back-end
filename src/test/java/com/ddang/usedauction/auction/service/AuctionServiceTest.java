@@ -208,9 +208,9 @@ class AuctionServiceTest {
             .bidList(List.of(bid1))
             .build();
 
-        when(auctionRepository.findTop5ByBidMemberCount()).thenReturn(List.of(auction1, auction2));
+        when(auctionRepository.findTop5(null, null)).thenReturn(List.of(auction1, auction2));
 
-        List<Auction> auctionList = auctionService.getTop5();
+        List<Auction> auctionList = auctionService.getTop5(null, null);
 
         assertEquals(2, auctionList.size());
         assertEquals(2, auctionList.get(0).getBidList().size());

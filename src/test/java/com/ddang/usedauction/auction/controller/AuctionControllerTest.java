@@ -220,7 +220,7 @@ class AuctionControllerTest {
             .bidList(List.of(bid1))
             .build();
 
-        when(auctionService.getTop5()).thenReturn(List.of(auction1, auction2));
+        when(auctionService.getTop5(null, null)).thenReturn(List.of(auction1, auction2));
 
         mockMvc.perform(get("/api/auctions/top5"))
             .andDo(print())
