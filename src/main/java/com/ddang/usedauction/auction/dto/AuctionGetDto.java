@@ -80,6 +80,7 @@ public class AuctionGetDto {
                 .endedAt(auction.getEndedAt())
                 .seller(MemberGetDto.Response.from(auction.getSeller()))
                 .parentCategory(CategoryGetDto.Response.from(auction.getParentCategory()))
+                .childCategory(CategoryGetDto.Response.from(auction.getChildCategory()))
                 .bidList(auction.getBidList() != null && !auction.getBidList().isEmpty()
                     ? auction.getBidList().stream().map(BidGetDto.Response::from).toList()
                     : new ArrayList<>())
