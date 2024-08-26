@@ -3,7 +3,6 @@ package com.ddang.usedauction.point.controller;
 import static com.ddang.usedauction.point.domain.PointType.CHARGE;
 import static com.ddang.usedauction.point.domain.PointType.USE;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
