@@ -35,7 +35,7 @@ public class BidController {
         @PageableDefault Pageable pageable,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getName();
+        String memberEmail = principalDetails.getUsername();
 
         Page<Bid> bidList = bidService.getBidList(memberEmail, pageable);
 

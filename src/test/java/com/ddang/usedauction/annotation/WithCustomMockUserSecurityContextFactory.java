@@ -14,11 +14,12 @@ public class WithCustomMockUserSecurityContextFactory implements
     @Override
     public SecurityContext createSecurityContext(WithCustomMockUser annotation) {
 
+        String memberId = annotation.memberId();
         String email = annotation.email();
         String password = annotation.password();
         String role = annotation.role();
 
-        PrincipalDetails principalDetails = new PrincipalDetails(email, password, role);
+        PrincipalDetails principalDetails = new PrincipalDetails(memberId, email, password, role);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
             principalDetails, "",

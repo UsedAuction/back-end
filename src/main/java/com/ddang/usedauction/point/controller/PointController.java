@@ -39,7 +39,7 @@ public class PointController {
     public ResponseEntity<PointBalanceDto.Response> getPointBalance(
         @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        String email = principalDetails.getName();
+        String email = principalDetails.getUsername();
         long pointBalance = pointService.getPointBalance(email);
 
         return ResponseEntity.ok(PointBalanceDto.Response.from(pointBalance));
@@ -49,10 +49,10 @@ public class PointController {
      * 포인트 충전/사용 내역 조회
      *
      * @param principalDetails 회원정보
-     * @param startDate 시작일
-     * @param endDate 종료일
-     * @param sorted 정렬
-     * @param pageable 페이징
+     * @param startDate        시작일
+     * @param endDate          종료일
+     * @param sorted           정렬
+     * @param pageable         페이징
      * @return 성공 시 200 코드와 포인트잔액, 실패 시 에러코드와 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
@@ -64,8 +64,9 @@ public class PointController {
         @RequestParam(defaultValue = "latest") String sorted,
         @PageableDefault Pageable pageable
     ) {
-        String email = principalDetails.getName();
-        Page<PointHistory> pointHistoryPage = pointService.getPointList(email, startDate, endDate, sorted, pageable);
+        String email = principalDetails.getUsername();
+        Page<PointHistory> pointHistoryPage = pointService.getPointList(email, startDate, endDate,
+            sorted, pageable);
         return ResponseEntity.ok(pointHistoryPage.map(Response::from));
     }
 }
