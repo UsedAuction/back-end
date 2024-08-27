@@ -39,7 +39,7 @@ public class PointController {
     public ResponseEntity<PointBalanceDto.Response> getPointBalance(
         @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        String email = principalDetails.getUsername();
+        String email = principalDetails.getName();
         long pointBalance = pointService.getPointBalance(email);
 
         return ResponseEntity.ok(PointBalanceDto.Response.from(pointBalance));
@@ -64,7 +64,7 @@ public class PointController {
         @RequestParam(defaultValue = "latest") String sorted,
         @PageableDefault Pageable pageable
     ) {
-        String email = principalDetails.getUsername();
+        String email = principalDetails.getName();
         Page<PointHistory> pointHistoryPage = pointService.getPointList(email, startDate, endDate,
             sorted, pageable);
         return ResponseEntity.ok(pointHistoryPage.map(Response::from));

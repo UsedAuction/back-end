@@ -83,7 +83,7 @@ public class AskController {
         @Valid @RequestBody AskCreateDto createDto,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Ask ask = askService.createAsk(createDto, principalDetails.getUsername());
+        Ask ask = askService.createAsk(createDto, principalDetails.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(AskGetDto.Response.from(ask));
@@ -104,7 +104,7 @@ public class AskController {
         @Valid @RequestBody
         AskUpdateDto updateDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Ask ask = askService.updateAsk(askId, updateDto, principalDetails.getUsername());
+        Ask ask = askService.updateAsk(askId, updateDto, principalDetails.getName());
 
         return ResponseEntity.ok(AskGetDto.Response.from(ask));
     }
@@ -120,7 +120,7 @@ public class AskController {
     public ResponseEntity<String> deleteAskController(
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        askService.deleteAsk(principalDetails.getUsername());
+        askService.deleteAsk(principalDetails.getName());
 
         return ResponseEntity.ok("삭제되었습니다.");
     }

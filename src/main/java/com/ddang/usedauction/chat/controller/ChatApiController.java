@@ -37,7 +37,7 @@ public class ChatApiController {
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         return ResponseEntity.status(HttpStatus.OK)
-            .body(chatRoomService.findChatRoomsByMemberId(principalDetails.getUsername()));
+            .body(chatRoomService.findChatRoomsByMemberId(principalDetails.getName()));
     }
 
 }
