@@ -4,6 +4,7 @@ import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.util.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,8 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = CookieUtil.getCookieValue(request, "JWT")
-            .orElse(null);
+        String accessToken = tokenProvider.resolveTokenFromRequest(request);
 
         // accessToken 검증
         if (StringUtils.hasText(accessToken)) {
@@ -43,15 +43,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void handleExpiredAccessToken(HttpServletRequest request,
-        HttpServletResponse response, String oldAccessToken) throws IOException {
+        HttpServletResponse response, String oldAccessToken) {
         // 만료되었으면 accessToken 재발급
         Authentication authentication = tokenProvider.getAuthentication(oldAccessToken);
         String refreshToken = refreshTokenService.findRefreshTokenByAccessToken(
             oldAccessToken);
+        Cookie cookie = CookieUtil.getCookie(request, "refreshToken")
+            .orElse(null);
 
         // refreshToken 만료되었으면 로그아웃 처리
-        if (tokenProvider.isExpiredToken(refreshToken) || refreshToken == null) {
+        if (tokenProvider.isExpiredToken(refreshToken) || refreshToken == null
+            || cookie == null || !refreshToken.equals(
+            cookie.getValue())) {
             logout(request, response, oldAccessToken);
+
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
             return;
         }
@@ -66,7 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         setAuthentication(newAccessToken);
 
-        CookieUtil.addCookie(response, "JWT", newAccessToken, accessTokenExpiration);
+        response.setHeader("New-Token", newAccessToken);
     }
 
     // 보안 컨텍스트에 인증 정보 설정 (현재 사용자 인증 정보 갱신)
@@ -87,13 +93,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 accessTokenExpiration);
         }
 
+        CookieUtil.deleteCookie(request, response, "refreshToken");
+
         // 보안 컨텍스트에서 인증 정보 제거
         SecurityContextHolder.clearContext();
-
-        CookieUtil.deleteCookie(request, response, "JWT");
-
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
     }
 }
 

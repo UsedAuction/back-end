@@ -52,7 +52,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         Member member = memberRepository.findByEmail(email)
             .orElseGet(() -> signUp(memberId, passWord, email, provider, providerId));
 
-        return new PrincipalDetails(member.getEmail(), member.getPassWord(),
+        return new PrincipalDetails(member.getMemberId(), member.getEmail(), member.getPassWord(),
             member.getRole().toString(), oauth2UserInfo);
     }
 

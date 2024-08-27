@@ -17,6 +17,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
@@ -29,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -45,24 +47,27 @@ public class TokenProvider {
     private final PrincipalDetailsService principalDetailsService;
     private Key key;
 
+    private static final String TOKEN_HEADER = "Authorization";
+    private static final String TOKEN_PREFIX = "Bearer ";
+
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public TokenDto generateToken(String email,
+    public TokenDto generateToken(String memberId,
         Collection<? extends GrantedAuthority> authorities) {
         long now = new Date().getTime();
 
         String accessToken = Jwts.builder()
-            .setSubject(email)
+            .setSubject(memberId)
             .claim("auth", List.of("ROLE_USER"))
             .setExpiration(new Date(now + accessExpiration))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
 
         String refreshToken = Jwts.builder()
-            .setSubject(email)
+            .setSubject(memberId)
             .setExpiration(new Date(now + refreshExpiration))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
@@ -73,23 +78,35 @@ public class TokenProvider {
             .build();
     }
 
-    public String reissueAccessToken(String email,
+    public String reissueAccessToken(String memberId,
         Collection<? extends GrantedAuthority> authorities) {
         long now = new Date().getTime();
 
         return Jwts.builder()
-            .setSubject(email)
+            .setSubject(memberId)
             .claim("auth", List.of("ROLE_USER"))
             .setExpiration(new Date(now + accessExpiration))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
     }
 
+    // 헤더에서 토큰 가져오기
+    public String resolveTokenFromRequest(HttpServletRequest request) {
+
+        String token = request.getHeader(TOKEN_HEADER);
+
+        if (!ObjectUtils.isEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
+            return token.substring(TOKEN_PREFIX.length());
+        }
+
+        return null;
+    }
+
     @Transactional
     public Authentication getAuthentication(String token) {
 
         PrincipalDetails userDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(
-            getEmailByToken(token));
+            getMemberIdByToken(token));
 
         return new UsernamePasswordAuthenticationToken(userDetails, "",
             userDetails.getAuthorities());
@@ -111,14 +128,14 @@ public class TokenProvider {
 
     public boolean validateToken(String accessToken) {
         try {
-            Jwts.parserBuilder()
+            Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(accessToken);
-            if (refreshTokenService.hasKeyBlackList(accessToken)) {
-                return false;
-            }
-            return true;
+                .parseClaimsJws(accessToken)
+                .getBody();
+
+            return !refreshTokenService.hasKeyBlackList(accessToken) && !claims.getExpiration()
+                .before(new Date());
         } catch (ExpiredJwtException e) {
             log.info("만료된 토큰입니다.");
         } catch (SecurityException | MalformedJwtException e) {
@@ -146,7 +163,7 @@ public class TokenProvider {
         }
     }
 
-    public String getEmailByToken(String token) {
+    public String getMemberIdByToken(String token) {
         Claims claims = parseClaims(token);
         return claims.getSubject();
     }

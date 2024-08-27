@@ -38,7 +38,7 @@ public class NotificationController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId
     ) {
-        String email = principalDetails.getName();
+        String email = principalDetails.getUsername();
         return ResponseEntity.ok(notificationService.subscribe(email, lastEventId));
     }
 
@@ -54,8 +54,9 @@ public class NotificationController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @PageableDefault Pageable pageable
     ) {
-        String email = principalDetails.getName();
-        Page<Notification> notificationPage = notificationService.getNotificationList(email, pageable);
+        String email = principalDetails.getUsername();
+        Page<Notification> notificationPage = notificationService.getNotificationList(email,
+            pageable);
         return ResponseEntity.ok(notificationPage.map(Response::from));
     }
 }
