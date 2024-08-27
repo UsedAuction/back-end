@@ -46,7 +46,7 @@ public class TransactionController {
         @RequestParam(required = false) LocalDate endDate, @PageableDefault
     Pageable pageable, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getName();
+        String memberEmail = principalDetails.getUsername();
 
         Page<Transaction> transactionPageList = transactionService.getTransactionListBySeller(
             memberEmail, word, transTypeString, sorted, startDate, endDate, pageable);
@@ -76,7 +76,7 @@ public class TransactionController {
         @RequestParam(required = false) LocalDate endDate, @PageableDefault
     Pageable pageable, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getName();
+        String memberEmail = principalDetails.getUsername();
 
         Page<Transaction> transactionPageList = transactionService.getTransactionListByBuyer(
             memberEmail, word, transTypeString, sorted, startDate, endDate, pageable);
