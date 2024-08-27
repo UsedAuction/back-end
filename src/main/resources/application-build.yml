@@ -9,12 +9,12 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: embedded
   
   # 데이터베이스
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database: mysql
     properties:
       hibernate:
