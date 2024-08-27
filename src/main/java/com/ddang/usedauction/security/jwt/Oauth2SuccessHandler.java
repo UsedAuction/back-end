@@ -29,10 +29,10 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        String email = authentication.getName();
+        String memberId = authentication.getName();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        TokenDto token = tokenProvider.generateToken(email, authorities);
+        TokenDto token = tokenProvider.generateToken(memberId, authorities);
 
         long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
         refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
@@ -40,6 +40,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
         CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
             refreshTokenExpirationValue);
-        response.sendRedirect(URI + "?accessToken=" + token.getAccessToken());
+        response.sendRedirect(
+            URI + "?accessToken=" + token.getAccessToken() + "&memberId=" + memberId);
     }
 }

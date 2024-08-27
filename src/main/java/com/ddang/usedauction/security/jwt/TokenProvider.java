@@ -55,19 +55,19 @@ public class TokenProvider {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public TokenDto generateToken(String email,
+    public TokenDto generateToken(String memberId,
         Collection<? extends GrantedAuthority> authorities) {
         long now = new Date().getTime();
 
         String accessToken = Jwts.builder()
-            .setSubject(email)
+            .setSubject(memberId)
             .claim("auth", List.of("ROLE_USER"))
             .setExpiration(new Date(now + accessExpiration))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
 
         String refreshToken = Jwts.builder()
-            .setSubject(email)
+            .setSubject(memberId)
             .setExpiration(new Date(now + refreshExpiration))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
@@ -78,12 +78,12 @@ public class TokenProvider {
             .build();
     }
 
-    public String reissueAccessToken(String email,
+    public String reissueAccessToken(String memberId,
         Collection<? extends GrantedAuthority> authorities) {
         long now = new Date().getTime();
 
         return Jwts.builder()
-            .setSubject(email)
+            .setSubject(memberId)
             .claim("auth", List.of("ROLE_USER"))
             .setExpiration(new Date(now + accessExpiration))
             .signWith(key, SignatureAlgorithm.HS256)
@@ -106,7 +106,7 @@ public class TokenProvider {
     public Authentication getAuthentication(String token) {
 
         PrincipalDetails userDetails = (PrincipalDetails) principalDetailsService.loadUserByUsername(
-            getEmailByToken(token));
+            getMemberIdByToken(token));
 
         return new UsernamePasswordAuthenticationToken(userDetails, "",
             userDetails.getAuthorities());
@@ -163,7 +163,7 @@ public class TokenProvider {
         }
     }
 
-    public String getEmailByToken(String token) {
+    public String getMemberIdByToken(String token) {
         Claims claims = parseClaims(token);
         return claims.getSubject();
     }
