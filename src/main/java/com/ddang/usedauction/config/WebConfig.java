@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
             .allowedOrigins("https://dddang.vercel.app", "https://localhost:5173")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("Authorization", "Content-Type", "New-Token")
-//            .allowCredentials(true)
+            .allowCredentials(true)
             .exposedHeaders("Custom-Header")
             .maxAge(86400);
     }
