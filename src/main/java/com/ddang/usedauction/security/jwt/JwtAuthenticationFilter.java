@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,8 +19,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Value("${spring.jwt.access.expiration}")
-    private int accessTokenExpiration;
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
@@ -46,6 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         HttpServletResponse response, String oldAccessToken) {
         // 만료되었으면 accessToken 재발급
         Authentication authentication = tokenProvider.getAuthentication(oldAccessToken);
+        String memberIdByToken = tokenProvider.getMemberIdByToken(oldAccessToken);
         String refreshToken = refreshTokenService.findRefreshTokenByAccessToken(
             oldAccessToken);
         Cookie cookie = CookieUtil.getCookie(request, "refreshToken")
@@ -63,7 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 만료되지 않았으면 accessToken 재발급
-        String newAccessToken = tokenProvider.reissueAccessToken(authentication.getName(),
+        String newAccessToken = tokenProvider.reissueAccessToken(memberIdByToken,
             authentication.getAuthorities());
         long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
         // Redis accessToken 값 업데이트
