@@ -1,5 +1,6 @@
 package com.ddang.usedauction.security.jwt;
 
+import com.ddang.usedauction.security.auth.PrincipalDetails;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.util.CookieUtil;
@@ -29,10 +30,10 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        String memberId = authentication.getName();
+        PrincipalDetails details = (PrincipalDetails) authentication.getPrincipal();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        TokenDto token = tokenProvider.generateToken(memberId, authorities);
+        TokenDto token = tokenProvider.generateToken(details.getName(), authorities);
 
         long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
         refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
@@ -41,6 +42,6 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
         CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
             refreshTokenExpirationValue);
         response.sendRedirect(
-            URI + "?accessToken=" + token.getAccessToken() + "&memberId=" + memberId);
+            URI + "?accessToken=" + token.getAccessToken() + "&memberId=" + details.getName());
     }
 }
