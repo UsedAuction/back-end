@@ -1,7 +1,9 @@
 package com.ddang.usedauction.chat.service;
 
+import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.chat.domain.dto.ChatRoomCreateDto;
+import com.ddang.usedauction.chat.domain.entity.ChatRoom;
 import com.ddang.usedauction.chat.repository.ChatRoomRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
@@ -54,6 +56,28 @@ public class ChatRoomService {
             .filter(chatRoom -> chatRoom.getSeller().getId().equals(member.getId()) ||
                 chatRoom.getBuyer().getId().equals(member.getId()))
             .collect(Collectors.toList());
+    }
+
+    public void createChatRoom(Long memberId, Long auctionId) {
+        if (chatRoomRepository.existsByAuctionId(auctionId)) {
+            throw new IllegalStateException("이미 존재하는 채팅방입니다.");
+        }
+
+        Member buyer = memberRepository.findById(memberId)
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+
+        Auction auction = auctionRepository.findById(auctionId)
+            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 경매입니다."));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
+            .seller(auction.getSeller())
+            .buyer(buyer)
+            .auction(auction)
+            .build());
+
+        opsHashChatRoom.put(CHAT_ROOMS, chatRoom.getId().toString(),
+            ChatRoomCreateDto.Response.from(chatRoom));
+
+        createTopic(chatRoom.getId().toString());
     }
 
     public ChannelTopic getTopic(Long roomId) {
