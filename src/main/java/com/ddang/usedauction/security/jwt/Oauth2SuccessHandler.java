@@ -19,24 +19,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
-  @Value("${spring.jwt.access.expiration}")
-  private int accessTokenExpiration;
-  private static final String URI = "/";
-  private final TokenProvider tokenProvider;
-  private final RefreshTokenService refreshTokenService;
+    @Value("${spring.jwt.access.expiration}")
+    private int accessTokenExpiration;
+    private static final String URI = "/";
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
-  @Override
-  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-      Authentication authentication) throws IOException, ServletException {
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+        Authentication authentication) throws IOException, ServletException {
 
-    String email = authentication.getName();
-    Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
+        String email = authentication.getName();
+        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-    TokenDto token = tokenProvider.generateToken(email, authorities);
-    refreshTokenService.save(email, token.getAccessToken(), token.getRefreshToken());
+        TokenDto token = tokenProvider.generateToken(email, authorities);
 
-    CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
-//    테스트하기 위해 주석처리
-//    response.sendRedirect(URI);
-  }
+        long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
+        refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
+            refreshTokenExpiration);
+
+        CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
+        response.sendRedirect(URI);
+    }
 }

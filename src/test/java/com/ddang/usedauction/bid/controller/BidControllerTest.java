@@ -11,6 +11,8 @@ import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.bid.service.BidService;
 import com.ddang.usedauction.config.SecurityConfig;
+import com.ddang.usedauction.image.domain.Image;
+import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
 import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
@@ -58,8 +60,14 @@ class BidControllerTest {
     @DisplayName("회원의 입찰 목록 조회 컨트롤러")
     void getBidListController() throws Exception {
 
+        Image image = Image.builder()
+            .imageType(ImageType.THUMBNAIL)
+            .imageUrl("url")
+            .build();
+
         Auction auction = Auction.builder()
             .id(1L)
+            .imageList(List.of(image))
             .build();
 
         Member member = Member.builder()

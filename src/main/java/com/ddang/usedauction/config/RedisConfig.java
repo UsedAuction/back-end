@@ -2,7 +2,6 @@ package com.ddang.usedauction.config;
 
 import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.chat.service.RedisSubscriber;
-import com.ddang.usedauction.token.dto.TokenDto;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
@@ -106,12 +105,12 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, TokenDto> tokenRedisTemplate(
+    public RedisTemplate<String, String> tokenRedisTemplate(
         RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, TokenDto> redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setValueSerializer(new StringRedisSerializer());
 
         return redisTemplate;
     }

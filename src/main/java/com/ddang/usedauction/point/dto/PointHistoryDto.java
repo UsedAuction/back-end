@@ -1,7 +1,7 @@
 package com.ddang.usedauction.point.dto;
 
 import com.ddang.usedauction.point.domain.PointHistory;
-import com.ddang.usedauction.point.type.PointType;
+import com.ddang.usedauction.point.domain.PointType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

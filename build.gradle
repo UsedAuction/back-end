@@ -37,6 +37,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.amazonaws:aws-java-sdk-s3:1.12.759' // s3
     implementation 'org.redisson:redisson-spring-boot-starter:3.27.0' // redisson
+    implementation 'org.springframework.boot:spring-boot-starter-actuator' // actuator
 
     // queryDsl 관련 의존성
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'

@@ -1,10 +1,12 @@
 package com.ddang.usedauction.payment.service;
 
+import static com.ddang.usedauction.point.domain.PointType.CHARGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.ddang.usedauction.member.domain.Member;
@@ -16,11 +18,12 @@ import com.ddang.usedauction.payment.dto.PaymentApproveDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
 import com.ddang.usedauction.payment.exception.PaymentReadyException;
+import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
-import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -66,6 +69,7 @@ class PaymentServiceTest {
     private Orders approveOrder;
     private String partnerOrderId;
     private String pgToken;
+    private PointHistory pointHistory;
     private PaymentApproveDto.Response approveResponse;
     private HttpEntity<Map<String, String>> approveRequestEntity;
 
@@ -86,7 +90,7 @@ class PaymentServiceTest {
             .id(1L)
             .member(member)
             .itemName("10000 포인트")
-            .price(10000)
+            .price(10000L)
             .tid(null)
             .build();
 
@@ -98,7 +102,7 @@ class PaymentServiceTest {
         request = PaymentInfoDto.Request.builder()
             .orderId(1L)
             .memberId(1L)
-            .price(10000)
+            .price(10000L)
             .build();
 
         Map<String, String> readyMap = Map.of(
@@ -117,8 +121,8 @@ class PaymentServiceTest {
         readyRequestEntity = new HttpEntity<>(readyMap, headers);
 
         readyResponse = PaymentReadyDto.Response.builder()
-            .tid("T6b8m123257c75a88q63")
-            .next_redirect_pc_url("https://online-pay.kakao.com/mockup/v1/g12b1c3552f2f80eda200a29t3b72e45057f8e528843ebb0a80d0235ceb9d7e3/info")
+            .tid("T234sdfwerqwe")
+            .next_redirect_pc_url("https://online-pay.kakao.com/mockup/v1/qweqweqwewqe123/info")
             .created_at(LocalDateTime.parse("2024-08-11T21:58:43", DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             .build();
 
@@ -130,13 +134,21 @@ class PaymentServiceTest {
             .id(1L)
             .member(member)
             .itemName("10000 포인트")
-            .price(10000)
-            .tid("T6b8m123257c75a88q63")
+            .price(10000L)
+            .tid("T234sdfwerqwe")
+            .build();
+
+        pointHistory = PointHistory.builder()
+            .id(1L)
+            .pointType(CHARGE)
+            .pointAmount(10000L)
+            .curPointAmount(20000L)
+            .member(member)
             .build();
 
         Map<String, String> approveMap = Map.of(
             "cid", "TC0ONETIME",
-            "tid", "T6b8m123257c75a88q63",
+            "tid", "T234sdfwerqwe",
             "partner_order_id", "1",
             "partner_user_id", "1",
             "pg_token", "bzb52391ee335e521f3f"
@@ -146,7 +158,7 @@ class PaymentServiceTest {
 
         approveResponse = PaymentApproveDto.Response.builder()
             .aid("A6z909b238884dbbed6e")
-            .tid("T6b8m123257c75a88q63")
+            .tid("T234sdfwerqwe")
             .cid("TC0ONETIME")
             .partner_order_id("1")
             .partner_user_id("1")
@@ -167,13 +179,14 @@ class PaymentServiceTest {
     @DisplayName("결제 준비 - 성공")
     void readySuccess() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(readyOrder.getId())).willReturn(Optional.of(readyOrder));
         given(restTemplate.postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class))
             .willReturn(readyResponse);
+        given(orderRepository.save(readyOrder)).willReturn(readyOrder);
 
         //when
-        PaymentReadyDto.Response response = paymentService.ready(request);
+        PaymentReadyDto.Response response = paymentService.ready(member.getEmail(), request);
 
         //then
         assertNotNull(response);
@@ -181,30 +194,41 @@ class PaymentServiceTest {
         assertEquals(readyResponse.getNext_redirect_pc_url(), response.getNext_redirect_pc_url());
         assertEquals(readyResponse.getCreated_at(), response.getCreated_at());
 
-        verify(orderRepository).save(argThat(arg -> "T6b8m123257c75a88q63".equals(arg.getTid())));
+        verify(memberRepository, times(1)).findByEmail(member.getEmail());
+        verify(orderRepository, times(1)).findById(readyOrder.getId());
+        verify(restTemplate, times(1)).postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class);
+        verify(orderRepository, times(1)).save(readyOrder);
     }
 
     @Test
     @DisplayName("결제 준비 - 실패 (회원이 존재하지 않음)")
     void readyFail_MemberNotFound() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.empty());
 
         //when
         //then
-        assertThrows(EntityNotFoundException.class, () -> paymentService.ready(request));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class);
+        verify(orderRepository, times(0)).save(readyOrder);
+        assertThrows(NoSuchElementException.class, () -> paymentService.ready(member.getEmail(), request));
     }
 
     @Test
     @DisplayName("결제 준비 - 실패 (주문내역이 존재하지 않음)")
     void readyFail_OrderNotFound() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.empty());
 
         //when
         //then
-        assertThrows(EntityNotFoundException.class, () -> paymentService.ready(request));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class);
+        verify(orderRepository, times(0)).save(readyOrder);
+        assertThrows(NoSuchElementException.class, () -> paymentService.ready(member.getEmail(), request));
     }
 
     @Test
@@ -217,12 +241,16 @@ class PaymentServiceTest {
             .price(10000)
             .build();
 
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.of(readyOrder));
 
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> paymentService.ready(request));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class);
+        verify(orderRepository, times(0)).save(readyOrder);
+        assertThrows(IllegalArgumentException.class, () -> paymentService.ready(member.getEmail(), request));
     }
 
     @Test
@@ -235,40 +263,55 @@ class PaymentServiceTest {
             .price(20000)
             .build();
 
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.of(readyOrder));
 
         //when
         //then
-        assertThrows(IllegalArgumentException.class, () -> paymentService.ready(request));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class);
+        verify(orderRepository, times(0)).save(readyOrder);
+        assertThrows(IllegalArgumentException.class, () -> paymentService.ready(member.getEmail(), request));
     }
 
     @Test
     @DisplayName("결제 준비 - 실패 (결제 준비 요청에 대한 응답이 없음)")
     void readyFail_apiFailed() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.of(readyOrder));
         given(restTemplate.postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class))
             .willThrow(new PaymentReadyException("결제 준비 요청에 대한 응답이 없습니다."));
 
         //when
         //then
-        assertThrows(PaymentReadyException.class, () -> paymentService.ready(request));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity, PaymentReadyDto.Response.class);
+        verify(orderRepository, times(0)).save(readyOrder);
+        assertThrows(PaymentReadyException.class, () -> paymentService.ready(member.getEmail(), request));
     }
 
     @Test
     @DisplayName("결제 승인 - 성공")
     void approveSuccess() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(approveOrder.getId())).willReturn(Optional.of(approveOrder));
         given(restTemplate.postForObject(
             APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class))
             .willReturn(approveResponse);
+        given(memberRepository.save(member)).willReturn(member);
+        given(pointRepository.save(
+            argThat(arg -> arg.getPointType().equals(pointHistory.getPointType()) &&
+                arg.getPointAmount() == pointHistory.getPointAmount() &&
+                arg.getCurPointAmount() == pointHistory.getCurPointAmount() &&
+                arg.getMember().equals(pointHistory.getMember()))))
+            .willReturn(pointHistory);
 
         //when
-        PaymentApproveDto.Response response = paymentService.approve(partnerOrderId, pgToken);
+        PaymentApproveDto.Response response = paymentService.approve(member.getEmail(), partnerOrderId, pgToken);
 
         //then
         assertNotNull(response);
@@ -284,44 +327,76 @@ class PaymentServiceTest {
         assertEquals(approveResponse.getCreated_at(), response.getCreated_at());
         assertEquals(approveResponse.getApproved_at(), response.getApproved_at());
 
-        verify(memberRepository).save(argThat(arg -> arg.getPoint() == (10000 + 10000)));
-        verify(pointRepository).save(argThat(arg -> arg.getPointAmount() == 10000));
+        verify(memberRepository, times(1)).findByEmail(member.getEmail());
+        verify(orderRepository, times(1)).findById(readyOrder.getId());
+        verify(restTemplate, times(1))
+            .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
+        verify(memberRepository, times(1)).save(member);
+        verify(pointRepository, times(1))
+            .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
     }
 
     @Test
     @DisplayName("결제 승인 - 실패 (회원이 존재하지 않음)")
     void approveFail_MemberNotFound() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.empty());
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.empty());
 
         //when
         //then
-        assertThrows(EntityNotFoundException.class, () -> paymentService.approve(partnerOrderId, pgToken));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0))
+            .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
+        verify(memberRepository, times(0)).save(member);
+        verify(pointRepository, times(0))
+            .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
+
+        assertThrows(NoSuchElementException.class,
+            () -> paymentService.approve(member.getEmail(), partnerOrderId, pgToken));
     }
 
     @Test
     @DisplayName("결제 승인 - 실패 (주문내역이 존재하지 않음)")
     void approveFail_OrderNotFound() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(Long.valueOf(partnerOrderId))).willReturn(Optional.empty());
 
         //when
         //then
-        assertThrows(EntityNotFoundException.class, () -> paymentService.approve(partnerOrderId, pgToken));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0))
+            .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
+        verify(memberRepository, times(0)).save(member);
+        verify(pointRepository, times(0))
+            .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
+
+        assertThrows(NoSuchElementException.class,
+            () -> paymentService.approve(member.getEmail(), partnerOrderId, pgToken));
     }
 
     @Test
     @DisplayName("결제 승인 - 실패 (결제 승인 요청에 대한 응답이 없음)")
     void approveFail_apiFailed() {
         //given
-        given(memberRepository.findById(member.getId())).willReturn(Optional.of(member));
+        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
         given(orderRepository.findById(Long.valueOf(partnerOrderId))).willReturn(Optional.of(approveOrder));
         given(restTemplate.postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class))
             .willThrow(new PaymentReadyException("결제 준비 요청에 대한 응답이 없습니다."));
 
         //when
         //then
-        assertThrows(PaymentReadyException.class, () -> paymentService.approve(partnerOrderId, pgToken));
+        verify(memberRepository, times(0)).findByEmail(member.getEmail());
+        verify(orderRepository, times(0)).findById(readyOrder.getId());
+        verify(restTemplate, times(0))
+            .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
+        verify(memberRepository, times(0)).save(member);
+        verify(pointRepository, times(0))
+            .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
+
+        assertThrows(PaymentReadyException.class,
+            () -> paymentService.approve(member.getEmail(), partnerOrderId, pgToken));
     }
 }
