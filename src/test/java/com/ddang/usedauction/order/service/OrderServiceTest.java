@@ -39,6 +39,7 @@ class OrderServiceTest {
         //given
         Member member = Member.builder()
             .id(1L)
+            .memberId("memberId")
             .email("test@naver.com")
             .build();
 
@@ -46,17 +47,18 @@ class OrderServiceTest {
             .price(10000)
             .build();
 
-        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+            Optional.of(member));
 
         //when
-        Orders result = orderService.createOrder(member.getEmail(), request);
+        Orders result = orderService.createOrder(member.getMemberId(), request);
 
         //then
         assertNotNull(result);
         assertEquals("10000 포인트", result.getItemName());
         assertEquals(10000, result.getPrice());
 
-        verify(memberRepository, times(1)).findByEmail(member.getEmail());
+        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(orderRepository, times(1)).save(result);
     }
 
@@ -67,17 +69,19 @@ class OrderServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         OrderCreateDto.Request request = OrderCreateDto.Request.builder()
             .price(1000)
             .build();
 
-        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
 
         // when
         // then
-        assertThrows(NoSuchElementException.class, () -> orderService.createOrder(member.getEmail(), request));
+        assertThrows(NoSuchElementException.class,
+            () -> orderService.createOrder(member.getMemberId(), request));
     }
 
     @Test
@@ -87,6 +91,7 @@ class OrderServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         OrderCreateDto.Request request = OrderCreateDto.Request.builder()
@@ -98,12 +103,14 @@ class OrderServiceTest {
             .price(10000)
             .build();
 
-        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+            Optional.of(member));
         given(orderRepository.save(order)).willThrow(new RuntimeException("DB 저장 실패"));
 
         // when
         // then
-        verify(memberRepository, times(0)).findByEmail(member.getEmail());
-        assertThrows(RuntimeException.class, () -> orderService.createOrder(member.getEmail(), request));
+        verify(memberRepository, times(0)).findByEmail(member.getMemberId());
+        assertThrows(RuntimeException.class,
+            () -> orderService.createOrder(member.getMemberId(), request));
     }
 }

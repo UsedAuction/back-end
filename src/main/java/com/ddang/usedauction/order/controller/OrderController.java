@@ -35,8 +35,8 @@ public class OrderController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid OrderCreateDto.Request request
     ) {
-        String email = principalDetails.getName();
-        Orders order = orderService.createOrder(email, request);
+        String memberId = principalDetails.getName();
+        Orders order = orderService.createOrder(memberId, request);
 
         return ResponseEntity
             .status(HttpStatus.CREATED)

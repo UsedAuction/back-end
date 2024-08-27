@@ -67,6 +67,7 @@ class OrderControllerTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         Orders order = Orders.builder()
@@ -78,16 +79,16 @@ class OrderControllerTest {
             .build();
 
         given(orderService.createOrder(
-            eq(member.getEmail()),
+            eq(member.getMemberId()),
             argThat(arg -> arg.getPrice() == request.getPrice()))
         ).willReturn(order);
 
         //when
         //then
         mockMvc.perform(
-            post("/api/members/orders/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                post("/api/members/orders/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
             .andDo(print())
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.orderId").value(1L))
@@ -106,9 +107,9 @@ class OrderControllerTest {
         //when
         //then
         mockMvc.perform(
-            post("/api/members/orders/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                post("/api/members/orders/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
             .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$[0]").value("상품가격은 1이상이어야 합니다."));
@@ -126,9 +127,9 @@ class OrderControllerTest {
         //when
         //then
         mockMvc.perform(
-            post("/api/members/orders/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(request)))
+                post("/api/members/orders/create")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(request)))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$[0]").value("상품가격은 1이상이어야 합니다."));
     }

@@ -19,9 +19,9 @@ public class AuctionRedisService {
     }
 
     // 자동 구매 확정을 위한 bucket 생성 서비스
-    public void createAutoConfirm(Long auctionId, String buyerEmail, long price, Long sellerId) {
+    public void createAutoConfirm(Long auctionId, String buyerId, long price, Long sellerId) {
 
-        auctionRedisRepository.saveAuctionAutoConfirm(auctionId, buyerEmail,
+        auctionRedisRepository.saveAuctionAutoConfirm(auctionId, buyerId,
             AuctionConfirmDto.Request.from(price, sellerId));
     }
 }

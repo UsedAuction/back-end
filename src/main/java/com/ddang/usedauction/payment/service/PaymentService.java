@@ -9,8 +9,8 @@ import com.ddang.usedauction.order.repository.OrderRepository;
 import com.ddang.usedauction.payment.dto.PaymentApproveDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
-import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import com.ddang.usedauction.payment.exception.PaymentApproveException;
+import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import java.util.Map;
@@ -48,9 +48,9 @@ public class PaymentService {
     private final PointRepository pointRepository;
 
     // 결제 준비
-    public PaymentReadyDto.Response ready(String email, PaymentInfoDto.Request request) {
+    public PaymentReadyDto.Response ready(String memberId, PaymentInfoDto.Request request) {
 
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Orders order = orderRepository.findById(request.getOrderId())
@@ -87,7 +87,8 @@ public class PaymentService {
             .quantity("1")
             .totalAmount(priceStr)
             .taxFreeAmount("0")
-            .approvalUrl("http://localhost:8080/api/members/payment/approve?partner_order_id=" + orderIdStr)
+            .approvalUrl(
+                "http://localhost:8080/api/members/payment/approve?partner_order_id=" + orderIdStr)
             .cancelUrl("http://localhost:8080/api/members/payment/cancel")
             .failUrl("http://localhost:8080/api/members/payment/fail")
             .build();
@@ -118,9 +119,10 @@ public class PaymentService {
     }
 
     // 결제 승인
-    public PaymentApproveDto.Response approve(String email, String partnerOrderId, String pgToken) {
+    public PaymentApproveDto.Response approve(String memberId, String partnerOrderId,
+        String pgToken) {
 
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Long orderId = Long.valueOf(partnerOrderId);

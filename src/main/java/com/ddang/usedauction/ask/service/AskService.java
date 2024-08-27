@@ -1,6 +1,6 @@
 package com.ddang.usedauction.ask.service;
 
-import static com.ddang.usedauction.notification.domain.NotificationType.*;
+import static com.ddang.usedauction.notification.domain.NotificationType.QUESTION;
 
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.ask.dto.AskCreateDto;
@@ -45,30 +45,30 @@ public class AskService {
     /**
      * 회원이 작성한 문의 리스트 조회
      *
-     * @param memberEmail 회원 이메일
-     * @param pageable    페이징
+     * @param memberId 회원 아이디
+     * @param pageable 페이징
      * @return 페이징된 문의 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Ask> getAskList(String memberEmail, Pageable pageable) {
+    public Page<Ask> getAskList(String memberId, Pageable pageable) {
 
-        return askRepository.findAllByMemberEmail(memberEmail, pageable);
+        return askRepository.findAllByMemberId(memberId, pageable);
     }
 
     /**
      * 문의 생성
      *
-     * @param createDto   문의 정보
-     * @param memberEmail 작성자 이메일
+     * @param createDto 문의 정보
+     * @param memberId  작성자 아이디
      * @return 생성된 문의
      */
     @Transactional
-    public Ask createAsk(AskCreateDto createDto, String memberEmail) {
+    public Ask createAsk(AskCreateDto createDto, String memberId) {
 
         Auction auction = auctionRepository.findById(createDto.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        Member member = memberRepository.findByEmail(memberEmail)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         // 이미 경매가 종료된 경우
@@ -91,19 +91,19 @@ public class AskService {
     /**
      * 문의 수정
      *
-     * @param askId       수정할 문의 pk
-     * @param updateDto   수정 정보
-     * @param memberEmail 회원 정보
+     * @param askId     수정할 문의 pk
+     * @param updateDto 수정 정보
+     * @param memberId  회원 아이디
      * @return 수정된 문의
      */
     @Transactional
-    public Ask updateAsk(Long askId, AskUpdateDto updateDto, String memberEmail) {
+    public Ask updateAsk(Long askId, AskUpdateDto updateDto, String memberId) {
 
         Ask ask = askRepository.findById(askId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
 
         // 작성자가 다른 경우
-        if (!ask.getWriter().getEmail().equals(memberEmail)) {
+        if (!ask.getWriter().getMemberId().equals(memberId)) {
             throw new IllegalStateException("문의글을 작성한 본인만 수정할 수 있습니다.");
         }
 
@@ -117,12 +117,12 @@ public class AskService {
     /**
      * 회원이 작성한 문의 삭제
      *
-     * @param memberEmail 회원 정보
+     * @param memberId 회원 아이디
      */
     @Transactional
-    public void deleteAsk(String memberEmail) {
+    public void deleteAsk(String memberId) {
 
-        Ask ask = askRepository.findByMemberEmail(memberEmail)
+        Ask ask = askRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
 
         ask = ask.toBuilder()

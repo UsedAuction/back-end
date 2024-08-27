@@ -72,10 +72,10 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
 
         //when
-        auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail());
+        auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId());
 
         //then
         verify(notificationService, times(1)).send(
@@ -156,11 +156,11 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
 
         // when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
         verify(notificationService, times(0)).send(
@@ -199,11 +199,11 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
 
         // when
         assertThrows(IllegalStateException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
         verify(notificationService, times(0)).send(
@@ -244,11 +244,11 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
 
         // when
         assertThrows(MemberPointOutOfBoundsException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
         verify(notificationService, times(0)).send(

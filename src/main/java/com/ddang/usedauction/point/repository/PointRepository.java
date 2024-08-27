@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PointRepository extends JpaRepository<PointHistory, Long> {
 
-    Page<PointHistory> findByMemberEmailAndCreatedAtBetween(
-        @Param("email") String email,
+    Page<PointHistory> findByMemberMemberIdAndCreatedAtBetween(
+        @Param("memberId") String memberId,
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate,
         Pageable pageable

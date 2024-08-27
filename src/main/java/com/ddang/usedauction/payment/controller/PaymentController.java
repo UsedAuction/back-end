@@ -40,8 +40,8 @@ public class PaymentController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid PaymentInfoDto.Request request
     ) {
-        String email = principalDetails.getName();
-        return ResponseEntity.ok(paymentService.ready(email, request));
+        String memberId = principalDetails.getName();
+        return ResponseEntity.ok(paymentService.ready(memberId, request));
     }
 
     /**
@@ -63,8 +63,8 @@ public class PaymentController {
         @RequestParam("partner_order_id") String partnerOrderId,
         @RequestParam("pg_token") String pgToken
     ) {
-        String email = principalDetails.getName();
-        return ResponseEntity.ok(paymentService.approve(email, partnerOrderId, pgToken));
+        String memberId = principalDetails.getName();
+        return ResponseEntity.ok(paymentService.approve(memberId, partnerOrderId, pgToken));
     }
 
     /**

@@ -119,7 +119,8 @@ class NotificationServiceAnswerTest {
     void ask_success() {
 
         //given
-        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.of(auction));
+        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
+            Optional.of(auction));
         given(askRepository.findById(createDto.getAskId())).willReturn(Optional.of(ask));
         given(imageService.uploadImageList(multipartFileList)).willReturn(imageList);
         given(answerRepository.save(
@@ -128,14 +129,15 @@ class NotificationServiceAnswerTest {
         )).willReturn(answer);
 
         //when
-        answerService.createAnswer(multipartFileList, createDto, seller.getEmail());
+        answerService.createAnswer(multipartFileList, createDto, seller.getMemberId());
 
         //then
         verify(notificationService, times(1))
             .send(
                 buyer.getId(),
                 auction.getId(),
-                auction.getSeller().getMemberId() + "님이 " + auction.getTitle() + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
+                auction.getSeller().getMemberId() + "님이 " + auction.getTitle()
+                    + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
                 ANSWER
             );
     }
@@ -156,7 +158,8 @@ class NotificationServiceAnswerTest {
             .send(
                 buyer.getId(),
                 auction.getId(),
-                auction.getSeller().getMemberId() + "님이 " + auction.getTitle() + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
+                auction.getSeller().getMemberId() + "님이 " + auction.getTitle()
+                    + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
                 ANSWER
             );
     }
@@ -166,7 +169,8 @@ class NotificationServiceAnswerTest {
     void ask_fail_2() {
 
         //given
-        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.of(auction));
+        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
+            Optional.of(auction));
         given(askRepository.findById(createDto.getAskId())).willReturn(Optional.empty());
 
         //when
@@ -178,7 +182,8 @@ class NotificationServiceAnswerTest {
             .send(
                 buyer.getId(),
                 auction.getId(),
-                auction.getSeller().getMemberId() + "님이 " + auction.getTitle() + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
+                auction.getSeller().getMemberId() + "님이 " + auction.getTitle()
+                    + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
                 ANSWER
             );
     }
@@ -194,7 +199,8 @@ class NotificationServiceAnswerTest {
             .email("noSeller@exmaple.com")
             .build();
 
-        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.of(auction));
+        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
+            Optional.of(auction));
         given(askRepository.findById(createDto.getAskId())).willReturn(Optional.of(ask));
 
         //when
@@ -206,7 +212,8 @@ class NotificationServiceAnswerTest {
             .send(
                 buyer.getId(),
                 auction.getId(),
-                auction.getSeller().getMemberId() + "님이 " + auction.getTitle() + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
+                auction.getSeller().getMemberId() + "님이 " + auction.getTitle()
+                    + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
                 ANSWER
             );
     }

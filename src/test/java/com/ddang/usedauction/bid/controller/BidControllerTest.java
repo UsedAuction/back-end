@@ -71,7 +71,7 @@ class BidControllerTest {
             .build();
 
         Member member = Member.builder()
-            .memberId("test")
+            .memberId("memberId")
             .build();
 
         Bid bid = Bid.builder()
@@ -84,7 +84,7 @@ class BidControllerTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Bid> bidPageList = new PageImpl<>(bidList, pageable, bidList.size());
 
-        when(bidService.getBidList("test@naver.com", pageable)).thenReturn(bidPageList);
+        when(bidService.getBidList("memberId", pageable)).thenReturn(bidPageList);
 
         mockMvc.perform(get("/api/bids"))
             .andDo(print())

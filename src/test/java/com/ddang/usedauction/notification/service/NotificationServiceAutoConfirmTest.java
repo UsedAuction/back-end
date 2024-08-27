@@ -112,13 +112,13 @@ class NotificationServiceAutoConfirmTest {
 
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(transactionRepository.findByBuyerEmailAndAuctionId(buyer.getEmail(), auction.getId()))
+        given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
         given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
 
         //when
-        auctionService.confirmAuction(auction.getId(), buyer.getEmail(), confirmDto);
+        auctionService.confirmAuction(auction.getId(), buyer.getMemberId(), confirmDto);
 
         //then
         verify(notificationService, times(1))
@@ -180,7 +180,8 @@ class NotificationServiceAutoConfirmTest {
 //            .bidList(bidList)
             .build();
 
-        given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction_continue));
+        given(auctionRepository.findById(auction.getId())).willReturn(
+            Optional.of(auction_continue));
 
         //when
         assertThrows(IllegalStateException.class,
@@ -210,13 +211,13 @@ class NotificationServiceAutoConfirmTest {
 
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(transactionRepository.findByBuyerEmailAndAuctionId(buyer.getEmail(), auction.getId()))
+        given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
         given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.confirmAuction(auction.getId(), buyer.getEmail(), confirmDto));
+            () -> auctionService.confirmAuction(auction.getId(), buyer.getMemberId(), confirmDto));
 
         //then
         verify(notificationService, times(0))
@@ -242,14 +243,14 @@ class NotificationServiceAutoConfirmTest {
 
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(transactionRepository.findByBuyerEmailAndAuctionId(buyer.getEmail(), auction.getId()))
+        given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
         given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
         given(memberRepository.findById(confirmDto.getSellerId())).willReturn(Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.confirmAuction(auction.getId(), buyer.getEmail(), confirmDto));
+            () -> auctionService.confirmAuction(auction.getId(), buyer.getMemberId(), confirmDto));
 
         //then
         verify(notificationService, times(0))
@@ -275,12 +276,12 @@ class NotificationServiceAutoConfirmTest {
 
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(transactionRepository.findByBuyerEmailAndAuctionId(buyer.getEmail(), auction.getId()))
+        given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.confirmAuction(auction.getId(), buyer.getEmail(), confirmDto));
+            () -> auctionService.confirmAuction(auction.getId(), buyer.getMemberId(), confirmDto));
 
         //then
         verify(notificationService, times(0))
