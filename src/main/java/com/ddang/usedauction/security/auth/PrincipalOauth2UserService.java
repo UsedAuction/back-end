@@ -43,20 +43,22 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         }
 
         String providerId = oauth2UserInfo.getProviderId();
-        String email = oauth2UserInfo.getEmail();
+        String email = oauth2UserInfo.getEmail() + provider;
         String memberId =
             oauth2UserInfo.getProvider() + "_" + UUID.randomUUID().toString().substring(0, 6);
         String passWord = passwordEncoder.encode("passWord");
 
+        // 플랫폼별 로그인 시 이메일이 중복되어도 개별적으로 회원가입 가능
         Member member = memberRepository.findByEmail(email)
             .orElseGet(() -> signUp(memberId, passWord, email, provider, providerId));
 
-        return new PrincipalDetails(member.getEmail(), member.getPassWord(),
+        return new PrincipalDetails(member.getMemberId(), member.getEmail(), member.getPassWord(),
             member.getRole().toString(), oauth2UserInfo);
     }
 
     private Member signUp(String memberId, String passWord, String email, String provider,
         String providerId) {
+
         Member user = Member.builder()
             .memberId(memberId)
             .passWord(passWord)

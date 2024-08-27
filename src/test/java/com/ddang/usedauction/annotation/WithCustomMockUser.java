@@ -8,6 +8,8 @@ import org.springframework.security.test.context.support.WithSecurityContext;
 @WithSecurityContext(factory = WithCustomMockUserSecurityContextFactory.class)
 public @interface WithCustomMockUser {
 
+    String memberId() default "memberId";
+
     String email() default "test@naver.com";
 
     String password() default "1234";

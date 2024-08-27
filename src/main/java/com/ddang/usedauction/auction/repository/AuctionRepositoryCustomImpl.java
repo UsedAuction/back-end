@@ -23,26 +23,66 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-
-    public Page<Auction> findAllByOptions(String word, String categoryName, String sorted,
+    public Page<Auction> findAllByOptions(String word, String mainCategory, String subCategory,
+        String sorted,
         Pageable pageable) {
 
         List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
             .leftJoin(auction.askList, ask)
             .leftJoin(auction.bidList, bid)
             .leftJoin(auction.imageList, image)
-            .where(containsTitle(word), containsCategory(categoryName), auction.deletedAt.isNull())
+            .where(containsTitle(word), eqMainCategory(mainCategory), eqSubCategory(subCategory),
+                auction.deletedAt.isNull())
             .orderBy(getOrderSpecifier(sorted))
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
 
         long totalElements = jpaQueryFactory.selectFrom(auction)
-            .where(containsTitle(word), containsCategory(categoryName), auction.deletedAt.isNull())
+            .where(containsTitle(word), eqMainCategory(mainCategory), auction.deletedAt.isNull())
             .fetch()
             .size();
 
         return new PageImpl<>(auctionList, pageable, totalElements);
+    }
+
+    @Override
+    public List<Auction> findTop5(String mainCategory, String subCategory) {
+
+        List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
+            .leftJoin(auction.askList, ask)
+            .innerJoin(auction.bidList, bid)
+            .leftJoin(auction.imageList, image)
+            .where(eqMainCategory(mainCategory), eqSubCategory(subCategory),
+                auction.deletedAt.isNull())
+            .limit(5)
+            .fetch();
+
+        return auctionList;
+    }
+
+    // 대분류 카테고리 일치 여부
+    private BooleanExpression eqMainCategory(String mainCategory) {
+
+        if (!StringUtils.hasText(mainCategory)) {
+            return null;
+        }
+
+        QCategory parentCategory = auction.parentCategory;
+
+        return parentCategory.categoryName.eq(mainCategory);
+    }
+
+    // 소분류 카테고리 일치 여부
+    private BooleanExpression eqSubCategory(String subCategory) {
+
+        if (!StringUtils.hasText(subCategory)) {
+            return null;
+        }
+
+        QCategory childCategory = auction.childCategory;
+
+        return childCategory.categoryName.eq(subCategory);
     }
 
     // 검색어와 경매글 제목의 포함 여부
@@ -53,20 +93,6 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
         }
 
         return auction.title.containsIgnoreCase(title);
-    }
-
-    // 카테고리 일치 여부
-    private BooleanExpression containsCategory(String categoryName) {
-
-        if (!StringUtils.hasText(categoryName)) {
-            return null;
-        }
-
-        QCategory parentCategory = auction.parentCategory;
-        QCategory childCategory = auction.childCategory;
-
-        return parentCategory.categoryName.eq(categoryName)
-            .or(childCategory.categoryName.eq(categoryName));
     }
 
     // 정렬 방법

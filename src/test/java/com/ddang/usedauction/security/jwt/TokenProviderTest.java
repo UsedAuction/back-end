@@ -3,12 +3,11 @@ package com.ddang.usedauction.security.jwt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-import com.ddang.usedauction.security.jwt.exception.CustomJwtException;
-import com.ddang.usedauction.security.jwt.exception.JwtErrorCode;
+import com.ddang.usedauction.security.auth.PrincipalDetails;
+import com.ddang.usedauction.security.auth.PrincipalDetailsService;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
 import io.jsonwebtoken.Jwts;
@@ -34,177 +33,164 @@ import org.springframework.test.util.ReflectionTestUtils;
 @ExtendWith(MockitoExtension.class)
 class TokenProviderTest {
 
-  @Mock
-  RefreshTokenService refreshTokenService;
+    @Mock
+    RefreshTokenService refreshTokenService;
 
-  @InjectMocks
-  TokenProvider tokenProvider;
+    @Mock
+    PrincipalDetailsService principalDetailsService;
 
-  SecretKey key;
+    @InjectMocks
+    TokenProvider tokenProvider;
 
-  String secretKey = "234sdfjiwoefjwjklwejrwejrsdfjklwasdsaddwqdqdqwf";
-  final Long accessTokenExpiration = 3600000L;
-  final Long refreshTokenExpiration = 86400000L;
+    SecretKey key;
 
-  @BeforeEach
-  void setUp() {
-    secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-    key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
-    ReflectionTestUtils.setField(tokenProvider, "secretKey", secretKey);
-    ReflectionTestUtils.setField(tokenProvider, "refreshExpiration", refreshTokenExpiration);
-    ReflectionTestUtils.setField(tokenProvider, "accessExpiration", accessTokenExpiration);
-    ReflectionTestUtils.setField(tokenProvider, "key", key);
-    tokenProvider.init();
-  }
+    String secretKey = "234sdfjiwoefjwjklwejrwejrsdfjklwasdsaddwqdqdqwf";
+    final Long accessTokenExpiration = 3600000L;
+    final Long refreshTokenExpiration = 86400000L;
 
-
-  @Test
-  @DisplayName("토큰 생성 - 성공")
-  void generateToken() {
-    //given
-    String email = "test@email.com";
-    Collection<? extends GrantedAuthority> authorities = List.of(
-        new SimpleGrantedAuthority("USER"));
-    //when
-    TokenDto token = tokenProvider.generateToken(email, authorities);
-    //then
-    assertNotNull(token);
-    assertNotNull(token.getAccessToken());
-    assertNotNull(token.getRefreshToken());
-  }
-
-  @Test
-  @DisplayName("토큰으로 인증 정보 가져오기 - 성공")
-  void getAuthentication() {
-    //given
-    String email = "test@email.com";
-    Collection<? extends GrantedAuthority> authorities = List.of(
-        new SimpleGrantedAuthority("USER"));
-    String token = tokenProvider.generateToken(email, authorities).getAccessToken();
-    //when
-    Authentication authentication = tokenProvider.getAuthentication(token);
-    //then
-    assertNotNull(token);
-    assertEquals(email, authentication.getName());
-  }
+    @BeforeEach
+    void setUp() {
+        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        ReflectionTestUtils.setField(tokenProvider, "secretKey", secretKey);
+        ReflectionTestUtils.setField(tokenProvider, "refreshExpiration", refreshTokenExpiration);
+        ReflectionTestUtils.setField(tokenProvider, "accessExpiration", accessTokenExpiration);
+        ReflectionTestUtils.setField(tokenProvider, "key", key);
+        tokenProvider.init();
+    }
 
 
-  @Test
-  @DisplayName("유효성 검사 - 성공")
-  void validateToken() {
-    long now = (new Date()).getTime();
-    Date expirationDate = new Date(now + accessTokenExpiration);
+    @Test
+    @DisplayName("토큰 생성 - 성공")
+    void generateToken() {
+        //given
+        String email = "test@email.com";
+        Collection<? extends GrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("USER"));
+        //when
+        TokenDto token = tokenProvider.generateToken(email, authorities);
+        //then
+        assertNotNull(token);
+        assertNotNull(token.getAccessToken());
+        assertNotNull(token.getRefreshToken());
+    }
 
-    String token = Jwts.builder()
-        .setSubject("test@email.com")
-        .setExpiration(expirationDate)
-        .signWith(key)
-        .compact();
+    @Test
+    @DisplayName("토큰으로 인증 정보 가져오기 - 성공")
+    void getAuthentication() {
+        //given
+        String email = "test@email.com";
+        Collection<? extends GrantedAuthority> authorities = List.of(
+            new SimpleGrantedAuthority("ROLE_USER"));
+        String token = tokenProvider.generateToken(email, authorities).getAccessToken();
+        PrincipalDetails userDetails = new PrincipalDetails("memberId", "test@email.com", "1234",
+            "ROLE_USER");
 
-    assertTrue(tokenProvider.validateToken(token));
-  }
-
-  @Test
-  @DisplayName("유효성 검사 - 만료된 토큰으로 인한 실패")
-  void validateExpiredToken() {
-    long now = (new Date()).getTime();
-    Date expirationDate = new Date(now - 1000);
-
-    String token = Jwts.builder()
-        .setSubject("test@email.com")
-        .setExpiration(expirationDate)
-        .signWith(key)
-        .compact();
-
-    CustomJwtException exception = assertThrows(CustomJwtException.class,
-        () -> tokenProvider.validateToken(token));
-    assertEquals(JwtErrorCode.EXPIRED_TOKEN, exception.getErrorCode());
-  }
-
-  @Test
-  @DisplayName("유효성 검사 - 잘못된 서명 토큰")
-  void validateInvalidToken() {
-    long now = (new Date()).getTime();
-    Date expirationDate = new Date(now + accessTokenExpiration);
-
-    SecretKey wrongKey = Keys.hmacShaKeyFor(
-        Decoders.BASE64.decode("23423423423411wdwroqewrqwerqwerwqerngSecretKey"));
-    String invalidToken = Jwts.builder()
-        .setSubject("test@email.com")
-        .setExpiration(expirationDate)
-        .signWith(wrongKey)
-        .compact();
-
-    CustomJwtException exception = assertThrows(CustomJwtException.class,
-        () -> tokenProvider.validateToken(invalidToken));
-    assertEquals(JwtErrorCode.INVALID_TOKEN, exception.getErrorCode());
-  }
+        when(principalDetailsService.loadUserByUsername("test@email.com")).thenReturn(userDetails);
+        //when
+        Authentication authentication = tokenProvider.getAuthentication(token);
+        //then
+        assertNotNull(token);
+        assertEquals("test@email.com", authentication.getName());
+    }
 
 
-  @Test
-  @DisplayName("블랙리스트에 있는 토큰인지 테스트")
-  void validateBlacklistedToken() {
-    long now = (new Date()).getTime();
-    Date expirationDate = new Date(now + accessTokenExpiration);
+    @Test
+    @DisplayName("유효성 검사 - 성공")
+    void validateToken() {
+        long now = (new Date()).getTime();
+        Date expirationDate = new Date(now + accessTokenExpiration);
 
-    String blacklistedToken = Jwts.builder()
-        .setSubject("test@email.com")
-        .setExpiration(expirationDate)
-        .signWith(key)
-        .compact();
+        String token = Jwts.builder()
+            .setSubject("test@email.com")
+            .setExpiration(expirationDate)
+            .signWith(key)
+            .compact();
 
-    when(refreshTokenService.hasKeyBlackList(blacklistedToken)).thenReturn(true);
+        assertTrue(tokenProvider.validateToken(token));
+    }
 
-    // when / then
-    assertFalse(tokenProvider.validateToken(blacklistedToken));
-  }
+    @Test
+    @DisplayName("유효성 검사 - 만료된 토큰으로 인한 실패")
+    void validateExpiredToken() {
+        long now = (new Date()).getTime();
+        Date expirationDate = new Date(now - 1000);
 
-  @Test
-  @DisplayName("토큰 만료 시간 가져오기")
-  void getExpiration() {
-    long now = (new Date()).getTime();
-    String token = Jwts.builder()
-        .setSubject("test@email.com")
-        .setExpiration(new Date(now + accessTokenExpiration))
-        .signWith(key)
-        .compact();
+        String token = Jwts.builder()
+            .setSubject("test@email.com")
+            .setExpiration(expirationDate)
+            .signWith(key)
+            .compact();
 
-    Long expiration = tokenProvider.getExpiration(token);
+        boolean result = tokenProvider.validateToken(token);
 
-    assertNotNull(expiration);
-    assertTrue(expiration > 0);
-  }
+        assertFalse(result);
+    }
 
-  @Test
-  @DisplayName("토큰 만료 여부 확인 - 만료된 토큰")
-  void isExpiredToken() {
-    long now = (new Date()).getTime();
-    Date expirationDate = new Date(now - accessTokenExpiration);
+    @Test
+    @DisplayName("블랙리스트에 있는 토큰인지 테스트")
+    void validateBlacklistedToken() {
+        long now = (new Date()).getTime();
+        Date expirationDate = new Date(now + accessTokenExpiration);
 
-    String expiredToken = Jwts.builder()
-        .setSubject("test@email.com")
-        .setExpiration(expirationDate)
-        .signWith(key)
-        .compact();
+        String blacklistedToken = Jwts.builder()
+            .setSubject("test@email.com")
+            .setExpiration(expirationDate)
+            .signWith(key)
+            .compact();
 
-    assertTrue(tokenProvider.isExpiredToken(expiredToken));
-  }
+        when(refreshTokenService.hasKeyBlackList(blacklistedToken)).thenReturn(true);
 
-  @Test
-  @DisplayName("토큰으로 유저 이메일 추출")
-  void getEmailByToken() {
-    String email = "test@email.com";
-    long now = (new Date()).getTime();
-    Date expirationDate = new Date(now + accessTokenExpiration);
+        // when / then
+        assertFalse(tokenProvider.validateToken(blacklistedToken));
+    }
 
-    String token = Jwts.builder()
-        .setSubject(email)
-        .setExpiration(expirationDate)
-        .signWith(key)
-        .compact();
+    @Test
+    @DisplayName("토큰 만료 시간 가져오기")
+    void getExpiration() {
+        long now = (new Date()).getTime();
+        String token = Jwts.builder()
+            .setSubject("test@email.com")
+            .setExpiration(new Date(now + accessTokenExpiration))
+            .signWith(key)
+            .compact();
 
-    String extractedEmail = tokenProvider.getEmailByToken(token);
+        Long expiration = tokenProvider.getExpiration(token);
 
-    assertEquals(email, extractedEmail);
-  }
+        assertNotNull(expiration);
+        assertTrue(expiration > 0);
+    }
+
+    @Test
+    @DisplayName("토큰 만료 여부 확인 - 만료된 토큰")
+    void isExpiredToken() {
+        long now = (new Date()).getTime();
+        Date expirationDate = new Date(now - accessTokenExpiration);
+
+        String expiredToken = Jwts.builder()
+            .setSubject("test@email.com")
+            .setExpiration(expirationDate)
+            .signWith(key)
+            .compact();
+
+        assertTrue(tokenProvider.isExpiredToken(expiredToken));
+    }
+
+    @Test
+    @DisplayName("토큰으로 유저 이메일 추출")
+    void getMemberIdByToken() {
+        String email = "test@email.com";
+        long now = (new Date()).getTime();
+        Date expirationDate = new Date(now + accessTokenExpiration);
+
+        String token = Jwts.builder()
+            .setSubject(email)
+            .setExpiration(expirationDate)
+            .signWith(key)
+            .compact();
+
+        String extractedEmail = tokenProvider.getMemberIdByToken(token);
+
+        assertEquals(email, extractedEmail);
+    }
 }

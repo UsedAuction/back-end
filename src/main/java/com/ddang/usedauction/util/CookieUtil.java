@@ -19,20 +19,14 @@ public class CookieUtil {
         return Optional.empty();
     }
 
-    public static Optional<String> getCookieValue(HttpServletRequest request, String name) {
-        return getCookie(request, name).map(Cookie::getValue);
-    }
-
     public static void addCookie(HttpServletResponse response, String name, String value,
         int maxAge) {
-
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(true);
-        cookie.setPath("/");
-        cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(true);
+        cookie.setMaxAge(maxAge);
+        cookie.setPath("/");
         cookie.setAttribute("SameSite", "None");
-
         response.addCookie(cookie);
     }
 
@@ -46,7 +40,6 @@ public class CookieUtil {
         cookie.setValue("");
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(true);
         response.addCookie(cookie);
     }
 }

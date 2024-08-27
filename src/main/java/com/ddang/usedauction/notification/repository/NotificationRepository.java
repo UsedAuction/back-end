@@ -13,11 +13,11 @@ import org.springframework.stereotype.Repository;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query("select n from notification n "
-        + "where n.member.id = :memberId "
+        + "where n.member.email = :email "
         + "and n.createdAt >= :beforeOneMonth "
         + "order by n.createdAt desc")
     Page<Notification> findNotificationList(
-        @Param("memberId") Long memberId,
+        @Param("email") String email,
         @Param("beforeOneMonth") LocalDateTime beforeOneMonth,
         Pageable pageable);
 }

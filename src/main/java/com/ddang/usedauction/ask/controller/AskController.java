@@ -65,7 +65,7 @@ public class AskController {
         @PageableDefault(sort = "createdAt", direction = Direction.DESC)
         Pageable pageable) {
 
-        Page<Ask> askPageList = askService.getAskList(principalDetails.getName(), pageable);
+        Page<Ask> askPageList = askService.getAskList(principalDetails.getUsername(), pageable);
 
         return ResponseEntity.ok(askPageList.map(AskGetDto.Response::from));
     }
@@ -83,7 +83,7 @@ public class AskController {
         @Valid @RequestBody AskCreateDto createDto,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Ask ask = askService.createAsk(createDto, principalDetails.getName());
+        Ask ask = askService.createAsk(createDto, principalDetails.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(AskGetDto.Response.from(ask));
@@ -104,7 +104,7 @@ public class AskController {
         @Valid @RequestBody
         AskUpdateDto updateDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Ask ask = askService.updateAsk(askId, updateDto, principalDetails.getName());
+        Ask ask = askService.updateAsk(askId, updateDto, principalDetails.getUsername());
 
         return ResponseEntity.ok(AskGetDto.Response.from(ask));
     }
@@ -120,7 +120,7 @@ public class AskController {
     public ResponseEntity<String> deleteAskController(
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        askService.deleteAsk(principalDetails.getName());
+        askService.deleteAsk(principalDetails.getUsername());
 
         return ResponseEntity.ok("삭제되었습니다.");
     }

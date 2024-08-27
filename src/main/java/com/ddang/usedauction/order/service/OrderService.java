@@ -1,9 +1,11 @@
 package com.ddang.usedauction.order.service;
 
 import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.order.domain.Orders;
 import com.ddang.usedauction.order.dto.OrderCreateDto;
 import com.ddang.usedauction.order.repository.OrderRepository;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +13,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrderService {
 
+    private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
 
     // 주문 생성
-    public Orders createOrder(OrderCreateDto.Request request) {
+    public Orders createOrder(String email, OrderCreateDto.Request request) {
 
-        Member member = Member.builder()
-            .id(1L)
-            .build(); // TODO 토큰을 받아 처리하는 것으로 수정
+        Member member = memberRepository.findByEmail(email)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         String itemName = request.getPrice() + " 포인트";
 

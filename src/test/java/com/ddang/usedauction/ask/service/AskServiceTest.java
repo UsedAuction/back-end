@@ -16,6 +16,7 @@ import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.service.NotificationService;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -42,6 +43,9 @@ class AskServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private NotificationService notificationService;
 
     @InjectMocks
     private AskService askService;
@@ -112,9 +116,14 @@ class AskServiceTest {
             .content("content")
             .build();
 
+        Member seller = Member.builder()
+            .memberId("seller")
+            .build();
+
         Auction auction = Auction.builder()
             .id(1L)
             .auctionState(AuctionState.CONTINUE)
+            .seller(seller)
             .build();
 
         Member member = Member.builder()

@@ -1,5 +1,7 @@
 package com.ddang.usedauction.ask.service;
 
+import static com.ddang.usedauction.notification.domain.NotificationType.*;
+
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.ask.dto.AskCreateDto;
 import com.ddang.usedauction.ask.dto.AskUpdateDto;
@@ -9,6 +11,7 @@ import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.service.NotificationService;
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,7 @@ public class AskService {
     private final AskRepository askRepository;
     private final AuctionRepository auctionRepository;
     private final MemberRepository memberRepository;
+    private final NotificationService notificationService;
 
     /**
      * 문의 단건 조회
@@ -79,6 +83,8 @@ public class AskService {
             .auction(auction)
             .build();
 
+        sendNotificationForQuestion(auction, member.getMemberId());
+
         return askRepository.save(ask);
     }
 
@@ -124,5 +130,16 @@ public class AskService {
             .build();
 
         askRepository.save(ask);
+    }
+
+    // 판매자에게 알림 전송
+    private void sendNotificationForQuestion(Auction auction, String memberId) {
+
+        notificationService.send(
+            auction.getSeller().getId(),
+            auction.getId(),
+            memberId + "님이 " + auction.getTitle() + " 경매에 문의를 남겼습니다.",
+            QUESTION
+        );
     }
 }

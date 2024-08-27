@@ -68,7 +68,7 @@ public class AnswerController {
         @PageableDefault(sort = "createdAt", direction = Direction.DESC)
         Pageable pageable) {
 
-        Page<Answer> answerPageList = answerService.getAnswerList(principalDetails.getName(),
+        Page<Answer> answerPageList = answerService.getAnswerList(principalDetails.getUsername(),
             pageable);
 
         return ResponseEntity.ok(answerPageList.map(AnswerGetDto.Response::from));
@@ -90,7 +90,7 @@ public class AnswerController {
         AnswerCreateDto createDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         Answer answer = answerService.createAnswer(imageList, createDto,
-            principalDetails.getName());
+            principalDetails.getUsername());
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(AnswerGetDto.Response.from(answer));
@@ -114,7 +114,7 @@ public class AnswerController {
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         Answer answer = answerService.updateAnswer(answerId, imageList, updateDto,
-            principalDetails.getName());
+            principalDetails.getUsername());
 
         return ResponseEntity.ok(AnswerGetDto.Response.from(answer));
     }
@@ -130,7 +130,7 @@ public class AnswerController {
     public ResponseEntity<String> deleteAnswerController(
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        answerService.deleteAnswer(principalDetails.getName());
+        answerService.deleteAnswer(principalDetails.getUsername());
 
         return ResponseEntity.ok("삭제되었습니다.");
     }

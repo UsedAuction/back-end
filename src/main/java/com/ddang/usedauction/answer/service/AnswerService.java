@@ -1,5 +1,7 @@
 package com.ddang.usedauction.answer.service;
 
+import static com.ddang.usedauction.notification.domain.NotificationType.ANSWER;
+
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.answer.dto.AnswerCreateDto;
 import com.ddang.usedauction.answer.dto.AnswerUpdateDto;
@@ -10,6 +12,7 @@ import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
+import com.ddang.usedauction.notification.service.NotificationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -28,6 +31,7 @@ public class AnswerService {
     private final AuctionRepository auctionRepository;
     private final AskRepository askRepository;
     private final ImageService imageService;
+    private final NotificationService notificationService;
 
     /**
      * 답변 단건 조회
@@ -85,6 +89,8 @@ public class AnswerService {
             .build();
 
         saveImage(imageList, answer);
+
+        sendNotificationForAnswer(auction, ask.getWriter().getId());
 
         return answerRepository.save(answer);
     }
@@ -156,5 +162,16 @@ public class AnswerService {
                     .build())
                 .forEach(answer::addImage); // 이미지 리스트 저장
         }
+    }
+
+    // 질문 작성자(입찰자)에게 알림 전송
+    private void sendNotificationForAnswer(Auction auction, Long buyerId) {
+
+        notificationService.send(
+            buyerId,
+            auction.getId(),
+            auction.getSeller().getMemberId() + "님이 " + auction.getTitle() + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
+            ANSWER
+        );
     }
 }

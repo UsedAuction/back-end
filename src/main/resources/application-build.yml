@@ -128,3 +128,17 @@ payment:
 # emitter 유효 시간
 notification:
   timeout: 1800000 # 30분
+
+# health check
+management:
+  endpoints:
+    web:
+      base-path: /
+      path-mapping:
+        health: health-check
+
+  health:
+    db:
+      enabled: true
+    redis:
+      enabled: true

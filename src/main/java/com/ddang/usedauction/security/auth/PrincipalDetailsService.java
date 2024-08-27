@@ -16,14 +16,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PrincipalDetailsService implements UserDetailsService {
 
-  private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    Member member = memberRepository.findByEmail(username)
-        .orElseThrow(() -> new NoSuchElementException("등록되지 않은 회원입니다."));
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Member member = memberRepository.findByMemberId(username)
+            .orElseThrow(() -> new NoSuchElementException("등록되지 않은 회원입니다."));
 
-    return new PrincipalDetails(member.getEmail(), member.getPassWord(),
-        member.getRole().toString());
-  }
+        return new PrincipalDetails(member.getMemberId(), member.getEmail(), member.getPassWord(),
+            member.getRole().toString());
+    }
 }

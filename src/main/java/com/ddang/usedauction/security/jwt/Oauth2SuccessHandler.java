@@ -1,5 +1,6 @@
 package com.ddang.usedauction.security.jwt;
 
+import com.ddang.usedauction.security.auth.PrincipalDetails;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.util.CookieUtil;
@@ -19,9 +20,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${spring.jwt.access.expiration}")
-    private int accessTokenExpiration;
-    private static final String URI = "https://dddang.vercel.app?login=true";
+    @Value("${spring.jwt.refresh.expiration}")
+    private int refreshTokenExpirationValue;
+    private static final String URI = "/";
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
@@ -29,13 +30,18 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
         Authentication authentication) throws IOException, ServletException {
 
-        String email = authentication.getName();
+        PrincipalDetails details = (PrincipalDetails) authentication.getPrincipal();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 
-        TokenDto token = tokenProvider.generateToken(email, authorities);
-        refreshTokenService.save(email, token.getAccessToken(), token.getRefreshToken());
+        TokenDto token = tokenProvider.generateToken(details.getName(), authorities);
 
-        CookieUtil.addCookie(response, "JWT", token.getAccessToken(), accessTokenExpiration);
-        response.sendRedirect(URI);
+        long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
+        refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
+            refreshTokenExpiration);
+
+        CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
+            refreshTokenExpirationValue);
+        response.sendRedirect(
+            URI + "?accessToken=" + token.getAccessToken() + "&memberId=" + details.getName());
     }
 }
