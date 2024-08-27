@@ -28,7 +28,6 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,8 +41,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Service
 public class AuthService {
 
-    @Value("${spring.jwt.access.expiration}")
-    private int accessTokenExpiration;
     private final RefreshTokenService refreshTokenService;
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
