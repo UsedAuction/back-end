@@ -83,14 +83,15 @@ class TokenProviderTest {
         Collection<? extends GrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority("ROLE_USER"));
         String token = tokenProvider.generateToken(email, authorities).getAccessToken();
-        PrincipalDetails userDetails = new PrincipalDetails("test@email.com", "1234", "ROLE_USER");
+        PrincipalDetails userDetails = new PrincipalDetails("memberId", "test@email.com", "1234",
+            "ROLE_USER");
 
         when(principalDetailsService.loadUserByUsername("test@email.com")).thenReturn(userDetails);
         //when
         Authentication authentication = tokenProvider.getAuthentication(token);
         //then
         assertNotNull(token);
-        assertEquals(email, authentication.getName());
+        assertEquals("test@email.com", authentication.getName());
     }
 
 
@@ -125,7 +126,7 @@ class TokenProviderTest {
 
         assertFalse(result);
     }
-    
+
     @Test
     @DisplayName("블랙리스트에 있는 토큰인지 테스트")
     void validateBlacklistedToken() {
@@ -177,7 +178,7 @@ class TokenProviderTest {
 
     @Test
     @DisplayName("토큰으로 유저 이메일 추출")
-    void getEmailByToken() {
+    void getMemberIdByToken() {
         String email = "test@email.com";
         long now = (new Date()).getTime();
         Date expirationDate = new Date(now + accessTokenExpiration);
@@ -188,7 +189,7 @@ class TokenProviderTest {
             .signWith(key)
             .compact();
 
-        String extractedEmail = tokenProvider.getEmailByToken(token);
+        String extractedEmail = tokenProvider.getMemberIdByToken(token);
 
         assertEquals(email, extractedEmail);
     }
