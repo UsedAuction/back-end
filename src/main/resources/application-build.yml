@@ -7,6 +7,10 @@ spring:
     resources:
       add-mappings: false
 
+  sql:
+    init:
+      mode: always
+  
   # 데이터베이스
   jpa:
     hibernate:
