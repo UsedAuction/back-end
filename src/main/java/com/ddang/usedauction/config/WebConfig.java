@@ -11,10 +11,10 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
             .allowedOrigins("https://dddang.vercel.app", "https://localhost:5173")
-            .allowedMethods("GET", "POST", "PUT", "DELETE")
-            .allowedHeaders("Authorization", "Content-Type")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("Authorization", "Content-Type", "New-Token")
 //            .allowCredentials(true)
             .exposedHeaders("Custom-Header")
-            .maxAge(3600);
+            .maxAge(86400);
     }
 }
