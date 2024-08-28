@@ -12,4 +12,4 @@ public class PasswordEncoderConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-}
+}  // 의존성 받아서 메소드로 처리하지말 고 서비스에서 처리
