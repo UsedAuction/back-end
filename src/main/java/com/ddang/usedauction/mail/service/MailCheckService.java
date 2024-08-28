@@ -1,7 +1,6 @@
 package com.ddang.usedauction.mail.service;
 
-import com.ddang.usedauction.mail.exception.CustomMailException;
-import com.ddang.usedauction.mail.exception.EmailErrorCode;
+import com.ddang.usedauction.mail.exception.MailDeliveryFailedException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import java.util.Random;
@@ -53,7 +52,7 @@ public class MailCheckService {
 
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new CustomMailException(EmailErrorCode.EMAIL_DELIVERY_FAILED);
+            throw new MailDeliveryFailedException();
         }
 
         mailRedisService.setDataExpire(authNum, to, emailExpiration);
