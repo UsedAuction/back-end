@@ -1,10 +1,13 @@
 package com.ddang.usedauction.config;
 
-import com.ddang.usedauction.payment.exception.PaymentReadyException;
-import com.ddang.usedauction.payment.exception.PaymentApproveException;
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
 import com.ddang.usedauction.image.exception.ImageDeleteFailException;
 import com.ddang.usedauction.image.exception.ImageUploadFailException;
+import com.ddang.usedauction.mail.exception.MailDeliveryFailedException;
+import com.ddang.usedauction.mail.exception.MailNotVerifyEmailException;
+import com.ddang.usedauction.member.exception.MemberException;
+import com.ddang.usedauction.payment.exception.PaymentApproveException;
+import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -157,12 +161,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest()
             .body(e.getMessage());
     }
-  
+
     @ExceptionHandler(PaymentReadyException.class)
     private ResponseEntity<String> handlePaymentReadyException(PaymentReadyException e) {
-      
+
         log.error("PaymentReadyException", e);
-      
+
         return ResponseEntity
             .status(HttpStatus.REQUEST_TIMEOUT)
             .body(e.getMessage());
@@ -170,13 +174,56 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(PaymentApproveException.class)
     private ResponseEntity<String> handlePaymentApproveException(PaymentApproveException e) {
-      
+
         log.error("PaymentApproveException", e);
-      
+
         return ResponseEntity
             .status(HttpStatus.REQUEST_TIMEOUT)
             .body(e.getMessage());
     }
+
+    @ExceptionHandler(MemberException.class)
+    private ResponseEntity<String> handleMemberException(MemberException e) {
+
+        log.error("MemberException", e);
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MailException.class)
+    private ResponseEntity<String> handleMailException(MailException e) {
+
+        log.error("MailException", e);
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MailDeliveryFailedException.class)
+    private ResponseEntity<String> handleMailDeliveryFailedException(
+        MailDeliveryFailedException e) {
+
+        log.error("MailDeliveryFailedException", e);
+
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(e.getMessage());
+    }
+
+    @ExceptionHandler(MailNotVerifyEmailException.class)
+    private ResponseEntity<String> handleMailNotVerifyEmailException(
+        MailNotVerifyEmailException e) {
+
+        log.error("MailNotVerifyEmailException", e);
+
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(e.getMessage());
+    }
+
 
     @ExceptionHandler(Exception.class)
     private ResponseEntity<?> handleException(Exception e) {
