@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -36,9 +37,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<MemberLoginResponseDto> login(
         HttpServletResponse response, @RequestBody @Valid MemberLoginRequestDto dto) {
-        log.info(dto.getMemberId());
-        log.info(dto.getPassword());
-
         return ResponseEntity.status(HttpStatus.OK)
             .body(authService.login(response, dto));
     }
@@ -47,7 +45,7 @@ public class AuthController {
     public ResponseEntity<String> checkMemberId(@RequestBody @Valid MemberCheckIdDto dto) {
         authService.checkMemberId(dto);
         return ResponseEntity.status(HttpStatus.OK)
-            .body("사용가능한 아이디 입니다.");
+            .body("사용 가능한 아이디 입니다.");
     }
 
 
@@ -58,6 +56,7 @@ public class AuthController {
             .body("회원가입이 완료되었습니다.");
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@AuthenticationPrincipal PrincipalDetails principalDetails
         , HttpServletRequest request, HttpServletResponse response) {
@@ -66,6 +65,7 @@ public class AuthController {
             .body("로그아웃 되었습니다");
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/withdrawl")
     public ResponseEntity<String> withdrawl(
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
@@ -75,6 +75,7 @@ public class AuthController {
             .body("회원 탈퇴가 완료되었습니다.");
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("/change/email")
     public ResponseEntity<String> changeEmail(
         @AuthenticationPrincipal PrincipalDetails principalDetails
@@ -84,6 +85,7 @@ public class AuthController {
             .body("이메일이 변경되었습니다.");
     }
 
+    @PreAuthorize("hasRole('USER')")
     @PatchMapping("/change/password")
     public ResponseEntity<String> changePassword(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -101,9 +103,10 @@ public class AuthController {
     }
 
     @PostMapping("/find/password")
-    public ResponseEntity<Void> findPassword(@RequestBody @Valid MemberFindPasswordDto dto) {
+    public ResponseEntity<String> findPassword(@RequestBody @Valid MemberFindPasswordDto dto) {
         authService.findPassword(dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.OK)
+            .body("비밀번호가 재발급되었습니다.");
     }
 
 
