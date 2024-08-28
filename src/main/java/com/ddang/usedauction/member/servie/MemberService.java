@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class AuthService {
+public class MemberService {
 
     private final RefreshTokenService refreshTokenService;
     private final TokenProvider tokenProvider;

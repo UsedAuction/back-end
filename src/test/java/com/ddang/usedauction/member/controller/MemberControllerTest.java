@@ -24,7 +24,7 @@ import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
 import com.ddang.usedauction.member.exception.MemberException;
-import com.ddang.usedauction.member.servie.AuthService;
+import com.ddang.usedauction.member.servie.MemberService;
 import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
 import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
 import com.ddang.usedauction.security.jwt.Oauth2SuccessHandler;
@@ -40,8 +40,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest({AuthController.class, SecurityConfig.class})
-class AuthControllerTest {
+@WebMvcTest({MemberController.class, SecurityConfig.class})
+class MemberControllerTest {
 
     @Autowired
     MockMvc mockMvc;
@@ -65,7 +65,7 @@ class AuthControllerTest {
     Oauth2FailureHandler oauth2FailureHandler;
 
     @MockBean
-    AuthService authService;
+    MemberService memberService;
 
     @Test
     @DisplayName("로그인 - 성공")
@@ -80,7 +80,7 @@ class AuthControllerTest {
             .memberId("test1234")
             .build();
 
-        when(authService.login(argThat(arg -> arg instanceof HttpServletResponse),
+        when(memberService.login(argThat(arg -> arg instanceof HttpServletResponse),
             argThat(arg -> arg.getMemberId().equals("test1234")))).thenReturn(
             responseDto);
 
@@ -100,7 +100,7 @@ class AuthControllerTest {
             .memberId("test1234")
             .build();
 
-        doNothing().when(authService).checkMemberId(
+        doNothing().when(memberService).checkMemberId(
             argThat(arg -> arg.getMemberId().equals(dto.getMemberId())));
 
         mockMvc.perform(get("/api/auth/check/id")
@@ -119,7 +119,7 @@ class AuthControllerTest {
             .build();
 
         doThrow(new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID))
-            .when(authService).checkMemberId(
+            .when(memberService).checkMemberId(
                 argThat(arg -> arg.getMemberId().equals(dto.getMemberId())));
 
         mockMvc.perform(get("/api/auth/check/id")
@@ -140,7 +140,7 @@ class AuthControllerTest {
             .authNum("1234")
             .build();
 
-        doNothing().when(authService).signUp(dto);
+        doNothing().when(memberService).signUp(dto);
 
         mockMvc.perform(post("/api/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -267,7 +267,7 @@ class AuthControllerTest {
             .email("test@email.com")
             .build();
 
-        when(authService.findMemberId(argThat(
+        when(memberService.findMemberId(argThat(
             arg -> arg.getEmail().equals(dto.getEmail())
         ))).thenReturn("test1234");
 

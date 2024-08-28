@@ -44,7 +44,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
-class AuthServiceTest {
+class MemberServiceTest {
 
     @Mock
     PasswordEncoder passwordEncoder;
@@ -70,7 +70,7 @@ class AuthServiceTest {
     MockHttpServletResponse response;
 
     @InjectMocks
-    AuthService authService;
+    MemberService memberService;
 
     @Test
     @DisplayName("로그인 - 성공")
@@ -102,7 +102,7 @@ class AuthServiceTest {
         when(tokenProvider.getExpiration(token.getRefreshToken())).thenReturn(
             refreshTokenExpiration);
 
-        MemberLoginResponseDto responseDto = authService.login(response, dto);
+        MemberLoginResponseDto responseDto = memberService.login(response, dto);
 
         verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(passwordEncoder, times(1)).matches(dto.getPassword(), member.getPassWord());
@@ -132,7 +132,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByMemberId(dto.getMemberId())).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> authService.login(response, dto));
+        assertThrows(NoSuchElementException.class, () -> memberService.login(response, dto));
 
         verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
 
@@ -156,7 +156,7 @@ class AuthServiceTest {
         when(memberRepository.findByMemberId(dto.getMemberId())).thenReturn(Optional.of(member));
         when(passwordEncoder.matches(dto.getPassword(), member.getPassWord())).thenReturn(false);
 
-        assertThrows(MemberException.class, () -> authService.login(response, dto));
+        assertThrows(MemberException.class, () -> memberService.login(response, dto));
         verify(memberRepository, times(1)).findByMemberId(dto.getMemberId());
         verify(passwordEncoder, times(1)).matches(dto.getPassword(), member.getPassWord());
 
@@ -188,7 +188,7 @@ class AuthServiceTest {
         when(memberRepository.save(argThat(arg -> arg.getMemberId().equals("test1234"))))
             .thenReturn(member);
 
-        authService.signUp(dto);
+        memberService.signUp(dto);
 
         verify(memberRepository, times(1)).save(
             argThat(arg -> arg.getMemberId().equals("test1234")));
@@ -218,7 +218,7 @@ class AuthServiceTest {
         when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
         when(mailRedisService.getData("1234")).thenReturn("wrong@email.com");
 
-        assertThrows(MemberException.class, () -> authService.signUp(dto));
+        assertThrows(MemberException.class, () -> memberService.signUp(dto));
 
         verify(memberRepository, times(0)).save(member);
     }
@@ -243,7 +243,7 @@ class AuthServiceTest {
 
         when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
 
-        assertThrows(MemberException.class, () -> authService.signUp(dto));
+        assertThrows(MemberException.class, () -> memberService.signUp(dto));
 
         verify(memberRepository, times(0)).save(member);
     }
@@ -269,7 +269,7 @@ class AuthServiceTest {
         when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(false);
         when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(true);
 
-        assertThrows(MemberException.class, () -> authService.signUp(dto));
+        assertThrows(MemberException.class, () -> memberService.signUp(dto));
 
         verify(memberRepository, times(0)).save(member);
     }
@@ -292,7 +292,7 @@ class AuthServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        assertThrows(MemberException.class, () -> authService.signUp(dto));
+        assertThrows(MemberException.class, () -> memberService.signUp(dto));
 
         verify(memberRepository, times(0)).save(member);
     }
@@ -306,7 +306,7 @@ class AuthServiceTest {
 
         when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(false);
 
-        assertDoesNotThrow(() -> authService.checkMemberId(dto));
+        assertDoesNotThrow(() -> memberService.checkMemberId(dto));
     }
 
     @Test
@@ -319,7 +319,7 @@ class AuthServiceTest {
         when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
 
         MemberException exception = assertThrows(MemberException.class,
-            () -> authService.checkMemberId(dto));
+            () -> memberService.checkMemberId(dto));
 
         assertEquals(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID, exception.getErrorCode());
         assertEquals("이미 존재하는 아이디입니다.", exception.getMessage());
@@ -342,7 +342,7 @@ class AuthServiceTest {
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
         when(mailRedisService.getData(dto.getAuthNum())).thenReturn("oldEmail@email.com");
 
-        assertDoesNotThrow(() -> authService.changeEmail(member.getMemberId(), dto));
+        assertDoesNotThrow(() -> memberService.changeEmail(member.getMemberId(), dto));
 
         verify(memberRepository, times(1)).save(member);
         assertEquals(dto.getEmail(), member.getEmail());
@@ -358,7 +358,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByMemberId(memberId)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> authService.changeEmail(memberId, dto));
+        assertThrows(NoSuchElementException.class, () -> memberService.changeEmail(memberId, dto));
     }
 
     @Test
@@ -378,7 +378,7 @@ class AuthServiceTest {
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
 
         MemberException exception = assertThrows(MemberException.class,
-            () -> authService.changeEmail(member.getMemberId(), dto));
+            () -> memberService.changeEmail(member.getMemberId(), dto));
 
         assertEquals(MemberErrorCode.DUPLICATED_EMAIL, exception.getErrorCode());
     }
@@ -402,7 +402,7 @@ class AuthServiceTest {
         when(mailRedisService.getData(dto.getAuthNum())).thenReturn("wrong@email.com");
 
         MemberException exception = assertThrows(MemberException.class,
-            () -> authService.changeEmail(member.getMemberId(), dto));
+            () -> memberService.changeEmail(member.getMemberId(), dto));
         assertEquals(MemberErrorCode.NOT_MATCHED_AUTHNUM, exception.getErrorCode());
     }
 
@@ -426,7 +426,7 @@ class AuthServiceTest {
         when(passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())).thenReturn(true);
         when(passwordEncoder.encode(dto.getNewPassword())).thenReturn("encodedNewPassword1");
 
-        authService.changePassword(member.getMemberId(), dto);
+        memberService.changePassword(member.getMemberId(), dto);
 
         verify(memberRepository, times(1)).save(member);
         verify(passwordEncoder, times(1)).encode(dto.getNewPassword());
@@ -451,7 +451,7 @@ class AuthServiceTest {
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> authService.changePassword(member.getMemberId(), dto));
+            () -> memberService.changePassword(member.getMemberId(), dto));
 
         verify(memberRepository, times(0)).save(member);
     }
@@ -477,7 +477,7 @@ class AuthServiceTest {
             false);
 
         assertThrows(MemberException.class,
-            () -> authService.changePassword(member.getMemberId(), dto),
+            () -> memberService.changePassword(member.getMemberId(), dto),
             MemberErrorCode.NOT_MATCHED_PASSWORD.getMessage());
 
         verify(memberRepository, times(0)).save(member);
@@ -502,7 +502,7 @@ class AuthServiceTest {
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
         when(passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())).thenReturn(true);
 
-        assertThrows(MemberException.class, () -> authService.changePassword("test1234", dto),
+        assertThrows(MemberException.class, () -> memberService.changePassword("test1234", dto),
             MemberErrorCode.NOT_MATCHED_CHECK_PASSWORD.getMessage());
 
         verify(memberRepository, times(0)).save(member);
@@ -525,7 +525,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByEmail(member.getEmail())).thenReturn(Optional.of(member));
 
-        String findMemberId = authService.findMemberId(dto);
+        String findMemberId = memberService.findMemberId(dto);
 
         assertEquals(findMemberId, member.getMemberId());
     }
@@ -539,7 +539,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> authService.findMemberId(dto),
+        assertThrows(NoSuchElementException.class, () -> memberService.findMemberId(dto),
             "가입된 아이디가 존재하지 않습니다,");
     }
 
@@ -562,7 +562,7 @@ class AuthServiceTest {
         when(memberRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(member));
         when(passwordEncoder.encode(any())).thenReturn("newEncodedPassword");
 
-        authService.findPassword(dto);
+        memberService.findPassword(dto);
 
         verify(memberRepository, times(1)).save(member);
         verify(passwordEncoder, times(1)).encode(any());
@@ -583,7 +583,7 @@ class AuthServiceTest {
 
         when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
 
-        assertThrows(NoSuchElementException.class, () -> authService.findPassword(dto));
+        assertThrows(NoSuchElementException.class, () -> memberService.findPassword(dto));
 
         verify(memberRepository, times(1)).existsByMemberId(dto.getMemberId());
         verify(memberRepository, times(0)).existsByEmail(dto.getEmail());
@@ -601,7 +601,7 @@ class AuthServiceTest {
         when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
         when(memberRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> authService.findPassword(dto));
+        assertThrows(NoSuchElementException.class, () -> memberService.findPassword(dto));
 
         verify(memberRepository, times(1)).existsByMemberId(dto.getMemberId());
         verify(memberRepository, times(1)).findByEmail(dto.getEmail());
@@ -621,7 +621,7 @@ class AuthServiceTest {
         when(tokenProvider.resolveTokenFromRequest(request)).thenReturn(accessToken);
         when(tokenProvider.getExpiration(accessToken)).thenReturn(accessTokenExpiration);
 
-        authService.logout(memberId, request, response);
+        memberService.logout(memberId, request, response);
 
         verify(tokenProvider, times(1)).resolveTokenFromRequest(request);
         verify(tokenProvider, times(1)).getExpiration(accessToken);
@@ -643,7 +643,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
 
-        authService.withdrawal(member.getMemberId());
+        memberService.withdrawal(member.getMemberId());
 
         verify(memberRepository, times(1)).save(member);
     }
@@ -662,7 +662,7 @@ class AuthServiceTest {
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> authService.withdrawal(member.getMemberId()));
+            () -> memberService.withdrawal(member.getMemberId()));
 
         verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(memberRepository, never()).save(member);

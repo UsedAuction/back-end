@@ -8,7 +8,7 @@ import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
-import com.ddang.usedauction.member.servie.AuthService;
+import com.ddang.usedauction.member.servie.MemberService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,20 +30,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
-public class AuthController {
+public class MemberController {
 
-    private final AuthService authService;
+    private final MemberService memberService;
 
     @PostMapping("/login")
     public ResponseEntity<MemberLoginResponseDto> login(
         HttpServletResponse response, @RequestBody @Valid MemberLoginRequestDto dto) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(authService.login(response, dto));
+            .body(memberService.login(response, dto));
     }
 
     @GetMapping("/check/id")
     public ResponseEntity<String> checkMemberId(@RequestBody @Valid MemberCheckIdDto dto) {
-        authService.checkMemberId(dto);
+        memberService.checkMemberId(dto);
         return ResponseEntity.status(HttpStatus.OK)
             .body("사용 가능한 아이디 입니다.");
     }
@@ -51,7 +51,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> singUp(@RequestBody @Valid MemberSignUpDto dto) {
-        authService.signUp(dto);
+        memberService.signUp(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
             .body("회원가입이 완료되었습니다.");
     }
@@ -60,7 +60,7 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@AuthenticationPrincipal PrincipalDetails principalDetails
         , HttpServletRequest request, HttpServletResponse response) {
-        authService.logout(principalDetails.getName(), request, response);
+        memberService.logout(principalDetails.getName(), request, response);
         return ResponseEntity.status(HttpStatus.OK)
             .body("로그아웃 되었습니다");
     }
@@ -69,7 +69,7 @@ public class AuthController {
     @PostMapping("/withdrawl")
     public ResponseEntity<String> withdrawl(
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        authService.withdrawal(principalDetails.getName());
+        memberService.withdrawal(principalDetails.getName());
 
         return ResponseEntity.status(HttpStatus.OK)
             .body("회원 탈퇴가 완료되었습니다.");
@@ -80,7 +80,7 @@ public class AuthController {
     public ResponseEntity<String> changeEmail(
         @AuthenticationPrincipal PrincipalDetails principalDetails
         , @RequestBody @Valid MemberChangeEmailDto dto) {
-        authService.changeEmail(principalDetails.getName(), dto);
+        memberService.changeEmail(principalDetails.getName(), dto);
         return ResponseEntity.status(HttpStatus.OK)
             .body("이메일이 변경되었습니다.");
     }
@@ -91,7 +91,7 @@ public class AuthController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid MemberChangePasswordDto dto) {
 
-        authService.changePassword(principalDetails.getName(), dto);
+        memberService.changePassword(principalDetails.getName(), dto);
         return ResponseEntity.status(HttpStatus.OK)
             .body("비밀번호가 변경되었습니다.");
     }
@@ -99,12 +99,12 @@ public class AuthController {
     @PostMapping("/find/id")
     public ResponseEntity<String> findMemberId(@RequestBody @Valid MemberFindIdDto dto) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(authService.findMemberId(dto));
+            .body(memberService.findMemberId(dto));
     }
 
     @PostMapping("/find/password")
     public ResponseEntity<String> findPassword(@RequestBody @Valid MemberFindPasswordDto dto) {
-        authService.findPassword(dto);
+        memberService.findPassword(dto);
         return ResponseEntity.status(HttpStatus.OK)
             .body("비밀번호가 재발급되었습니다.");
     }
