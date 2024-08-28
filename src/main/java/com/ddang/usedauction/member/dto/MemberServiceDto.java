@@ -1,5 +1,6 @@
 package com.ddang.usedauction.member.dto;
 
+import com.ddang.usedauction.member.domain.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,10 +19,10 @@ public class MemberServiceDto implements Serializable {
     private String memberId; // 아이디
     private String passWord; // 패스워드
     private String email; // 이메일
+    private Role role; // 권한
     private LocalDateTime createDate; // 생성 날짜
     private LocalDateTime updateDate; // 수정 날짜
     private LocalDateTime deleteDate; // 삭제 날짜
-
     /**
      * ServiceDto -> VerifyResponse
      *
