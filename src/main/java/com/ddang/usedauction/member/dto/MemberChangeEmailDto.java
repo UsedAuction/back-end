@@ -18,4 +18,8 @@ public class MemberChangeEmailDto {
     @Pattern(regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$",
         message = "유효한 이메일 주소를 입력해주세요.")
     private String email;
+
+    @NotBlank(message = "인증 번호를 입력해주세요.")
+    @Pattern(regexp = "^[0-9]{4}$", message = "인증 번호는 4자리 숫자여야 합니다.")
+    private String authNum;
 }
