@@ -14,10 +14,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
   
     Optional<Member> findByEmail(String email); // 회원 이메일로 조회
 
-    Optional<Member> findByMemberIdAndDeleteDate(String memberId, LocalDateTime deleteDate);
+    boolean existsByMemberId(String memberId); // 중복 아이디 확인
 
-    boolean existsByMemberIdAndDeleteDate(String memberId, LocalDateTime deleteDate); // 중복 아이디 확인
-
-    boolean existsByEmailAndDeleteDate(String email, LocalDateTime deleteDate); // 중복 이메일 확인
+    boolean existsByEmail(String email); // 중복 이메일 확인
 
 }
