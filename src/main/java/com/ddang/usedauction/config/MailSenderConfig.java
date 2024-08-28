@@ -10,6 +10,7 @@ import java.util.Properties;
 
 @Configuration
 public class MailSenderConfig {
+
     @Value("${spring.mail.host}")
     private String host;
 
@@ -22,24 +23,45 @@ public class MailSenderConfig {
     @Value("${spring.mail.password}")
     private String password;
 
-    @Bean
-    public JavaMailSender javaMailService() {
-        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost(host);
-        javaMailSender.setPort(port);
-        javaMailSender.setUsername(username);
-        javaMailSender.setPassword(password);
-        javaMailSender.setJavaMailProperties(getMailProperties());
+    @Value("${spring.mail.properties.mail.smtp.auth}")
+    private boolean auth;
 
-        return javaMailSender;
+    @Value("${spring.mail.properties.mail.smtp.starttls.enable}")
+    private boolean starttlsEnable;
+
+    @Value("${spring.mail.properties.mail.smtp.starttls.required}")
+    private boolean starttlsRequired;
+
+    @Value("${spring.mail.properties.mail.smtp.connection-timeout}")
+    private int connectionTimeout;
+
+    @Value("${spring.mail.properties.mail.smtp.timeout}")
+    private int timeout;
+
+    @Value("${spring.mail.properties.mail.smtp.write-timeout}")
+    private int writeTimeout;
+
+    @Bean
+    public JavaMailSender javaMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(host);
+        mailSender.setPort(port);
+        mailSender.setUsername(username);
+        mailSender.setPassword(password);
+        mailSender.setDefaultEncoding("UTF-8");
+        mailSender.setJavaMailProperties(getMailProperties());
+
+        return mailSender;
     }
 
     private Properties getMailProperties() {
         Properties properties = new Properties();
-        properties.setProperty("mail.transport.protocol", "smtp");
-        properties.setProperty("mail.smtp.auth", "true");
-        properties.setProperty("mail.smtp.starttls.enable", "true");  // STARTTLS 활성화
-        properties.setProperty("mail.debug", "true");
+        properties.put("mail.smtp.auth", auth);
+        properties.put("mail.smtp.starttls.enable", starttlsEnable);
+        properties.put("mail.smtp.starttls.required", starttlsRequired);
+        properties.put("mail.smtp.connection-timeout", connectionTimeout);
+        properties.put("mail.smtp.timeout", timeout);
+        properties.put("mail.smtp.write-timeout", writeTimeout);
 
         return properties;
     }
