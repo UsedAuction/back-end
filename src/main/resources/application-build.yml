@@ -48,9 +48,13 @@ spring:
         smtp:
           starttls:
             enable: true
-            required: true  # 이 설정을 추가하여 STARTTLS를 필수로 설정
+            required: true
           ssl:
-            trust: smtp.gmail.com  # Gmail의 SSL 신뢰 설정
+            trust: smtp.gmail.com
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+    auth-code-expiration-millis: 1800000  # 30 * 60 * 1000 == 30분
 
 # redisson
 redisson:
