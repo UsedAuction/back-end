@@ -14,6 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
@@ -38,6 +39,7 @@ public class SecurityConfig {
         http
             .httpBasic(HttpBasicConfigurer::disable)
             .csrf(CsrfConfigurer::disable)
+            .formLogin(AbstractHttpConfigurer::disable)
             .sessionManagement(sessionManagement
                 -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .headers(
@@ -65,8 +67,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/members/points/history").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/members/payment/ready").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/payment/approve").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/members/notification/subscribe").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/members/notification/subscribe")
+                .authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/notification").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/withdrawl").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/change/email").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/auth/change/password").authenticated()
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception
