@@ -23,4 +23,7 @@ public class MailRedisService {
         ops.set(key, value, expire);
     }
 
+    public void deleteData(String key) {
+        redisTemplate.delete(key);
+    }
 }

@@ -106,6 +106,8 @@ public class MemberService {
                 .role(Role.ROLE_USER)
                 .build())
         );
+
+        mailRedisService.deleteData(dto.getAuthNum());
     }
 
     public void changeEmail(String memberId, MemberChangeEmailDto dto) {
