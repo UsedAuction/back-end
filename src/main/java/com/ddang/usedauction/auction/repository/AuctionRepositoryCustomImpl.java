@@ -29,6 +29,9 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
         Pageable pageable) {
 
         List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
+            .leftJoin(auction.askList, ask)
+            .leftJoin(auction.bidList, bid)
+            .leftJoin(auction.imageList, image)
             .where(containsTitle(word), eqMainCategory(mainCategory), eqSubCategory(subCategory),
                 auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
             .orderBy(getOrderSpecifier(sorted))
