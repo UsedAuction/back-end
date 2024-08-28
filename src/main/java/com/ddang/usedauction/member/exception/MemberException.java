@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CustomMemberException extends RuntimeException {
+public class MemberException extends RuntimeException {
 
     private MemberErrorCode errorCode;
     private String message;
 
-    public CustomMemberException(MemberErrorCode errorCode) {
+    public MemberException(MemberErrorCode errorCode) {
         this.errorCode = errorCode;
         this.message = errorCode.getMessage();
     }
