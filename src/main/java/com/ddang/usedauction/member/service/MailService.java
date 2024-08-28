@@ -1,52 +1,43 @@
 package com.ddang.usedauction.member.service;
 
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
+import com.ddang.usedauction.member.exception.MailSendException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class MailService {
-    private final JavaMailSender javaMailSender;
 
-    public boolean send(String fromEmail, String fromName, String toEmail, String toName, String title, String contents) {
-        boolean result = false;
+    private final JavaMailSender MailSender;
 
-        MimeMessagePreparator mimeMessagePreparator = new MimeMessagePreparator() {
-            @Override
-            public void prepare(MimeMessage mimeMessage) throws Exception {
-                MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
-                InternetAddress from = new InternetAddress();
-                from.setAddress(fromEmail);
-                from.setPersonal(fromName);
-
-                InternetAddress to = new InternetAddress();
-                to.setAddress(toEmail);
-                to.setPersonal(toName);
-
-                mimeMessageHelper.setFrom(from);
-                mimeMessageHelper.setTo(to);
-                mimeMessageHelper.setSubject(title);
-                mimeMessageHelper.setText(contents, true);
-            }
-        };
-
+    public void sendEmail(String toEmail,
+                          String title,
+                          String text) {
+        SimpleMailMessage emailForm = createEmailForm(toEmail, title, text);
         try {
-            javaMailSender.send(mimeMessagePreparator);
-            result = true;
-        } catch (Exception e) {
-            log.info(e.getMessage());
-            throw new RuntimeException();
+            MailSender.send(emailForm);
+        } catch (RuntimeException e) {
+            log.debug("MailService.sendEmail exception occur toEmail: {}, " +
+                    "title: {}, text: {}", toEmail, title, text);
+            throw new MailSendException();
         }
-        return result;
+    }
+
+    // 발신할 이메일 데이터 세팅
+    private SimpleMailMessage createEmailForm(String toEmail,
+                                              String title,
+                                              String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject(title);
+        message.setText(text);
+
+        return message;
     }
 }
-
