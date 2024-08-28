@@ -53,7 +53,7 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
             .innerJoin(auction.bidList, bid)
             .leftJoin(auction.imageList, image)
             .where(eqMainCategory(mainCategory), eqSubCategory(subCategory),
-                auction.deletedAt.isNull())
+                auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
             .limit(5)
             .fetch();
 
