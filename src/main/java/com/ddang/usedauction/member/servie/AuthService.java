@@ -1,6 +1,7 @@
 package com.ddang.usedauction.member.servie;
 
 import com.ddang.usedauction.mail.service.MailPasswordService;
+import com.ddang.usedauction.mail.service.MailRedisService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.domain.enums.Role;
 import com.ddang.usedauction.member.dto.MemberChangeEmailDto;
@@ -11,12 +12,10 @@ import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
-import com.ddang.usedauction.member.exception.CustomMemberException;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
+import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
-import com.ddang.usedauction.security.jwt.exception.CustomJwtException;
-import com.ddang.usedauction.security.jwt.exception.JwtErrorCode;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.util.CookieUtil;
@@ -46,6 +45,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final MailPasswordService mailPasswordService;
+    private final MailRedisService mailRedisService;
 
     public MemberLoginResponseDto login(HttpServletResponse response,
         @RequestBody MemberLoginRequestDto dto) {
@@ -53,7 +53,7 @@ public class AuthService {
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassWord())) {
-            throw new CustomMemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
+            throw new MemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
         }
 
         GrantedAuthority authority = new SimpleGrantedAuthority(member.getRole().toString());
@@ -68,8 +68,6 @@ public class AuthService {
         CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
             (int) refreshTokenExpiration);
 
-        response.setHeader("New-Token", token.getAccessToken());
-
         return MemberLoginResponseDto.builder()
             .accessToken(token.getAccessToken())
             .memberId(member.getMemberId())
@@ -78,22 +76,26 @@ public class AuthService {
 
     public void checkMemberId(MemberCheckIdDto dto) {
         if (memberRepository.existsByMemberId(dto.getMemberId())) {
-            throw new CustomMemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
+            throw new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
         }
     }
 
     @Transactional
     public void signUp(MemberSignUpDto dto) {
         if (!dto.getPassword().equals(dto.getConfirmPassword())) {
-            throw new CustomMemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
+            throw new MemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
         }
 
         if (memberRepository.existsByMemberId(dto.getMemberId())) {
-            throw new CustomMemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
+            throw new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
         }
 
         if (memberRepository.existsByEmail(dto.getEmail())) {
-            throw new CustomMemberException(MemberErrorCode.ALREADY_EXISTS_EMAIL);
+            throw new MemberException(MemberErrorCode.ALREADY_EXISTS_EMAIL);
+        }
+
+        if (!dto.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
+            throw new MemberException(MemberErrorCode.NOT_MATCHED_AUTHNUM);
         }
 
         MemberSignUpDto.from(
@@ -110,8 +112,12 @@ public class AuthService {
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        if (memberRepository.existsByEmail(dto.getEmail())) {
-            throw new CustomMemberException(MemberErrorCode.DUPLICATED_EMAIL);
+        if (member.getEmail().equals(dto.getEmail())) {
+            throw new MemberException(MemberErrorCode.DUPLICATED_EMAIL);
+        }
+
+        if (!member.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
+            throw new MemberException(MemberErrorCode.NOT_MATCHED_AUTHNUM);
         }
 
         member.updateEmail(dto.getEmail());
@@ -125,11 +131,15 @@ public class AuthService {
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (!passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())) {
-            throw new CustomMemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
+            throw new MemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
+        }
+
+        if (passwordEncoder.matches(dto.getNewPassword(), member.getPassWord())) {
+            throw new MemberException(MemberErrorCode.DUPLICATED_PASSWORD);
         }
 
         if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
-            throw new CustomMemberException(MemberErrorCode.NOT_MATCHED_CHECK_PASSWORD);
+            throw new MemberException(MemberErrorCode.NOT_MATCHED_CHECK_PASSWORD);
         }
 
         member.updatePassword(passwordEncoder.encode(dto.getNewPassword()));
@@ -139,7 +149,7 @@ public class AuthService {
 
     public String findMemberId(MemberFindIdDto dto) {
         Member member = memberRepository.findByEmail(dto.getEmail())
-            .orElseThrow(() -> new NoSuchElementException("가입된 아이디가 존재하지 않습니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return member.getMemberId();
     }
@@ -162,10 +172,6 @@ public class AuthService {
     @Transactional
     public void logout(String memberId, HttpServletRequest request, HttpServletResponse response) {
         String accessToken = tokenProvider.resolveTokenFromRequest(request);
-
-        if (!memberId.equals(tokenProvider.getMemberIdByToken(accessToken))) {
-            throw new CustomJwtException(JwtErrorCode.INVALID_TOKEN);
-        }
 
         long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
 
