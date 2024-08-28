@@ -61,6 +61,9 @@
 
 ## 백엔드 아키텍처
 
+<img width="1120" alt="image" src="https://github.com/user-attachments/assets/51be84d2-7e78-42f8-adbf-71bd6f2559b4">
+
+
 ## ERD
 
 ![중고 물품 경매 서비스 ERD.png](docs/usedAuctionERD.png)
