@@ -10,13 +10,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class CustomMailException extends RuntimeException {
+public class MailException extends RuntimeException {
 
-    private EmailErrorCode emailErrorCode;
+    private MailErrorCode mailErrorCode;
     private String errorMessage;
 
-    public CustomMailException(EmailErrorCode emailErrorCode) {
-        this.emailErrorCode = emailErrorCode;
-        this.errorMessage = emailErrorCode.getMessage();
+    public MailException(MailErrorCode mailErrorCode) {
+        this.mailErrorCode = mailErrorCode;
+        this.errorMessage = mailErrorCode.getMessage();
     }
 }
