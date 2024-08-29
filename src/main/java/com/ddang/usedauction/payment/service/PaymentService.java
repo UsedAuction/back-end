@@ -171,8 +171,10 @@ public class PaymentService {
 
         // 회원 포인트 충전
         Integer point = response.getAmount().getTotal();
+        log.info("point = {}", point);
         Member member = order.getMember();
         member.addPoint(point);
+        log.info("memberPoint = {}", member.getPoint());
         memberRepository.save(member);
 
         // 포인트 충전내역 저장
