@@ -42,6 +42,9 @@ public class CookieUtil {
         cookie.setValue("");
         cookie.setPath("/");
         cookie.setMaxAge(0);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", "None");
         response.addCookie(cookie);
     }
 }
