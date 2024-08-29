@@ -25,40 +25,52 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at IS NULL")
 public class Member extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column(nullable = false)
-  private String memberId;
+    @Column(nullable = false)
+    private String memberId;
 
-  @Column(nullable = false)
-  private String passWord;
+    @Column(nullable = false)
+    private String passWord;
 
-  @Column(nullable = false)
-  private String email;
+    @Column(nullable = false)
+    private String email;
 
-  @Column
-  @Enumerated(EnumType.STRING)
-  private Role role;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-  @Column
-  private boolean siteAlarm;
+    @Column
+    private boolean siteAlarm;
 
-  @Column
-  private long point;
+    @Column
+    private long point;
 
-  @Column
-  private String social;
+    @Column
+    private String social;
 
-  @Column
-  private String socialProviderId;
+    @Column
+    private String socialProviderId;
 
-  @Column
-  private LocalDateTime deletedAt;
+    @Column
+    private LocalDateTime deletedAt;
 
-  // 포인트 충전
-  public void addPoint(int point) {
-    this.point += point;
-  }
+    // 포인트 충전
+    public void addPoint(int point) {
+        this.point += point;
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
+    public void updatePassword(String password) {
+        this.passWord = password;
+    }
+
+    public void withdrawal() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }
