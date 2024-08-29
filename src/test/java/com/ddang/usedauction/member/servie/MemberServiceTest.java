@@ -73,6 +73,30 @@ class MemberServiceTest {
     MemberService memberService;
 
     @Test
+    @DisplayName("회원 정보 조회")
+    void getMember() {
+
+        Member member = Member.builder()
+            .memberId("test")
+            .build();
+
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+
+        Member result = memberService.getMember("test");
+
+        assertEquals("test", result.getMemberId());
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 실패 - 없는 회원")
+    void getMemberFail1() {
+
+        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> memberService.getMember("test"));
+    }
+
+    @Test
     @DisplayName("로그인 - 성공")
     void login() throws Exception {
         MemberLoginRequestDto dto = MemberLoginRequestDto.builder()
