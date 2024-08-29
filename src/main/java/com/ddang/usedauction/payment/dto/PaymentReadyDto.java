@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
 
 public class PaymentReadyDto {
 
@@ -18,6 +19,10 @@ public class PaymentReadyDto {
     @Builder
     @ToString
     public static class Request {
+
+        @Value("${payment.url}")
+        private String PAYMENT_URL;
+
         private String cid; // 가맹점코드 (테스트용이라 "TC0ONETIME"로 고정)
         private String partnerOrderId; // 주문id
         private String partnerUserId; // 유저id
@@ -39,9 +44,9 @@ public class PaymentReadyDto {
             map.put("quantity", "1");
             map.put("total_amount", this.totalAmount);
             map.put("tax_free_amount", "0");
-            map.put("approval_url", "https://dddang.store/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
-            map.put("cancel_url", "https://dddang.store/api/members/payment/cancel");
-            map.put("fail_url", "https://dddang.store/api/members/payment/fail");
+            map.put("approval_url", PAYMENT_URL + "/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
+            map.put("cancel_url", PAYMENT_URL + "/api/members/payment/cancel");
+            map.put("fail_url", PAYMENT_URL + "/api/members/payment/fail");
             return map;
         }
     }

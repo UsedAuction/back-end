@@ -38,6 +38,9 @@ public class PaymentService {
     @Value("${payment.approve}")
     private String APPROVE_URL;
 
+    @Value("${payment.url}")
+    private String PAYMENT_URL;
+
     static final String CID = "TC0ONETIME";
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -88,9 +91,9 @@ public class PaymentService {
             .totalAmount(priceStr)
             .taxFreeAmount("0")
             .approvalUrl(
-                "https://dddang.store/api/members/payment/approve?partner_order_id=" + orderIdStr)
-            .cancelUrl("https://dddang.store/api/members/payment/cancel")
-            .failUrl("https://dddang.store/api/members/payment/fail")
+                PAYMENT_URL + "/api/members/payment/approve?partner_order_id=" + orderIdStr)
+            .cancelUrl(PAYMENT_URL + "/api/members/payment/cancel")
+            .failUrl(PAYMENT_URL + "/api/members/payment/fail")
             .build();
 
         // paymentRequest를 map으로 변환
