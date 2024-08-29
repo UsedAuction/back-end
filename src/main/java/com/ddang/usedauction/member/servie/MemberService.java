@@ -88,6 +88,7 @@ public class MemberService {
     }
 
     public void checkMemberId(MemberCheckIdDto dto) {
+        log.info("id = {}", dto.getMemberId());
         if (memberRepository.existsByMemberId(dto.getMemberId())) {
             throw new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
         }
