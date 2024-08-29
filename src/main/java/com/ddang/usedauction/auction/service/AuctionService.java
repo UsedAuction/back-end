@@ -41,6 +41,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuctionService {
@@ -193,6 +195,8 @@ public class AuctionService {
     @Transactional
     public AuctionEndDto endAuction(Long auctionId) {
 
+        log.info("경매 종료 처리 시작");
+
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
@@ -206,6 +210,7 @@ public class AuctionService {
             .auctionState(AuctionState.END) // 경매 종료 처리
             .build();
         Auction savedAuction = auctionRepository.save(auction);
+        log.info("경매 종료 처리 후 저장");
 
         return AuctionEndDto.from(savedAuction, bid);
     }
