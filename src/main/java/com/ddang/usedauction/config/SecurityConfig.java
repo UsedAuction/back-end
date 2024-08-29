@@ -73,6 +73,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/withdrawl").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/auth/change/email").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/auth/change/password").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/auth/members").authenticated()
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception
