@@ -47,9 +47,9 @@ public class PaymentReadyDto {
             map.put("quantity", "1");
             map.put("total_amount", this.totalAmount);
             map.put("tax_free_amount", "0");
-            map.put("approval_url", "https://dddang.store/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
-            map.put("cancel_url", "https://dddang.store/api/members/payment/cancel");
-            map.put("fail_url", "https://dddang.store/api/members/payment/fail");
+            map.put("approval_url", "http://localhost:5173/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
+            map.put("cancel_url", "http://localhost:5173/api/members/payment/cancel");
+            map.put("fail_url", "http://localhost:5173/api/members/payment/fail");
             return map;
         }
     }
