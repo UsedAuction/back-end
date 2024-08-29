@@ -9,8 +9,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 
+@Slf4j
 public class PaymentReadyDto {
 
     @Getter
@@ -36,6 +38,11 @@ public class PaymentReadyDto {
 
         //  map으로 변환
         public Map<String, String> toMap() {
+
+            log.info("toMap PAYMENT_URL: {}", PAYMENT_URL);
+            log.info("toMap this.partnerOrderId: {}", this.partnerOrderId);
+
+
             Map<String, String> map = new HashMap<>();
             map.put("cid", this.cid);
             map.put("partner_order_id", this.partnerOrderId);
