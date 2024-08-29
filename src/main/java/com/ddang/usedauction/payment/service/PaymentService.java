@@ -92,9 +92,9 @@ public class PaymentService {
             .totalAmount(priceStr)
             .taxFreeAmount("0")
             .approvalUrl(
-                "http://localhost:5173/members/payment/approve?partner_order_id=" + orderIdStr)
-            .cancelUrl("http://localhost:5173/api/members/payment/cancel")
-            .failUrl("http://localhost:5173/api/members/payment/fail")
+                "https://localhost:5173/members/payment/approve?partner_order_id=" + orderIdStr)
+            .cancelUrl("https://localhost:5173/members/payment/cancel")
+            .failUrl("https://localhost:5173/members/payment/fail")
             .build();
 
         // paymentRequest를 map으로 변환
