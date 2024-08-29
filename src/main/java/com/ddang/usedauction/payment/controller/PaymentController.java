@@ -56,15 +56,12 @@ public class PaymentController {
      * @param pgToken        결제 준비 완료후 결제 인증(faceID 등 본인인증)을 통과하면 카카오쪽에서 pgToken을 응답으로 줌
      * @return 성공 시 200 코드와 결제 정보(아이템명, 수량 등), 실패 시 에러코드와 에러메시지
      */
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/approve")
     public ResponseEntity<PaymentApproveDto.Response> paymentApprove(
-        @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestParam("partner_order_id") String partnerOrderId,
         @RequestParam("pg_token") String pgToken
     ) {
-        String memberId = principalDetails.getName();
-        return ResponseEntity.ok(paymentService.approve(memberId, partnerOrderId, pgToken));
+        return ResponseEntity.ok(paymentService.approve(partnerOrderId, pgToken));
     }
 
     /**

@@ -119,11 +119,8 @@ public class PaymentService {
     }
 
     // 결제 승인
-    public PaymentApproveDto.Response approve(String memberId, String partnerOrderId,
+    public PaymentApproveDto.Response approve(String partnerOrderId,
         String pgToken) {
-
-        Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Long orderId = Long.valueOf(partnerOrderId);
         Orders order = orderRepository.findById(orderId)
@@ -166,6 +163,7 @@ public class PaymentService {
 
         // 회원 포인트 충전
         Integer point = response.getAmount().getTotal();
+        Member member = order.getMember();
         member.addPoint(point);
         memberRepository.save(member);
 
