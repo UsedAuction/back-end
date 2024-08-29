@@ -16,6 +16,7 @@ import com.ddang.usedauction.point.repository.PointRepository;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -98,6 +100,8 @@ public class PaymentService {
 
         // paymentRequest를 map으로 변환
         Map<String, String> map = paymentRequest.toMap();
+        log.info("approval_url: {}", map.get("approval_url"));
+        log.info("partnerOrderId: {}", map.get("partnerOrderId"));
 
         // header, body 하나로 합치기
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(map, headers);
