@@ -53,7 +53,7 @@ public class MemberController {
             .body(memberService.login(response, dto));
     }
 
-    @GetMapping("/check/id")
+    @PostMapping("/check/id")
     public ResponseEntity<String> checkMemberId(@RequestBody @Valid MemberCheckIdDto dto) {
         memberService.checkMemberId(dto);
         return ResponseEntity.status(HttpStatus.OK)
