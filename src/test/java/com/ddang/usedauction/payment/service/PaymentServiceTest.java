@@ -319,8 +319,6 @@ class PaymentServiceTest {
     @DisplayName("결제 승인 - 성공")
     void approveSuccess() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
-            Optional.of(member));
         given(orderRepository.findById(approveOrder.getId())).willReturn(Optional.of(approveOrder));
         given(restTemplate.postForObject(
             APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class))
@@ -334,7 +332,7 @@ class PaymentServiceTest {
             .willReturn(pointHistory);
 
         //when
-        PaymentApproveDto.Response response = paymentService.approve(member.getMemberId(),
+        PaymentApproveDto.Response response = paymentService.approve(
             partnerOrderId, pgToken);
 
         //then
@@ -351,7 +349,6 @@ class PaymentServiceTest {
         assertEquals(approveResponse.getCreated_at(), response.getCreated_at());
         assertEquals(approveResponse.getApproved_at(), response.getApproved_at());
 
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(orderRepository, times(1)).findById(readyOrder.getId());
         verify(restTemplate, times(1))
             .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
@@ -364,7 +361,6 @@ class PaymentServiceTest {
     @DisplayName("결제 승인 - 실패 (회원이 존재하지 않음)")
     void approveFail_MemberNotFound() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
 
         //when
         //then
@@ -377,15 +373,13 @@ class PaymentServiceTest {
             .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
 
         assertThrows(NoSuchElementException.class,
-            () -> paymentService.approve(member.getMemberId(), partnerOrderId, pgToken));
+            () -> paymentService.approve(partnerOrderId, pgToken));
     }
 
     @Test
     @DisplayName("결제 승인 - 실패 (주문내역이 존재하지 않음)")
     void approveFail_OrderNotFound() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
-            Optional.of(member));
         given(orderRepository.findById(Long.valueOf(partnerOrderId))).willReturn(Optional.empty());
 
         //when
@@ -399,15 +393,13 @@ class PaymentServiceTest {
             .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
 
         assertThrows(NoSuchElementException.class,
-            () -> paymentService.approve(member.getMemberId(), partnerOrderId, pgToken));
+            () -> paymentService.approve(partnerOrderId, pgToken));
     }
 
     @Test
     @DisplayName("결제 승인 - 실패 (결제 승인 요청에 대한 응답이 없음)")
     void approveFail_apiFailed() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
-            Optional.of(member));
         given(orderRepository.findById(Long.valueOf(partnerOrderId))).willReturn(
             Optional.of(approveOrder));
         given(restTemplate.postForObject(APPROVE_URL, approveRequestEntity,
@@ -425,6 +417,6 @@ class PaymentServiceTest {
             .save(argThat(arg -> arg.getCurPointAmount() == pointHistory.getCurPointAmount()));
 
         assertThrows(PaymentReadyException.class,
-            () -> paymentService.approve(member.getMemberId(), partnerOrderId, pgToken));
+            () -> paymentService.approve(partnerOrderId, pgToken));
     }
 }

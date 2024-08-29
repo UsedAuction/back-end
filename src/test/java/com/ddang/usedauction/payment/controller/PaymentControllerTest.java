@@ -174,7 +174,6 @@ class PaymentControllerTest {
     }
 
     @Test
-    @WithCustomMockUser
     @DisplayName("결제 승인 - 성공")
     void paymentApproveSuccess() throws Exception {
         //given
@@ -207,7 +206,7 @@ class PaymentControllerTest {
                 LocalDateTime.parse("2024-08-11T17:26:49", DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             .build();
 
-        given(paymentService.approve(member.getMemberId(), partnerOrderId, pgToken)).willReturn(
+        given(paymentService.approve(partnerOrderId, pgToken)).willReturn(
             response);
 
         //when
@@ -246,7 +245,7 @@ class PaymentControllerTest {
         String partnerOrderId = "1";
         String pgToken = "bzb52391ee335e521f3f";
 
-        given(paymentService.approve(member.getMemberId(), partnerOrderId, pgToken))
+        given(paymentService.approve(partnerOrderId, pgToken))
             .willThrow(new PaymentApproveException("결제 승인 요청에 대한 응답이 없습니다."));
 
         // when
