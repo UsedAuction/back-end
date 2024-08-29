@@ -8,10 +8,10 @@ import com.ddang.usedauction.chat.repository.ChatRoomRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
-import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ public class ChatRoomService {
 
     public List<ChatRoomCreateDto.Response> findChatRoomsByMemberId(String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return opsHashChatRoom.values(CHAT_ROOMS).stream()
             .filter(chatRoom -> chatRoom.getSeller().getId().equals(member.getId()) ||
@@ -64,10 +64,10 @@ public class ChatRoomService {
         }
 
         Member buyer = memberRepository.findById(memberId)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Auction auction = auctionRepository.findById(auctionId)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 경매입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
             .seller(auction.getSeller())
             .buyer(buyer)
