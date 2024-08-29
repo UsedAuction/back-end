@@ -114,9 +114,9 @@ class PaymentServiceTest {
             "quantity", "1",
             "total_amount", "10000",
             "tax_free_amount", "0",
-            "approval_url", "http://localhost:8080/api/members/payment/approve?partner_order_id=1",
-            "cancel_url", "http://localhost:8080/api/members/payment/cancel",
-            "fail_url", "http://localhost:8080/api/members/payment/fail"
+            "approval_url", "https://localhost:5173/members/payment/approve?partner_order_id=1",
+            "cancel_url", "https://localhost:5173/members/payment/cancel",
+            "fail_url", "https://localhost:5173/members/payment/fail"
         );
 
         readyRequestEntity = new HttpEntity<>(readyMap, headers);
