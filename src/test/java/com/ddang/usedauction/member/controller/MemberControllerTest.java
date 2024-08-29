@@ -146,7 +146,7 @@ class MemberControllerTest {
         doNothing().when(memberService).checkMemberId(
             argThat(arg -> arg.getMemberId().equals(dto.getMemberId())));
 
-        mockMvc.perform(get("/api/auth/check/id")
+        mockMvc.perform(post("/api/auth/check/id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andDo(print())
@@ -165,7 +165,7 @@ class MemberControllerTest {
             .when(memberService).checkMemberId(
                 argThat(arg -> arg.getMemberId().equals(dto.getMemberId())));
 
-        mockMvc.perform(get("/api/auth/check/id")
+        mockMvc.perform(post("/api/auth/check/id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andDo(print())
