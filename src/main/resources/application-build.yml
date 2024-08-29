@@ -136,7 +136,6 @@ payment:
   secret-key: ${PAY_SECRET_KEY}
   ready: https://open-api.kakaopay.com/online/v1/payment/ready
   approve: https://open-api.kakaopay.com/online/v1/payment/approve
-  url: ${PAY_URL}
 
 # emitter 유효 시간
 notification:

@@ -22,9 +22,6 @@ public class PaymentReadyDto {
     @ToString
     public static class Request {
 
-        @Value("${payment.url}")
-        private String PAYMENT_URL;
-
         private String cid; // 가맹점코드 (테스트용이라 "TC0ONETIME"로 고정)
         private String partnerOrderId; // 주문id
         private String partnerUserId; // 유저id
@@ -39,7 +36,6 @@ public class PaymentReadyDto {
         //  map으로 변환
         public Map<String, String> toMap() {
 
-            log.info("toMap PAYMENT_URL: {}", PAYMENT_URL);
             log.info("toMap this.partnerOrderId: {}", this.partnerOrderId);
 
 
@@ -51,9 +47,9 @@ public class PaymentReadyDto {
             map.put("quantity", "1");
             map.put("total_amount", this.totalAmount);
             map.put("tax_free_amount", "0");
-            map.put("approval_url", PAYMENT_URL + "/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
-            map.put("cancel_url", PAYMENT_URL + "/api/members/payment/cancel");
-            map.put("fail_url", PAYMENT_URL + "/api/members/payment/fail");
+            map.put("approval_url", "http://localhost:8080/api/members/payment/approve?partner_order_id=" + this.partnerOrderId);
+            map.put("cancel_url", "http://localhost:8080/api/members/payment/cancel");
+            map.put("fail_url", "http://localhost:8080/api/members/payment/fail");
             return map;
         }
     }

@@ -40,9 +40,6 @@ public class PaymentService {
     @Value("${payment.approve}")
     private String APPROVE_URL;
 
-    @Value("${payment.url}")
-    private String PAYMENT_URL;
-
     static final String CID = "TC0ONETIME";
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -56,7 +53,6 @@ public class PaymentService {
     public PaymentReadyDto.Response ready(String memberId, PaymentInfoDto.Request request) {
 
         log.info("ready() request.getOrderId {}", request.getOrderId());
-        log.info("ready() PAYMENT_URL {}", PAYMENT_URL);
 
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
@@ -96,9 +92,9 @@ public class PaymentService {
             .totalAmount(priceStr)
             .taxFreeAmount("0")
             .approvalUrl(
-                PAYMENT_URL + "/api/members/payment/approve?partner_order_id=" + orderIdStr)
-            .cancelUrl(PAYMENT_URL + "/api/members/payment/cancel")
-            .failUrl(PAYMENT_URL + "/api/members/payment/fail")
+                "http://localhost:8080/api/members/payment/approve?partner_order_id=" + orderIdStr)
+            .cancelUrl("http://localhost:8080/api/members/payment/cancel")
+            .failUrl("http://localhost:8080/api/members/payment/fail")
             .build();
 
         // paymentRequest를 map으로 변환
