@@ -105,7 +105,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, String> tokenRedisTemplate(
+    public RedisTemplate<String, String> stringRedisTemplate(
         RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
