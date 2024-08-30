@@ -72,6 +72,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.getAuthorities());
         long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
         // Redis accessToken 값 업데이트
+        log.info("filter refreshTokenExpiration = {}", refreshTokenExpiration);
         refreshTokenService.deleteRefreshTokenByAccessToken(oldAccessToken);
         refreshTokenService.save(newAccessToken, refreshToken, refreshTokenExpiration);
 
