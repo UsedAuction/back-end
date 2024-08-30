@@ -38,4 +38,6 @@ public class ChatMessage extends BaseTimeEntity {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
+    @Column
+    private int notReadCount;  // 읽지 않은 메시지 수
 }
