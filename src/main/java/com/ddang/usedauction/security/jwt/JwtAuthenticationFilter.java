@@ -30,7 +30,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = tokenProvider.resolveTokenFromRequest(request);
 
-        log.info("accessToken = {}", accessToken);
+        log.info("Request URI = {}, Method = {}, Headers = {}",
+            request.getRequestURI(), request.getMethod(), request.getHeaderNames());
+
+        log.info("doFilterInternal accessToken = {}", accessToken);
 
         // accessToken 검증
         if (StringUtils.hasText(accessToken)) {
@@ -58,8 +61,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             || cookie == null || !refreshToken.equals(
             cookie.getValue())) {
             log.info("로그아웃 처리 진행");
-            log.info("refreshToken In Redis = {}", refreshToken);
-            log.info("cookie = {}", cookie != null ? cookie.getValue() : null);
+            log.info("handleExpiredAccessToken refreshToken In Redis = {}", refreshToken);
+            log.info("handleExpiredAccessToken cookie = {}",
+                cookie != null ? cookie.getValue() : null);
             logout(request, response, oldAccessToken);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

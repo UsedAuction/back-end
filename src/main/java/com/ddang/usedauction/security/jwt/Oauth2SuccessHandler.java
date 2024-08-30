@@ -38,11 +38,11 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
         TokenDto token = tokenProvider.generateToken(details.getName(), authorities);
 
         long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
-        log.info("refreshTokenExpiration = {}", refreshTokenExpiration);
+        log.info("successHandler refreshTokenExpiration = {}", refreshTokenExpiration);
         refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
             refreshTokenExpiration);
 
-        log.info("refreshTokenExpirationValue = {}", refreshTokenExpirationValue);
+        log.info("successHandler refreshTokenExpirationValue = {}", refreshTokenExpirationValue);
         CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
             refreshTokenExpirationValue);
         response.sendRedirect(
