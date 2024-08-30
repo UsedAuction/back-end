@@ -76,7 +76,6 @@ public class PaymentService {
         String itemNameStr = request.getPrice() + " 포인트"; // 포인트아이템을 db에 저장하지 않으므로 포인트값으로 아이템명을 생성함
         String priceStr = String.valueOf(request.getPrice());
 
-        // 카카오로 보낼 결제 준비 요청에 필요한 정보들 생성
         // header 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set(HEADER_AUTHORIZATION, "SECRET_KEY " + SECRET_KEY);
@@ -108,8 +107,6 @@ public class PaymentService {
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(map, headers);
 
         // 결제 준비 요청하기
-        // postForObject(요청 보낼 url, 헤더+바디, 응답을 매핑할 dto)
-        // post 요청을 보내고 응답받은 json을 java 객체로 변환
         PaymentReadyDto.Response response = null;
         try {
             response = restTemplate.postForObject(
@@ -138,7 +135,6 @@ public class PaymentService {
         String tidStr = String.valueOf(order.getTid());
         String memberIdStr = String.valueOf(order.getMember().getId());
 
-        // 카카오로 보낼 결제 승인 요청에 필요한 정보들 생성
         // header 설정
         HttpHeaders headers = new HttpHeaders();
         headers.set(HEADER_AUTHORIZATION, "SECRET_KEY " + SECRET_KEY);
