@@ -49,9 +49,7 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
     public List<Auction> findTop5(String mainCategory, String subCategory) {
 
         List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
-            .leftJoin(auction.askList, ask)
             .innerJoin(auction.bidList, bid)
-            .leftJoin(auction.imageList, image)
             .where(eqMainCategory(mainCategory), eqSubCategory(subCategory),
                 auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
             .limit(5)
