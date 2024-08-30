@@ -1,5 +1,6 @@
 package com.ddang.usedauction.security.jwt;
 
+import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.util.CookieUtil;
 import jakarta.servlet.FilterChain;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
+
+    @Value("${spring.jwt.refresh.expiration}")
+    int refreshExpiration;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -64,18 +69,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 만료되지 않았으면 accessToken 재발급
-        String newAccessToken = tokenProvider.reissueAccessToken(memberIdByToken,
+        // 만료되지 않았으면 accessToken, refreshToken 재발급
+        TokenDto tokenDto = tokenProvider.generateToken(memberIdByToken,
             authentication.getAuthorities());
-        long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
         // Redis accessToken 값 업데이트
         refreshTokenService.deleteRefreshTokenByAccessToken(oldAccessToken);
-        refreshTokenService.save(newAccessToken, refreshToken, refreshTokenExpiration);
+        refreshTokenService.save(tokenDto.getAccessToken(), tokenDto.getRefreshToken(),
+            refreshExpiration);
 
-        setAuthentication(newAccessToken);
+        setAuthentication(tokenDto.getAccessToken());
 
-        response.setHeader("New-Token", newAccessToken);
-        CookieUtil.resetCookie(response, cookie, refreshToken, (int) refreshTokenExpiration);
+        response.setHeader("New-Token", tokenDto.getAccessToken());
+        CookieUtil.deleteCookie(request, response, "refreshToken");
+        CookieUtil.addCookie(response, "refreshToken", tokenDto.getRefreshToken(),
+            refreshExpiration);
     }
 
     // 보안 컨텍스트에 인증 정보 설정 (현재 사용자 인증 정보 갱신)
