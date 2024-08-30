@@ -75,8 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         setAuthentication(newAccessToken);
 
         response.setHeader("New-Token", newAccessToken);
-
-        CookieUtil.addCookie(response, "refreshToken", refreshToken, (int) refreshTokenExpiration);
+        CookieUtil.resetCookie(response, cookie, refreshToken, (int) refreshTokenExpiration);
     }
 
     // 보안 컨텍스트에 인증 정보 설정 (현재 사용자 인증 정보 갱신)

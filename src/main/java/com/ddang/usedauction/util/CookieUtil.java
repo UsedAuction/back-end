@@ -32,6 +32,17 @@ public class CookieUtil {
         response.addCookie(cookie);
     }
 
+    public static void resetCookie(HttpServletResponse response, Cookie cookie, String value,
+        int maxAge) {
+        cookie.setValue(value);
+        cookie.setPath("/");
+        cookie.setMaxAge(maxAge);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", "None");
+        response.addCookie(cookie);
+    }
+
 
     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response,
         String name) {
