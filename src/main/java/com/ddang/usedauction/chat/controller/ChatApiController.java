@@ -41,7 +41,7 @@ public class ChatApiController {
         return ResponseEntity.status(HttpStatus.OK)
             .body(chatRoomService.findChatRoomsByMemberId(principalDetails.getName()));
     }
-
+  
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/chat/rooms/{roomId}/messages")
     public ResponseEntity<List<ChatMessageSendDto.Response>> getChatMessages(
