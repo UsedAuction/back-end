@@ -85,7 +85,7 @@ public class TokenProvider {
         return Jwts.builder()
             .setSubject(memberId)
             .claim("auth", List.of("ROLE_USER"))
-            .setExpiration(new Date(now + accessExpiration))
+            .setExpiration(new Date(now + 10000))
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
     }
