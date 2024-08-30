@@ -57,6 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (tokenProvider.isExpiredToken(refreshToken) || refreshToken == null
             || cookie == null || !refreshToken.equals(
             cookie.getValue())) {
+            log.info("로그아웃 처리 진행");
             logout(request, response, oldAccessToken);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
