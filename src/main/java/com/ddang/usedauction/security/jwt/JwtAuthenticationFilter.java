@@ -58,6 +58,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             || cookie == null || !refreshToken.equals(
             cookie.getValue())) {
             log.info("로그아웃 처리 진행");
+            log.info("refreshToken In Redis = {}", refreshToken);
+            log.info("cookie = {}", cookie != null ? cookie.getValue() : null);
             logout(request, response, oldAccessToken);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
