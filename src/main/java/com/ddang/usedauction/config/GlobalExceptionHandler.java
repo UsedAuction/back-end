@@ -1,6 +1,7 @@
 package com.ddang.usedauction.config;
 
 import com.ddang.usedauction.auction.exception.MemberPointOutOfBoundsException;
+import com.ddang.usedauction.chat.exception.UnauthorizedAccessException;
 import com.ddang.usedauction.image.exception.ImageDeleteFailException;
 import com.ddang.usedauction.image.exception.ImageUploadFailException;
 import com.ddang.usedauction.mail.exception.MailDeliveryFailedException;
@@ -224,6 +225,16 @@ public class GlobalExceptionHandler {
             .body(e.getMessage());
     }
 
+    @ExceptionHandler(UnauthorizedAccessException.class)
+    private ResponseEntity<String> handleUnauthorizedAccessException(
+        UnauthorizedAccessException e) {
+
+        log.error("UnauthorizedAccessException", e);
+
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(e.getMessage());
+    }
 
     @ExceptionHandler(Exception.class)
     private ResponseEntity<?> handleException(Exception e) {
