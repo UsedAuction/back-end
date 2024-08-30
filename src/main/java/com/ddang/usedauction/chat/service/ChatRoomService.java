@@ -12,6 +12,7 @@ import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +51,11 @@ public class ChatRoomService {
 
     public List<ChatRoomCreateDto.Response> findChatRoomsByMemberId(String memberId) {
         Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return opsHashChatRoom.values(CHAT_ROOMS).stream()
-            .filter(chatRoom -> chatRoom.getSeller().getId().equals(member.getId()) ||
-                chatRoom.getBuyer().getId().equals(member.getId()))
+            .filter(chatRoom -> chatRoom.getSeller().getMemberId().equals(member.getMemberId()) ||
+                chatRoom.getBuyer().getMemberId().equals(member.getMemberId()))
             .collect(Collectors.toList());
     }
 
@@ -89,7 +90,6 @@ public class ChatRoomService {
             ChannelTopic topic = new ChannelTopic(roomId);
             redisMessageListener.addMessageListener(redisSubscriber, topic);
             topics.put(roomId, topic);
-            log.info("생성된 토픽 : {}", topics.get(roomId));
         }
     }
 }
