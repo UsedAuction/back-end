@@ -2,6 +2,9 @@ package com.ddang.usedauction.point.dto;
 
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.domain.PointType;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +25,9 @@ public class PointHistoryDto {
         private long curPointAmount;
         private Long memberId;
 
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
+        private LocalDateTime createdAt;
+
         public static Response from(PointHistory pointHistory) {
             return Response.builder()
                 .id(pointHistory.getId())
@@ -29,6 +35,7 @@ public class PointHistoryDto {
                 .pointAmount(pointHistory.getPointAmount())
                 .curPointAmount(pointHistory.getCurPointAmount())
                 .memberId(pointHistory.getMember().getId())
+                .createdAt(pointHistory.getCreatedAt())
                 .build();
         }
     }
