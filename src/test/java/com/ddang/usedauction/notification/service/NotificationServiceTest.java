@@ -390,7 +390,7 @@ class NotificationServiceTest {
         //given
         Pageable pageable = PageRequest.of(0, 10);
 
-        Page<Notification> notificationPage = new PageImpl<>(
+        List<Notification> notifications =
             List.of(
                 Notification.builder()
                     .id(1L)
@@ -409,32 +409,29 @@ class NotificationServiceTest {
                     .content("알림3")
                     .notificationType(NotificationType.QUESTION)
                     .member(member)
-                    .build()),
-            pageable,
-            3
-        );
+                    .build());
 
         given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
             Optional.of(member));
         given(notificationRepository.findNotificationList(
-            eq(member.getMemberId()), any(LocalDateTime.class), eq(pageable))
-        ).willReturn(notificationPage);
+            eq(member.getMemberId()), any(LocalDateTime.class))
+        ).willReturn(notifications);
 
         //when
-        Page<Notification> result = notificationService.getNotificationList(
-            member.getMemberId(), pageable);
+        List<Notification> result = notificationService.getNotificationList(
+            member.getMemberId());
 
         //then
-        assertEquals(notificationPage.getContent().size(), result.getTotalElements());
-        assertEquals(notificationPage.getContent().get(0).getContent(),
-            result.getContent().get(0).getContent());
-        assertEquals(notificationPage.getContent().get(1).getContent(),
-            result.getContent().get(1).getContent());
-        assertEquals(notificationPage.getContent().get(2).getContent(),
-            result.getContent().get(2).getContent());
+        assertEquals(notifications.size(), result.size());
+        assertEquals(notifications.get(0).getContent(),
+            result.get(0).getContent());
+        assertEquals(notifications.get(1).getContent(),
+            result.get(1).getContent());
+        assertEquals(notifications.get(2).getContent(),
+            result.get(2).getContent());
 
         verify(notificationRepository, times(1)).findNotificationList(
-            eq(member.getMemberId()), any(LocalDateTime.class), eq(pageable));
+            eq(member.getMemberId()), any(LocalDateTime.class));
     }
 
     @Test
@@ -449,12 +446,12 @@ class NotificationServiceTest {
 
         //when
         assertThrows(NoSuchElementException.class,
-            () -> notificationService.getNotificationList(member.getMemberId(), pageable));
+            () -> notificationService.getNotificationList(member.getMemberId()));
 
         //then
         verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(notificationRepository, times(0)).findNotificationList(
-            eq(member.getMemberId()), dateTimeCaptor.capture(), eq(pageable));
+            eq(member.getMemberId()), dateTimeCaptor.capture());
     }
 
     @Test
@@ -466,19 +463,18 @@ class NotificationServiceTest {
 
         given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
             Optional.of(member));
-        given(notificationRepository.findNotificationList(member.getMemberId(), beforeOneMonth,
-            pageable))
+        given(notificationRepository.findNotificationList(member.getMemberId(), beforeOneMonth))
             .willThrow(new RuntimeException());
 
         ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
 
         //when
         assertThrows(RuntimeException.class,
-            () -> notificationService.getNotificationList(member.getMemberId(), pageable));
+            () -> notificationService.getNotificationList(member.getMemberId()));
 
         //then
         verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(notificationRepository, times(1)).findNotificationList(
-            eq(member.getMemberId()), dateTimeCaptor.capture(), eq(pageable));
+            eq(member.getMemberId()), dateTimeCaptor.capture());
     }
 }
