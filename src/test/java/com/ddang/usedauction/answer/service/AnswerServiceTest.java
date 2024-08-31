@@ -93,6 +93,7 @@ class AnswerServiceTest {
     void getAnswerList() {
 
         Member seller = Member.builder()
+            .memberId("test")
             .email("test@naver.com")
             .build();
 
@@ -107,10 +108,10 @@ class AnswerServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Answer> answerPageList = new PageImpl<>(answerList, pageable, answerList.size());
 
-        when(answerRepository.findAllByMemberEmail("test@naver.com", pageable)).thenReturn(
+        when(answerRepository.findAllByMemberId("test", pageable)).thenReturn(
             answerPageList);
 
-        Page<Answer> result = answerService.getAnswerList("test@naver.com", pageable);
+        Page<Answer> result = answerService.getAnswerList("test", pageable);
 
         assertEquals(1, result.getTotalElements());
         assertEquals("test@naver.com",
@@ -123,6 +124,7 @@ class AnswerServiceTest {
 
         Member seller = Member.builder()
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         Auction auction = Auction.builder()
@@ -168,7 +170,7 @@ class AnswerServiceTest {
         when(answerRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
             answer);
 
-        Answer result = answerService.createAnswer(multipartFileList, createDto, "test@naver.com");
+        Answer result = answerService.createAnswer(multipartFileList, createDto, "memberId");
 
         assertEquals("title", result.getTitle());
     }
@@ -231,6 +233,7 @@ class AnswerServiceTest {
 
         Member seller = Member.builder()
             .email("tes@naver.com")
+            .memberId("memberId")
             .build();
 
         Auction auction = Auction.builder()
@@ -238,8 +241,13 @@ class AnswerServiceTest {
             .seller(seller)
             .build();
 
+        Member writer = Member.builder()
+            .memberId("writer")
+            .build();
+
         Ask ask = Ask.builder()
             .id(1L)
+            .writer(writer)
             .build();
 
         AnswerCreateDto createDto = AnswerCreateDto.builder()
@@ -257,7 +265,7 @@ class AnswerServiceTest {
         when(askRepository.findById(1L)).thenReturn(Optional.of(ask));
 
         assertThrows(IllegalStateException.class,
-            () -> answerService.createAnswer(multipartFileList, createDto, "test@naver.com"));
+            () -> answerService.createAnswer(multipartFileList, createDto, "memberI"));
     }
 
     @Test
@@ -275,6 +283,7 @@ class AnswerServiceTest {
 
         Member seller = Member.builder()
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         Auction auction = Auction.builder()
@@ -289,7 +298,7 @@ class AnswerServiceTest {
         when(answerRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(answer);
 
         Answer result = answerService.updateAnswer(1L, multipartFileList, updateDto,
-            "test@naver.com");
+            "memberId");
 
         assertEquals(1, result.getId());
     }
@@ -327,6 +336,7 @@ class AnswerServiceTest {
         List<MultipartFile> multipartFileList = List.of(mockImage);
 
         Member seller = Member.builder()
+            .memberId("memberI")
             .email("test@naver.com")
             .build();
 
@@ -341,7 +351,7 @@ class AnswerServiceTest {
         when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
 
         assertThrows(IllegalStateException.class,
-            () -> answerService.updateAnswer(1L, multipartFileList, updateDto, "tes@naver.com"));
+            () -> answerService.updateAnswer(1L, multipartFileList, updateDto, "memberId"));
     }
 
     @Test
@@ -350,6 +360,7 @@ class AnswerServiceTest {
 
         Member seller = Member.builder()
             .email("test@naver.com")
+            .memberId("test")
             .build();
 
         Auction auction = Auction.builder()
@@ -360,9 +371,9 @@ class AnswerServiceTest {
             .auction(auction)
             .build();
 
-        when(answerRepository.findByMemberEmail("test@naver.com")).thenReturn(Optional.of(answer));
+        when(answerRepository.findByMemberId("test")).thenReturn(Optional.of(answer));
 
-        answerService.deleteAnswer("test@naver.com");
+        answerService.deleteAnswer("test");
 
         verify(answerRepository, times(1)).save(argThat(arg -> !arg.getDeletedAt().equals(null)));
     }
@@ -371,9 +382,9 @@ class AnswerServiceTest {
     @DisplayName("답변 삭제 실패 - 없는 답변")
     void deleteAnswerFail1() {
 
-        when(answerRepository.findByMemberEmail("test@naver.com")).thenReturn(Optional.empty());
+        when(answerRepository.findByMemberId("test")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> answerService.deleteAnswer("test@naver.com"));
+            () -> answerService.deleteAnswer("test"));
     }
 }

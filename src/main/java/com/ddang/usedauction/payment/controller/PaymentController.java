@@ -38,8 +38,8 @@ public class PaymentController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid PaymentInfoDto.Request request
     ) {
-        String email = principalDetails.getUsername();
-        return ResponseEntity.ok(paymentService.ready(email, request));
+        String memberId = principalDetails.getName();
+        return ResponseEntity.ok(paymentService.ready(memberId, request));
     }
 
     /**
@@ -49,21 +49,17 @@ public class PaymentController {
      * @param pgToken        카카오쪽에서 받은 pgToken
      * @return 성공 시 200 코드와 결제 정보, 실패 시 에러메시지
      */
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/approve")
     public ResponseEntity<PaymentApproveDto.Response> paymentApprove(
-        @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestParam("partner_order_id") String partnerOrderId,
         @RequestParam("pg_token") String pgToken
     ) {
-        String email = principalDetails.getUsername();
-        return ResponseEntity.ok(paymentService.approve(email, partnerOrderId, pgToken));
+        return ResponseEntity.ok(paymentService.approve(partnerOrderId, pgToken));
     }
 
     /**
      * 결제 취소
      */
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/cancel")
     public ResponseEntity<PaymentCancelDto.Response> paymentCancel() {
         return ResponseEntity.ok(new PaymentCancelDto.Response("결제를 취소했습니다."));
@@ -72,7 +68,6 @@ public class PaymentController {
     /**
      * 결제 실패
      */
-    @PreAuthorize("hasRole('USER')")
     @GetMapping("/fail")
     public ResponseEntity<PaymentFailDto.Response> paymentFail() {
         return ResponseEntity.ok(new PaymentFailDto.Response("결제가 실패되었습니다."));

@@ -9,13 +9,14 @@ import com.ddang.usedauction.order.repository.OrderRepository;
 import com.ddang.usedauction.payment.dto.PaymentApproveDto;
 import com.ddang.usedauction.payment.dto.PaymentInfoDto;
 import com.ddang.usedauction.payment.dto.PaymentReadyDto;
-import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import com.ddang.usedauction.payment.exception.PaymentApproveException;
+import com.ddang.usedauction.payment.exception.PaymentReadyException;
 import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.repository.PointRepository;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -48,9 +50,11 @@ public class PaymentService {
     private final PointRepository pointRepository;
 
     // 결제 준비
-    public PaymentReadyDto.Response ready(String email, PaymentInfoDto.Request request) {
+    public PaymentReadyDto.Response ready(String memberId, PaymentInfoDto.Request request) {
 
-        Member member = memberRepository.findByEmail(email)
+        log.info("ready() request.getOrderId {}", request.getOrderId());
+
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Orders order = orderRepository.findById(request.getOrderId())
@@ -86,13 +90,18 @@ public class PaymentService {
             .quantity("1")
             .totalAmount(priceStr)
             .taxFreeAmount("0")
-            .approvalUrl("http://localhost:8080/api/members/payment/approve?partner_order_id=" + orderIdStr)
-            .cancelUrl("http://localhost:8080/api/members/payment/cancel")
-            .failUrl("http://localhost:8080/api/members/payment/fail")
+            .approvalUrl(
+                "https://localhost:5173/members/payment/approve?partner_order_id=" + orderIdStr)
+            .cancelUrl("https://localhost:5173/members/payment/cancel")
+            .failUrl("https://localhost:5173/members/payment/fail")
             .build();
 
         // paymentRequest를 map으로 변환
         Map<String, String> map = paymentRequest.toMap();
+        log.info("approval_url: {}", map.get("approval_url"));
+        log.info("cancel_url: {}", map.get("cancel_url"));
+        log.info("fail_url: {}", map.get("fail_url"));
+        log.info("partner_order_id: {}", map.get("partner_order_id"));
 
         // header, body 하나로 합치기
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(map, headers);
@@ -115,10 +124,8 @@ public class PaymentService {
     }
 
     // 결제 승인
-    public PaymentApproveDto.Response approve(String email, String partnerOrderId, String pgToken) {
-
-        Member member = memberRepository.findByEmail(email)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+    public PaymentApproveDto.Response approve(String partnerOrderId,
+        String pgToken) {
 
         Long orderId = Long.valueOf(partnerOrderId);
         Orders order = orderRepository.findById(orderId)
@@ -160,7 +167,10 @@ public class PaymentService {
 
         // 회원 포인트 충전
         Integer point = response.getAmount().getTotal();
+        log.info("point = {}", point);
+        Member member = order.getMember();
         member.addPoint(point);
+        log.info("memberPoint = {}", member.getPoint());
         memberRepository.save(member);
 
         // 포인트 충전내역 저장

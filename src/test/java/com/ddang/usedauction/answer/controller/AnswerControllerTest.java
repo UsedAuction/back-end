@@ -143,7 +143,7 @@ class AnswerControllerTest {
         List<Answer> answerList = List.of(answer);
         Page<Answer> answerPageList = new PageImpl<>(answerList, pageable, answerList.size());
 
-        when(answerService.getAnswerList("test@naver.com", pageable)).thenReturn(answerPageList);
+        when(answerService.getAnswerList("memberId", pageable)).thenReturn(answerPageList);
 
         mockMvc.perform(get("/api/answers"))
             .andDo(print())
@@ -188,7 +188,7 @@ class AnswerControllerTest {
 
         when(answerService.createAnswer(argThat(arg -> arg.get(0).getName().equals("imageList")),
             argThat(arg -> arg.getTitle().equals("title")),
-            argThat(arg -> arg.equals("test@naver.com")))).thenReturn(
+            argThat(arg -> arg.equals("memberId")))).thenReturn(
             answer);
 
         mockMvc.perform(multipart("/api/answers")
@@ -317,7 +317,7 @@ class AnswerControllerTest {
         when(answerService.updateAnswer(argThat(arg -> arg.equals(1L)),
             argThat(arg -> arg.get(0).getName().equals("imageList")),
             argThat(arg -> arg.getContent().equals("content")),
-            argThat(arg -> arg.equals("test@naver.com")))).thenReturn(answer);
+            argThat(arg -> arg.equals("memberId")))).thenReturn(answer);
 
         mockMvc.perform(multipart("/api/answers/1")
                 .file(mockImage)
@@ -452,7 +452,7 @@ class AnswerControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").value("삭제되었습니다."));
 
-        verify(answerService, times(1)).deleteAnswer("test@naver.com");
+        verify(answerService, times(1)).deleteAnswer("memberId");
     }
 
     @Test

@@ -88,6 +88,7 @@ class AskServiceTest {
 
         Member writer = Member.builder()
             .email("test@naver.com")
+            .memberId("test")
             .build();
 
         ask = ask.toBuilder()
@@ -97,10 +98,10 @@ class AskServiceTest {
         List<Ask> askList = List.of(ask);
         Page<Ask> askPageList = new PageImpl<>(askList, pageable, askList.size());
 
-        when(askRepository.findAllByMemberEmail("test@naver.com", pageable)).thenReturn(
+        when(askRepository.findAllByMemberId("test", pageable)).thenReturn(
             askPageList);
 
-        Page<Ask> result = askService.getAskList("test@naver.com", pageable);
+        Page<Ask> result = askService.getAskList("test", pageable);
 
         assertEquals(1, result.getTotalElements());
         assertEquals(1, result.getContent().get(0).getId());
@@ -128,15 +129,16 @@ class AskServiceTest {
 
         Member member = Member.builder()
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
         when(askRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
             ask.toBuilder().title(createDto.getTitle()).writer(member)
                 .content(createDto.getContent()).auction(auction).build());
 
-        Ask result = askService.createAsk(createDto, "test@naver.com");
+        Ask result = askService.createAsk(createDto, "memberId");
 
         assertEquals("title", result.getTitle());
     }
@@ -173,10 +175,10 @@ class AskServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> askService.createAsk(createDto, "test@naver.com"));
+            () -> askService.createAsk(createDto, "memberId"));
     }
 
     @Test
@@ -196,13 +198,14 @@ class AskServiceTest {
 
         Member member = Member.builder()
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
 
         assertThrows(IllegalStateException.class,
-            () -> askService.createAsk(createDto, "test@naver.com"));
+            () -> askService.createAsk(createDto, "memberId"));
     }
 
     @Test
@@ -215,6 +218,7 @@ class AskServiceTest {
 
         Member writer = Member.builder()
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         ask = ask.toBuilder()
@@ -226,7 +230,7 @@ class AskServiceTest {
             ask.toBuilder().content(
                 updateDto.getContent()).build());
 
-        Ask result = askService.updateAsk(1L, updateDto, "test@naver.com");
+        Ask result = askService.updateAsk(1L, updateDto, "memberId");
 
         assertEquals("content", result.getContent());
     }
@@ -255,6 +259,7 @@ class AskServiceTest {
 
         Member writer = Member.builder()
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         ask = ask.toBuilder()
@@ -264,7 +269,7 @@ class AskServiceTest {
         when(askRepository.findById(1L)).thenReturn(Optional.of(ask));
 
         assertThrows(IllegalStateException.class,
-            () -> askService.updateAsk(1L, updateDto, "tes@naver.com"));
+            () -> askService.updateAsk(1L, updateDto, "memberI"));
     }
 
     @Test
@@ -279,7 +284,7 @@ class AskServiceTest {
             .writer(writer)
             .build();
 
-        when(askRepository.findByMemberEmail("test@naver.com")).thenReturn(Optional.of(ask));
+        when(askRepository.findByMemberId("test@naver.com")).thenReturn(Optional.of(ask));
 
         askService.deleteAsk("test@naver.com");
 
@@ -290,7 +295,7 @@ class AskServiceTest {
     @DisplayName("회원이 작성한 문의 삭제 실패 - 없는 문의")
     void deleteAskFail1() {
 
-        when(askRepository.findByMemberEmail("test@naver.com")).thenReturn(Optional.empty());
+        when(askRepository.findByMemberId("test@naver.com")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> askService.deleteAsk("test@naver.com"));
     }

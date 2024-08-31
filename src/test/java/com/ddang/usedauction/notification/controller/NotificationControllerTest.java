@@ -105,6 +105,7 @@ class NotificationControllerTest {
         //given
         Member member = Member.builder()
             .id(1L)
+            .memberId("memberId")
             .email("test@naver.com")
             .build();
 
@@ -134,7 +135,7 @@ class NotificationControllerTest {
             3
         );
 
-        given(notificationService.getNotificationList(member.getEmail(), pageable))
+        given(notificationService.getNotificationList(member.getMemberId(), pageable))
             .willReturn(notificationPage);
 
         //when

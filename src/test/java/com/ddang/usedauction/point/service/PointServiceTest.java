@@ -52,13 +52,15 @@ class PointServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .point(10000L)
             .build();
 
-        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
+        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+            Optional.of(member));
 
         // when
-        long pointBalance = pointService.getPointBalance(member.getEmail());
+        long pointBalance = pointService.getPointBalance(member.getMemberId());
 
         // then
         assertEquals(10000L, pointBalance);
@@ -72,13 +74,15 @@ class PointServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
-        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
 
         // when
         // then
-        assertThrows(NoSuchElementException.class, () -> pointService.getPointBalance(member.getEmail()));
+        assertThrows(NoSuchElementException.class,
+            () -> pointService.getPointBalance(member.getMemberId()));
     }
 
     @Test
@@ -89,6 +93,7 @@ class PointServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .point(10000L)
             .build();
 
@@ -120,13 +125,15 @@ class PointServiceTest {
                 .build()
         );
 
-        given(memberRepository.findByEmail(member.getEmail())).willReturn(Optional.of(member));
-        given(pointRepository.findByMemberEmailAndCreatedAtBetween(member.getEmail(), startDateTime, endDateTime, sortPage))
+        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+            Optional.of(member));
+        given(pointRepository.findByMemberMemberIdAndCreatedAtBetween(member.getMemberId(),
+            startDateTime, endDateTime, sortPage))
             .willReturn(new PageImpl<>(pointHistoryList, sortPage, pointHistoryList.size()));
 
         //when
         Page<PointHistory> pointHistoryPage =
-            pointService.getPointList(member.getEmail(), startDate, endDate, sorted, pageable);
+            pointService.getPointList(member.getMemberId(), startDate, endDate, sorted, pageable);
 
         //then
         assertNotNull(pointHistoryPage);
@@ -176,6 +183,7 @@ class PointServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .point(10000L)
             .build();
 
@@ -187,11 +195,11 @@ class PointServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        when(memberRepository.findByEmail(member.getEmail())).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
 
         // then
         assertThrows(NoSuchElementException.class, () ->
-            pointService.getPointList(member.getEmail(), startDate, endDate, sorted, pageable)
+            pointService.getPointList(member.getMemberId(), startDate, endDate, sorted, pageable)
         );
     }
 
@@ -203,6 +211,7 @@ class PointServiceTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .point(10000L)
             .build();
 
@@ -214,11 +223,11 @@ class PointServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        when(memberRepository.findByEmail(member.getEmail())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
 
         // then
         assertThrows(IllegalArgumentException.class, () ->
-            pointService.getPointList(member.getEmail(), startDate, endDate, sorted, pageable)
+            pointService.getPointList(member.getMemberId(), startDate, endDate, sorted, pageable)
         );
     }
 }

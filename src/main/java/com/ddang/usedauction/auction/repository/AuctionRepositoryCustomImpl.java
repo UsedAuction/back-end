@@ -6,6 +6,7 @@ import static com.ddang.usedauction.bid.domain.QBid.bid;
 import static com.ddang.usedauction.image.domain.QImage.image;
 
 import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.category.domain.QCategory;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -28,18 +29,16 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
         Pageable pageable) {
 
         List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
-            .leftJoin(auction.askList, ask)
-            .leftJoin(auction.bidList, bid)
-            .leftJoin(auction.imageList, image)
             .where(containsTitle(word), eqMainCategory(mainCategory), eqSubCategory(subCategory),
-                auction.deletedAt.isNull())
+                auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
             .orderBy(getOrderSpecifier(sorted))
             .limit(pageable.getPageSize())
             .offset(pageable.getOffset())
             .fetch();
 
         long totalElements = jpaQueryFactory.selectFrom(auction)
-            .where(containsTitle(word), eqMainCategory(mainCategory), auction.deletedAt.isNull())
+            .where(containsTitle(word), eqMainCategory(mainCategory), eqSubCategory(subCategory),
+                auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
             .fetch()
             .size();
 
@@ -50,11 +49,11 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
     public List<Auction> findTop5(String mainCategory, String subCategory) {
 
         List<Auction> auctionList = jpaQueryFactory.selectFrom(auction)
-            .leftJoin(auction.askList, ask)
             .innerJoin(auction.bidList, bid)
-            .leftJoin(auction.imageList, image)
             .where(eqMainCategory(mainCategory), eqSubCategory(subCategory),
-                auction.deletedAt.isNull())
+                auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
+            .groupBy(auction.id)
+            .orderBy(bid.count().desc())
             .limit(5)
             .fetch();
 

@@ -1,10 +1,12 @@
 package com.ddang.usedauction.member.controller;
 
+import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.dto.MemberChangeEmailDto;
 import com.ddang.usedauction.member.dto.MemberChangePasswordDto;
 import com.ddang.usedauction.member.dto.MemberCheckIdDto;
 import com.ddang.usedauction.member.dto.MemberFindIdDto;
 import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
@@ -34,6 +36,16 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/members")
+    public ResponseEntity<MemberGetDto.Response> getMemberController(
+        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+
+        Member member = memberService.getMember(principalDetails.getName());
+
+        return ResponseEntity.ok(MemberGetDto.Response.from(member));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<MemberLoginResponseDto> login(
         HttpServletResponse response, @RequestBody @Valid MemberLoginRequestDto dto) {
@@ -41,7 +53,7 @@ public class MemberController {
             .body(memberService.login(response, dto));
     }
 
-    @GetMapping("/check/id")
+    @PostMapping("/check/id")
     public ResponseEntity<String> checkMemberId(@RequestBody @Valid MemberCheckIdDto dto) {
         memberService.checkMemberId(dto);
         return ResponseEntity.status(HttpStatus.OK)

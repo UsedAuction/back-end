@@ -12,10 +12,10 @@ import org.springframework.stereotype.Repository;
 public interface AskRepository extends JpaRepository<Ask, Long> {
 
     // 회원이 작성한 문의 조회
-    @Query("select a from Ask a where a.writer.email = :memberEmail")
-    Optional<Ask> findByMemberEmail(String memberEmail);
+    @Query("select a from Ask a where a.writer.memberId = :memberId")
+    Optional<Ask> findByMemberId(String memberId);
 
     // 회원이 작성한 문의 리스트 조회
-    @Query("select a from Ask a where a.writer.email = :memberEmail")
-    Page<Ask> findAllByMemberEmail(String memberEmail, Pageable pageable);
+    @Query("select a from Ask a where a.writer.memberId = :memberId")
+    Page<Ask> findAllByMemberId(String memberId, Pageable pageable);
 }

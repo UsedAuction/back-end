@@ -46,10 +46,10 @@ public class TransactionController {
         @RequestParam(required = false) LocalDate endDate, @PageableDefault
     Pageable pageable, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getUsername();
+        String memberId = principalDetails.getName();
 
         Page<Transaction> transactionPageList = transactionService.getTransactionListBySeller(
-            memberEmail, word, transTypeString, sorted, startDate, endDate, pageable);
+            memberId, word, transTypeString, sorted, startDate, endDate, pageable);
 
         return ResponseEntity.ok(transactionPageList.map(TransactionGetDto.Response::from));
     }
@@ -76,10 +76,10 @@ public class TransactionController {
         @RequestParam(required = false) LocalDate endDate, @PageableDefault
     Pageable pageable, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getUsername();
+        String memberId = principalDetails.getName();
 
         Page<Transaction> transactionPageList = transactionService.getTransactionListByBuyer(
-            memberEmail, word, transTypeString, sorted, startDate, endDate, pageable);
+            memberId, word, transTypeString, sorted, startDate, endDate, pageable);
 
         return ResponseEntity.ok(transactionPageList.map(TransactionGetDto.Response::from));
     }

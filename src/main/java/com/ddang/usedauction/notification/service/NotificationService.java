@@ -36,12 +36,13 @@ public class NotificationService {
     private final AuctionRepository auctionRepository;
 
     // 알림 구독
-    public SseEmitter subscribe(String email, String lastEventId) {
+    public SseEmitter subscribe(String memberId, String lastEventId) {
 
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        String emitterId = member.getId() + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
+        String emitterId =
+            member.getId() + "_" + System.currentTimeMillis(); // 유실된 데이터의 시점을 알기 위해 시간을 붙임
         SseEmitter sseEmitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         // 콜백
@@ -55,7 +56,8 @@ public class NotificationService {
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
             Map<String, Object> cacheEvents =
-                emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(member.getId()));
+                emitterRepository.findAllEventCacheStartWithMemberId(
+                    String.valueOf(member.getId()));
             cacheEvents.entrySet().stream()
                 .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
                 .forEach(entry -> sendNotification(sseEmitter, entry.getKey(), entry.getValue()));
@@ -66,10 +68,12 @@ public class NotificationService {
 
     // 알림 전송
     @Transactional
-    public void send(Long memberId, Long auctionId, String content, NotificationType notificationType) {
+    public void send(Long memberId, Long auctionId, String content,
+        NotificationType notificationType) {
 
         Notification notification =
-            notificationRepository.save(createNotification(memberId, auctionId, content, notificationType));
+            notificationRepository.save(
+                createNotification(memberId, auctionId, content, notificationType));
 
         Map<String, SseEmitter> emitters =
             emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
@@ -84,14 +88,14 @@ public class NotificationService {
 
     // 알림 전체 목록 조회
     @Transactional(readOnly = true)
-    public Page<Notification> getNotificationList(String email, Pageable pageable) {
+    public Page<Notification> getNotificationList(String memberId, Pageable pageable) {
 
-        memberRepository.findByEmail(email)
+        memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
 
-        return notificationRepository.findNotificationList(email, beforeOneMonth, pageable);
+        return notificationRepository.findNotificationList(memberId, beforeOneMonth, pageable);
     }
 
     // 실제로 알림을 전송하는 메서드
@@ -109,7 +113,8 @@ public class NotificationService {
     }
 
     // 알림 생성 메서드
-    private Notification createNotification(Long memberId, Long auctionId, String content, NotificationType notificationType) {
+    private Notification createNotification(Long memberId, Long auctionId, String content,
+        NotificationType notificationType) {
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));

@@ -89,15 +89,16 @@ class NotificationServiceQuestionTest {
     void question_success() {
 
         //given
-        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
+            Optional.of(auction));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
         given(askRepository.save(
             argThat(arg -> arg.getTitle().equals(createDto.getTitle()) &&
                 arg.getContent().equals(createDto.getContent()))
         )).willReturn(ask);
 
         //when
-        askService.createAsk(createDto, buyer.getEmail());
+        askService.createAsk(createDto, buyer.getMemberId());
 
         //then
         verify(notificationService, times(1))
@@ -117,7 +118,8 @@ class NotificationServiceQuestionTest {
         given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.empty());
 
         //when
-        assertThrows(NoSuchElementException.class, () -> askService.createAsk(createDto, buyer.getEmail()));
+        assertThrows(NoSuchElementException.class,
+            () -> askService.createAsk(createDto, buyer.getEmail()));
 
         //then
         verify(notificationService, times(0))
@@ -134,11 +136,13 @@ class NotificationServiceQuestionTest {
     void question_fail_2() {
 
         //given
-        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.empty());
+        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
+            Optional.of(auction));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
 
         //when
-        assertThrows(NoSuchElementException.class, () -> askService.createAsk(createDto, buyer.getEmail()));
+        assertThrows(NoSuchElementException.class,
+            () -> askService.createAsk(createDto, buyer.getMemberId()));
 
         //then
         verify(notificationService, times(0))
@@ -161,11 +165,13 @@ class NotificationServiceQuestionTest {
             .seller(seller)
             .build();
 
-        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
+            Optional.of(auction));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
 
         //when
-        assertThrows(IllegalStateException.class, () -> askService.createAsk(createDto, buyer.getEmail()));
+        assertThrows(IllegalStateException.class,
+            () -> askService.createAsk(createDto, buyer.getMemberId()));
 
         //then
         verify(notificationService, times(0))

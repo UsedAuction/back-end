@@ -123,7 +123,7 @@ public class AuctionController {
         @Valid @RequestPart AuctionCreateDto.Request createDto, @AuthenticationPrincipal
     PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getUsername();
+        String memberEmail = principalDetails.getName();
 
         Auction auction = auctionService.createAuction(thumbnail, imageList, memberEmail,
             createDto);
@@ -148,7 +148,7 @@ public class AuctionController {
         AuctionConfirmDto.Request confirmDto,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getUsername();
+        String memberEmail = principalDetails.getName();
 
         auctionService.confirmAuction(auctionId, memberEmail, confirmDto);
 
@@ -168,7 +168,7 @@ public class AuctionController {
         @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getUsername();
+        String memberEmail = principalDetails.getName();
 
         auctionService.instantPurchaseAuction(auctionId, memberEmail);
 

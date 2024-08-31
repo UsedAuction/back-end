@@ -6,7 +6,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CookieUtil {
 
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
@@ -30,7 +32,6 @@ public class CookieUtil {
         response.addCookie(cookie);
     }
 
-
     public static void deleteCookie(HttpServletRequest request, HttpServletResponse response,
         String name) {
 
@@ -40,6 +41,9 @@ public class CookieUtil {
         cookie.setValue("");
         cookie.setPath("/");
         cookie.setMaxAge(0);
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setAttribute("SameSite", "None");
         response.addCookie(cookie);
     }
 }

@@ -298,7 +298,7 @@ class AuctionControllerTest {
         when(auctionService.createAuction(
             argThat(arg -> arg.getName().equals("thumbnail")),
             argThat(arg -> arg.get(0).getName().equals("imageList")),
-            argThat(arg -> arg.equals("test@naver.com")),
+            argThat(arg -> arg.equals("memberId")),
             argThat(arg -> arg.getTitle().equals("title")))).thenReturn(auction);
 
         mockMvc.perform(MockMvcRequestBuilders

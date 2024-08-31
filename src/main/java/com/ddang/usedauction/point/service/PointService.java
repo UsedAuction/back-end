@@ -24,8 +24,8 @@ public class PointService {
     private final PointRepository pointRepository;
 
     // 포인트 잔액 조회
-    public long getPointBalance(String email) {
-        Member member = memberRepository.findByEmail(email)
+    public long getPointBalance(String memberId) {
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return member.getPoint();
@@ -33,22 +33,26 @@ public class PointService {
 
     // 포인트 충전/사용 내역 조회
     public Page<PointHistory> getPointList(
-        String email, LocalDate startDate, LocalDate endDate, String sorted, Pageable pageable
+        String memberId, LocalDate startDate, LocalDate endDate, String sorted, Pageable pageable
     ) {
-        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay() : LocalDate.of(2024, 1, 1).atStartOfDay();
-        LocalDateTime endDateTime = (endDate != null) ? endDate.atTime(LocalTime.MAX) : LocalDateTime.now();;
+        LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay()
+            : LocalDate.of(2024, 1, 1).atStartOfDay();
+        LocalDateTime endDateTime =
+            (endDate != null) ? endDate.atTime(LocalTime.MAX) : LocalDateTime.now();
+        ;
 
         if (endDateTime.isBefore(startDateTime)) {
             throw new IllegalArgumentException("종료일은 시작일보다 빠를 수 없습니다.");
         }
 
-        memberRepository.findByEmail(email)
+        memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Sort sort = sorting(sorted);
         Pageable sortPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return pointRepository.findByMemberEmailAndCreatedAtBetween(email, startDateTime, endDateTime, sortPage);
+        return pointRepository.findByMemberMemberIdAndCreatedAtBetween(memberId, startDateTime,
+            endDateTime, sortPage);
     }
 
     // 정렬
