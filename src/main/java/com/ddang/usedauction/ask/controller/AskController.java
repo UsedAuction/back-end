@@ -65,7 +65,7 @@ public class AskController {
         @PageableDefault(sort = "createdAt", direction = Direction.DESC)
         Pageable pageable) {
 
-        Page<Ask> askPageList = askService.getAskList(principalDetails.getUsername(), pageable);
+        Page<Ask> askPageList = askService.getAskList(principalDetails.getName(), pageable);
 
         return ResponseEntity.ok(askPageList.map(AskGetDto.Response::from));
     }
