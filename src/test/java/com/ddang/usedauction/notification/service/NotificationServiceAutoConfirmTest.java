@@ -33,7 +33,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-@Disabled
 class NotificationServiceAutoConfirmTest {
 
     @Mock
@@ -114,7 +113,7 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
 
         //when
@@ -213,7 +212,7 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
@@ -245,7 +244,7 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
         given(memberRepository.findById(confirmDto.getSellerId())).willReturn(Optional.empty());
 
         //when
