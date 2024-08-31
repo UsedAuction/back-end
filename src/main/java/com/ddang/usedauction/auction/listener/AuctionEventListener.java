@@ -10,6 +10,8 @@ import com.ddang.usedauction.auction.event.AuctionEndEvent;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionRedisService;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.chat.service.ChatMessageService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
@@ -36,6 +38,7 @@ public class AuctionEventListener { // 경매 이벤트 리스너
     private final NotificationService notificationService;
     private final AuctionRepository auctionRepository;
     private final ChatRoomService chatRoomService;
+    private final ChatMessageService chatMessageService;
 
     // 경매 종료 이벤트 리스너
     @EventListener
@@ -88,6 +91,9 @@ public class AuctionEventListener { // 경매 이벤트 리스너
         }
 
         auctionService.confirmAuction(auctionId, buyerId, confirmDto);
+
+        ChatRoom chatRoom = chatRoomService.deleteChatRoom(auctionId);
+        chatMessageService.deleteMessagesByChatRoom(chatRoom.getId());
     }
 
     // 경매 종료 알림 전송

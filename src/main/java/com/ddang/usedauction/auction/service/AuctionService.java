@@ -21,6 +21,8 @@ import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
+import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.chat.service.ChatMessageService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
@@ -68,6 +70,7 @@ public class AuctionService {
     private final RedisTemplate<String, AuctionRecentDto> redisTemplate;
 
     private static final String RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX = "recently::";
+    private final ChatMessageService chatMessageService;
 
     /**
      * 경매글 단건 조회
@@ -258,6 +261,9 @@ public class AuctionService {
 
         // 구매 확정 알림 전송
         sendNotificationForConfirm(buyer, auction);
+
+        ChatRoom chatRoom = chatRoomService.deleteChatRoom(auctionId);
+        chatMessageService.deleteMessagesByChatRoom(chatRoom.getId());
     }
 
     /**
