@@ -31,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 
 @ExtendWith(MockitoExtension.class)
 class AskServiceTest {
@@ -105,6 +106,33 @@ class AskServiceTest {
 
         assertEquals(1, result.getTotalElements());
         assertEquals(1, result.getContent().get(0).getId());
+    }
+
+    @Test
+    @DisplayName("회원이 받은 문의 리스트 조회")
+    void getReceiveAskList() {
+
+        Member seller = Member.builder()
+            .memberId("seller")
+            .build();
+
+        Auction auction = Auction.builder()
+            .seller(seller)
+            .build();
+
+        ask = ask.toBuilder()
+            .auction(auction)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "createdAt");
+        List<Ask> askList = List.of(ask);
+        Page<Ask> askPageList = new PageImpl<>(askList, pageable, askList.size());
+
+        when(askRepository.findALlBySellerId("seller", pageable)).thenReturn(askPageList);
+
+        Page<Ask> result = askService.getReceiveAskList("seller", pageable);
+
+        assertEquals("seller", result.getContent().get(0).getAuction().getSeller().getMemberId());
     }
 
     @Test
