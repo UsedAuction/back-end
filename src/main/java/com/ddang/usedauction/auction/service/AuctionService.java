@@ -455,14 +455,6 @@ public class AuctionService {
         Member seller,
         Transaction transaction) {
 
-        PointHistory buyerPointHistory = PointHistory.builder()
-            .curPointAmount(buyer.getPoint())
-            .pointType(PointType.USE)
-            .pointAmount(confirmDto.getPrice())
-            .member(buyer)
-            .build();
-        pointRepository.save(buyerPointHistory); // 구매자 포인트 히스토리 저장
-
         PointHistory sellerPointHistory = PointHistory.builder()
             .curPointAmount(seller.getPoint())
             .pointType(PointType.GET)
