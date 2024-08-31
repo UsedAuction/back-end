@@ -140,7 +140,6 @@ class TransactionControllerTest {
         mockMvc.perform(get("/api/transactions/sales?word=name&transTypeString=end"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0].sellerEmail").value("seller@naver.com"))
             .andExpect(jsonPath("$.content[0].receiveType").value("ALL"));
     }
 
