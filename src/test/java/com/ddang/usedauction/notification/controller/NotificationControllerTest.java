@@ -109,9 +109,7 @@ class NotificationControllerTest {
             .email("test@naver.com")
             .build();
 
-        Pageable pageable = PageRequest.of(0, 10);
-
-        Page<Notification> notificationPage = new PageImpl<>(
+        List<Notification> notifications =
             List.of(
                 Notification.builder()
                     .id(1L)
@@ -130,13 +128,10 @@ class NotificationControllerTest {
                     .content("알림3")
                     .notificationType(NotificationType.QUESTION)
                     .member(member)
-                    .build()),
-            pageable,
-            3
-        );
+                    .build());
 
-        given(notificationService.getNotificationList(member.getMemberId(), pageable))
-            .willReturn(notificationPage);
+        given(notificationService.getNotificationList(member.getMemberId()))
+            .willReturn(notifications);
 
         //when
         //then
@@ -145,10 +140,10 @@ class NotificationControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content[0].content").value("알림1"))
-            .andExpect(jsonPath("$.content[1].content").value("알림2"))
-            .andExpect(jsonPath("$.content[2].content").value("알림3"))
-            .andExpect(jsonPath("$.content.size()").value(3));
+            .andExpect(jsonPath("$.[0].content").value("알림1"))
+            .andExpect(jsonPath("$.[1].content").value("알림2"))
+            .andExpect(jsonPath("$.[2].content").value("알림3"))
+            .andExpect(jsonPath("$.length()").value(3));
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.dto.NotificationDto.Response;
 import com.ddang.usedauction.notification.service.NotificationService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,18 +46,15 @@ public class NotificationController {
     /**
      * 알림 전체 목록 조회
      *
-     * @param pageable page, size
      * @return 성공 시 200 코드와 알림 전체 목록, 실패 시 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
     @GetMapping
-    public ResponseEntity<Page<NotificationDto.Response>> getNotificationList(
-        @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @PageableDefault Pageable pageable
+    public ResponseEntity<List<NotificationDto.Response>> getNotificationList(
+        @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
         String memberId = principalDetails.getName();
-        Page<Notification> notificationPage = notificationService.getNotificationList(memberId,
-            pageable);
-        return ResponseEntity.ok(notificationPage.map(Response::from));
+        List<Notification> notifications = notificationService.getNotificationList(memberId);
+        return ResponseEntity.ok(notifications.stream().map(Response::from).toList());
     }
 }
