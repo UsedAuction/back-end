@@ -33,6 +33,9 @@ public class ChatApiController {
         redisPublisher.publish(chatRoomService.getTopic(request.getRoomId()), request);
     }
 
+    /**
+     * 회원별 채팅방 목록 조회
+     */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/chat/rooms")
     public ResponseEntity<List<ChatRoomCreateDto.Response>> getChatRoomList(
@@ -41,7 +44,10 @@ public class ChatApiController {
         return ResponseEntity.status(HttpStatus.OK)
             .body(chatRoomService.findChatRoomsByMemberId(principalDetails.getName()));
     }
-  
+
+    /**
+     * 채팅방 메시지 조회
+     */
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/chat/rooms/{roomId}/messages")
     public ResponseEntity<List<ChatMessageSendDto.Response>> getChatMessages(
