@@ -1,9 +1,7 @@
 package com.ddang.usedauction.auction.repository;
 
-import static com.ddang.usedauction.ask.domain.QAsk.ask;
 import static com.ddang.usedauction.auction.domain.QAuction.auction;
 import static com.ddang.usedauction.bid.domain.QBid.bid;
-import static com.ddang.usedauction.image.domain.QImage.image;
 
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
@@ -53,7 +51,7 @@ public class AuctionRepositoryCustomImpl implements AuctionRepositoryCustom {
             .where(eqMainCategory(mainCategory), eqSubCategory(subCategory),
                 auction.deletedAt.isNull(), auction.auctionState.eq(AuctionState.CONTINUE))
             .groupBy(auction.id)
-            .orderBy(bid.count().desc())
+            .orderBy(bid.member.memberId.countDistinct().desc())
             .limit(5)
             .fetch();
 
