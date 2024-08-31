@@ -56,6 +56,19 @@ public class AskService {
     }
 
     /**
+     * 회원이 받은 문의 리스트 조회
+     *
+     * @param memberId 회원 아이디
+     * @param pageable 페이징
+     * @return 페이징된 문의 리스트
+     */
+    @Transactional(readOnly = true)
+    public Page<Ask> getReceiveAskList(String memberId, Pageable pageable) {
+
+        return askRepository.findALlBySellerId(memberId, pageable);
+    }
+
+    /**
      * 문의 생성
      *
      * @param createDto 문의 정보
