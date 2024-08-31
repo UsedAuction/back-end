@@ -197,6 +197,60 @@ class AskControllerTest {
 
     @Test
     @WithCustomMockUser
+    @DisplayName("회원이 받은 문의 리스트 조회 컨트롤러")
+    void getReceiveAskListController() throws Exception {
+
+        Member seller = Member.builder()
+            .memberId("memberId")
+            .build();
+
+        Member writer = Member.builder()
+            .memberId("writer")
+            .build();
+
+        Auction auction = Auction.builder()
+            .seller(seller)
+            .title("auctionTitle")
+            .build();
+
+        ask = ask.toBuilder()
+            .auction(auction)
+            .writer(writer)
+            .build();
+
+        Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "createdAt");
+        List<Ask> askList = List.of(ask);
+        Page<Ask> askPageList = new PageImpl<>(askList, pageable, askList.size());
+
+        when(askService.getReceiveAskList("memberId", pageable)).thenReturn(askPageList);
+
+        mockMvc.perform(get("/api/asks/receive"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].auctionTitle").value("auctionTitle"))
+            .andExpect(jsonPath("$.content[0].writerId").value("writer"));
+    }
+
+    @Test
+    @DisplayName("회원이 받은 문의 리스트 조회 컨트롤러 실패 - 로그인 x")
+    void getReceiveAskListControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/asks/receive"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("회원이 받은 문의 리스트 조회 컨트롤러 실패 - url 경로 다름")
+    void getReceiveAskListControllerFail2() throws Exception {
+
+        mockMvc.perform(get("/api/ask/receive"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomMockUser
     @DisplayName("문의 생성 컨트롤러")
     void createAskController() throws Exception {
 
