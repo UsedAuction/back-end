@@ -11,6 +11,7 @@ import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
@@ -88,14 +89,14 @@ public class NotificationService {
 
     // 알림 전체 목록 조회
     @Transactional(readOnly = true)
-    public Page<Notification> getNotificationList(String memberId, Pageable pageable) {
+    public List<Notification> getNotificationList(String memberId) {
 
         memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
 
-        return notificationRepository.findNotificationList(memberId, beforeOneMonth, pageable);
+        return notificationRepository.findNotificationList(memberId, beforeOneMonth);
     }
 
     // 실제로 알림을 전송하는 메서드
