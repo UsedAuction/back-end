@@ -32,7 +32,7 @@ public class TransactionGetDto {
         private String productColor; // 상품 색상
         private long startPrice; // 시작가
         private long instantPrice; // 즉시 구매가
-        private String sellerEmail; // 판매자 이메일
+        private String sellerId; // 판매자 이메일
         private String buyerId; // 구매자 아이디
         private Long salePrice; // 판매된 가격
         private TransType transType; // 거래 종료 또는 거래 진행 중
@@ -57,7 +57,7 @@ public class TransactionGetDto {
                 .productName(transaction.getAuction().getProductName())
                 .startPrice(transaction.getAuction().getStartPrice())
                 .productStatus(transaction.getAuction().getProductStatus())
-                .sellerEmail(transaction.getAuction().getSeller().getEmail())
+                .sellerId(transaction.getAuction().getSeller().getMemberId())
                 .auctionId(transaction.getAuction().getId())
                 .saleDate(transaction.getUpdatedAt())
                 .salePrice(transaction.getPrice())
