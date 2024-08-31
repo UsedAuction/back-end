@@ -329,6 +329,14 @@ public class AuctionService {
             .build();
         memberRepository.save(buyer);
 
+        PointHistory pointHistory = PointHistory.builder()
+            .pointType(PointType.USE)
+            .pointAmount(auction.getInstantPrice())
+            .curPointAmount(buyer.getPoint())
+            .member(buyer)
+            .build();
+        pointRepository.save(pointHistory);
+
         Transaction transaction = Transaction.builder()
             .price(auction.getInstantPrice())
             .transType(TransType.CONTINUE)
@@ -423,6 +431,14 @@ public class AuctionService {
                 .build();
 
             memberRepository.save(member);
+
+            PointHistory pointHistory = PointHistory.builder()
+                .pointType(PointType.USE)
+                .pointAmount(bid.getBidPrice())
+                .curPointAmount(member.getPoint())
+                .member(member)
+                .build();
+            pointRepository.save(pointHistory);
         }
 
         Transaction transaction = Transaction.builder()
@@ -450,14 +466,6 @@ public class AuctionService {
     private void savePointAndTransaction(AuctionConfirmDto.Request confirmDto, Member buyer,
         Member seller,
         Transaction transaction) {
-
-        PointHistory buyerPointHistory = PointHistory.builder()
-            .curPointAmount(buyer.getPoint())
-            .pointType(PointType.USE)
-            .pointAmount(confirmDto.getPrice())
-            .member(buyer)
-            .build();
-        pointRepository.save(buyerPointHistory); // 구매자 포인트 히스토리 저장
 
         PointHistory sellerPointHistory = PointHistory.builder()
             .curPointAmount(seller.getPoint())

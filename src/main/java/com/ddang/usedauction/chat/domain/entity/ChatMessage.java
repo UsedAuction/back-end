@@ -2,6 +2,7 @@ package com.ddang.usedauction.chat.domain.entity;
 
 import com.ddang.usedauction.config.BaseTimeEntity;
 import com.ddang.usedauction.member.domain.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,18 +23,19 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ChatMessage extends BaseTimeEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  private String message;
+    @Column(nullable = false)
+    private String message;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id")
-  private Member sender;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member sender;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "chatRoom_id")
-  private ChatRoom chatRoom;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "chatRoom_id")
+    private ChatRoom chatRoom;
 
 }

@@ -1,7 +1,9 @@
 package com.ddang.usedauction.chat.domain.dto;
 
 import com.ddang.usedauction.chat.domain.entity.ChatMessage;
-import com.ddang.usedauction.member.domain.Member;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,14 +31,18 @@ public class ChatMessageSendDto {
     public static class Response {
 
         private Long roomId;
-        private Member sender;
+        private String senderId;
         private String message;
+
+        @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
+        private LocalDateTime createdAt;
 
         public static Response from(ChatMessage chatMessage) {
             return Response.builder()
                 .roomId(chatMessage.getChatRoom().getId())
-                .sender(chatMessage.getSender())
+                .senderId(chatMessage.getSender().getMemberId())
                 .message(chatMessage.getMessage())
+                .createdAt(chatMessage.getCreatedAt())
                 .build();
         }
     }

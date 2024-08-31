@@ -27,6 +27,8 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     /**
+     * 결제 준비
+     *
      * @param request 주문 상세 정보
      * @return 성공 시 200 코드와 결제 승인에 필요한 정보, 실패 시 에러메시지
      */
@@ -41,6 +43,8 @@ public class PaymentController {
     }
 
     /**
+     * 결제 승인
+     *
      * @param partnerOrderId 주문 id
      * @param pgToken        카카오쪽에서 받은 pgToken
      * @return 성공 시 200 코드와 결제 정보, 실패 시 에러메시지
