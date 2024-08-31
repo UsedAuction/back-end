@@ -167,7 +167,7 @@ class AskControllerTest {
         List<Ask> askList = List.of(ask);
         Page<Ask> askPageList = new PageImpl<>(askList, pageable, askList.size());
 
-        when(askService.getAskList("test@naver.com", pageable)).thenReturn(askPageList);
+        when(askService.getAskList("memberId", pageable)).thenReturn(askPageList);
 
         mockMvc.perform(get("/api/asks"))
             .andDo(print())
