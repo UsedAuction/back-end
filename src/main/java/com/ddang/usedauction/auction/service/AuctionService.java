@@ -4,6 +4,7 @@ import static com.ddang.usedauction.notification.domain.NotificationType.CONFIRM
 import static com.ddang.usedauction.notification.domain.NotificationType.DONE_INSTANT;
 
 import com.ddang.usedauction.aop.RedissonLock;
+import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.domain.DeliveryType;
@@ -87,6 +88,17 @@ public class AuctionService {
             .leftPush(key, AuctionRecentDto.from(auction)); // 레디스에 저장
         redisTemplate.opsForList().trim(key, 0, 4); // 리스트 길이 5로 유지
         redisTemplate.expire(key, Duration.ofHours(12)); // 만료 시간 설정 (12시간)
+
+        auction = auction.toBuilder()
+            .bidList(auction.getBidList() != null && !auction.getBidList().isEmpty()
+                ? auction.getBidList().stream()
+                .sorted(Comparator.comparing(Bid::getCreatedAt).reversed())
+                .toList() : new ArrayList<>())
+            .askList(auction.getAskList() != null && !auction.getAskList().isEmpty()
+                ? auction.getAskList().stream()
+                .sorted(Comparator.comparing(Ask::getCreatedAt).reversed()).toList()
+                : new ArrayList<>())
+            .build();
 
         return auction;
     }
