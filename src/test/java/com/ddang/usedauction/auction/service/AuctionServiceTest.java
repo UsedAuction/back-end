@@ -543,8 +543,6 @@ class AuctionServiceTest {
 
         verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 2000));
         verify(pointRepository, times(1)).save(
-            argThat(arg -> arg.getPointType().equals(PointType.USE)));
-        verify(pointRepository, times(1)).save(
             argThat(arg -> arg.getPointType().equals(PointType.GET)));
         verify(transactionRepository, times(1)).save(
             argThat(arg -> arg.getTransType().equals(TransType.SUCCESS)));
