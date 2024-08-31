@@ -317,6 +317,14 @@ public class AuctionService {
             .build();
         memberRepository.save(buyer);
 
+        PointHistory pointHistory = PointHistory.builder()
+            .pointType(PointType.USE)
+            .pointAmount(auction.getInstantPrice())
+            .curPointAmount(buyer.getPoint())
+            .member(buyer)
+            .build();
+        pointRepository.save(pointHistory);
+
         Transaction transaction = Transaction.builder()
             .price(auction.getInstantPrice())
             .transType(TransType.CONTINUE)
