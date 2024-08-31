@@ -18,4 +18,7 @@ public interface AskRepository extends JpaRepository<Ask, Long> {
     // 회원이 작성한 문의 리스트 조회
     @Query("select a from Ask a where a.writer.memberId = :memberId")
     Page<Ask> findAllByMemberId(String memberId, Pageable pageable);
+
+    @Query("select a from Ask a where a.auction.seller.memberId = :sellerId")
+    Page<Ask> findALlBySellerId(String sellerId, Pageable pageable);
 }
