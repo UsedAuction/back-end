@@ -136,12 +136,18 @@ public class AnswerService {
      * 회원이 작성한 답변 삭제
      *
      * @param memberId 회원 아이디
+     * @param answerId 삭제할 답변 pk
      */
     @Transactional
-    public void deleteAnswer(String memberId) {
+    public void deleteAnswer(String memberId, Long answerId) {
 
-        Answer answer = answerRepository.findByMemberId(memberId)
+        Answer answer = answerRepository.findById(answerId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 답변입니다."));
+
+        // 작성한 회원이 아닌 경우
+        if (!answer.getAuction().getSeller().getMemberId().equals(memberId)) {
+            throw new IllegalStateException("답변을 작성한 회원만 삭제 가능합니다.");
+        }
 
         answer = answer.toBuilder()
             .deletedAt(LocalDateTime.now())

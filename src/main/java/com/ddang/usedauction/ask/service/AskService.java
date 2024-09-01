@@ -131,12 +131,18 @@ public class AskService {
      * 회원이 작성한 문의 삭제
      *
      * @param memberId 회원 아이디
+     * @param askId    삭제할 문의 pk
      */
     @Transactional
-    public void deleteAsk(String memberId) {
+    public void deleteAsk(String memberId, Long askId) {
 
-        Ask ask = askRepository.findByMemberId(memberId)
+        Ask ask = askRepository.findById(askId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
+
+        // 작성한 회원이 아닌 경우
+        if (!ask.getWriter().getMemberId().equals(memberId)) {
+            throw new IllegalStateException("작성한 회원만 삭제할 수 있습니다.");
+        }
 
         ask = ask.toBuilder()
             .deletedAt(LocalDateTime.now())

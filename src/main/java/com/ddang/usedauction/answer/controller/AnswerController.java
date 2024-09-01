@@ -123,14 +123,16 @@ public class AnswerController {
      * 회원이 작성한 답변 삭제 컨트롤러
      *
      * @param principalDetails 회원 정보
+     * @param answerId         삭제할 답변 pk
      * @return 성공 시 200 코드와 삭제 메시지, 실패 시 에러코드와 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping
+    @DeleteMapping("/{answerId}")
     public ResponseEntity<String> deleteAnswerController(
+        @NotNull(message = "pk값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long answerId,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        answerService.deleteAnswer(principalDetails.getName());
+        answerService.deleteAnswer(principalDetails.getName(), answerId);
 
         return ResponseEntity.ok("삭제되었습니다.");
     }

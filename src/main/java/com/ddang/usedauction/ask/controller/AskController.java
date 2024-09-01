@@ -132,14 +132,16 @@ public class AskController {
      * 회원이 작성한 문의 삭제 컨트롤러
      *
      * @param principalDetails 회원 정보
+     * @param askId            삭제할 문의 pk
      * @return 성공 시 200 코드와 삭제메시지, 실패 시 에러코드와 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
-    @DeleteMapping
+    @DeleteMapping("/{askId}")
     public ResponseEntity<String> deleteAskController(
-        @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long askId) {
 
-        askService.deleteAsk(principalDetails.getName());
+        askService.deleteAsk(principalDetails.getName(), askId);
 
         return ResponseEntity.ok("삭제되었습니다.");
     }
