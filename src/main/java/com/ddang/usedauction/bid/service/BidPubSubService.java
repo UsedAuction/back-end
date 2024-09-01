@@ -104,6 +104,22 @@ public class BidPubSubService {
             throw new IllegalArgumentException("즉시구매가 이상으로 입찰할 수 없습니다.");
         }
 
+        // 다른 경매의 최고입찰가로 현재 회원이 있는 경우의 총 금액
+        long previousUsedPoint = getPreviousUsedPoint(message.getMemberId(), message, member);
+
+        // 현재 보유 포인트에서 다른 경매에서 현재 회원이 최고입찰자인 경우 해당 포인트만큼 감소시킨 금액이 현재 입찰할 금액보다 적은 경우
+        if (member.getPoint() - previousUsedPoint < message.getBidAmount()) {
+            BidFailByPointMessageDto.Response response = BidFailByPointMessageDto.Response.from(
+                previousUsedPoint, member.getPoint(),
+                message.getBidAmount());
+
+            // 해당 회원에게 에러 메시지 발송
+            simpMessageSendingOperations.convertAndSend("/sub/errors/" + message.getMemberId(),
+                response);
+
+            throw new IllegalArgumentException("포인트 충전이 필요합니다.");
+        }
+
         // 현재 입찰 시도한 금액 이상으로 먼저 입찰한 회원이 존재하는 경우
         if ((auction.getCurrentPrice() != auction.getStartPrice()) && (message.getBidAmount()
             < auction.getCurrentPrice() + 1000)) {
@@ -126,22 +142,6 @@ public class BidPubSubService {
 
             throw new IllegalArgumentException(
                 "입찰 금액은 입찰 시작가보다 1000원 높은 금액부터 입찰할 수 있습니다.");
-        }
-
-        // 다른 경매의 최고입찰가로 현재 회원이 있는 경우의 총 금액
-        long previousUsedPoint = getPreviousUsedPoint(message.getMemberId(), message, member);
-
-        // 현재 보유 포인트에서 다른 경매에서 현재 회원이 최고입찰자인 경우 해당 포인트만큼 감소시킨 금액이 현재 입찰할 금액보다 적은 경우
-        if (member.getPoint() - previousUsedPoint < message.getBidAmount()) {
-            BidFailByPointMessageDto.Response response = BidFailByPointMessageDto.Response.from(
-                previousUsedPoint, member.getPoint(),
-                message.getBidAmount());
-
-            // 해당 회원에게 에러 메시지 발송
-            simpMessageSendingOperations.convertAndSend("/sub/errors/" + message.getMemberId(),
-                response);
-
-            throw new IllegalArgumentException("포인트 충전이 필요합니다.");
         }
     }
 
