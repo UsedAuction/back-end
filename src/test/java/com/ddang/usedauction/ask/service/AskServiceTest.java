@@ -306,15 +306,16 @@ class AskServiceTest {
 
         Member writer = Member.builder()
             .email("test@naver.com")
+            .memberId("test")
             .build();
 
         ask = ask.toBuilder()
             .writer(writer)
             .build();
 
-        when(askRepository.findByMemberId("test@naver.com")).thenReturn(Optional.of(ask));
+        when(askRepository.findById(1L)).thenReturn(Optional.of(ask));
 
-        askService.deleteAsk("test@naver.com");
+        askService.deleteAsk("test", 1L);
 
         verify(askRepository, times(1)).save(argThat(arg -> !arg.getDeletedAt().equals(null)));
     }
@@ -323,8 +324,8 @@ class AskServiceTest {
     @DisplayName("회원이 작성한 문의 삭제 실패 - 없는 문의")
     void deleteAskFail1() {
 
-        when(askRepository.findByMemberId("test@naver.com")).thenReturn(Optional.empty());
+        when(askRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> askService.deleteAsk("test@naver.com"));
+        assertThrows(NoSuchElementException.class, () -> askService.deleteAsk("test", 1L));
     }
 }

@@ -371,9 +371,9 @@ class AnswerServiceTest {
             .auction(auction)
             .build();
 
-        when(answerRepository.findByMemberId("test")).thenReturn(Optional.of(answer));
+        when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
 
-        answerService.deleteAnswer("test");
+        answerService.deleteAnswer("test", 1L);
 
         verify(answerRepository, times(1)).save(argThat(arg -> !arg.getDeletedAt().equals(null)));
     }
@@ -382,9 +382,9 @@ class AnswerServiceTest {
     @DisplayName("답변 삭제 실패 - 없는 답변")
     void deleteAnswerFail1() {
 
-        when(answerRepository.findByMemberId("test")).thenReturn(Optional.empty());
+        when(answerRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> answerService.deleteAnswer("test"));
+            () -> answerService.deleteAnswer("test", 1L));
     }
 }

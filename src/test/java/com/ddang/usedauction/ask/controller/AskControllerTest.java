@@ -411,19 +411,19 @@ class AskControllerTest {
     @DisplayName("회원이 작성한 문의 삭제 컨트롤러")
     void deleteAskController() throws Exception {
 
-        mockMvc.perform(delete("/api/asks"))
+        mockMvc.perform(delete("/api/asks/1"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").value("삭제되었습니다."));
 
-        verify(askService, times(1)).deleteAsk("memberId");
+        verify(askService, times(1)).deleteAsk("memberId", 1L);
     }
 
     @Test
     @DisplayName("회원이 작성한 문의 삭제 컨트롤러 실패 - 로그인 x")
     void deleteAskControllerFail1() throws Exception {
 
-        mockMvc.perform(delete("/api/asks"))
+        mockMvc.perform(delete("/api/asks/1"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }

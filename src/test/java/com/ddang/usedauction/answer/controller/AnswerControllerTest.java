@@ -447,19 +447,19 @@ class AnswerControllerTest {
     @DisplayName("회원이 작성한 답변 삭제 컨트롤러")
     void deleteAnswerController() throws Exception {
 
-        mockMvc.perform(delete("/api/answers"))
+        mockMvc.perform(delete("/api/answers/1"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").value("삭제되었습니다."));
 
-        verify(answerService, times(1)).deleteAnswer("memberId");
+        verify(answerService, times(1)).deleteAnswer("memberId", 1L);
     }
 
     @Test
     @DisplayName("회원이 작성한 답변 삭제 컨트롤러 실패 - 로그인 x")
     void deleteAnswerControllerFail1() throws Exception {
 
-        mockMvc.perform(delete("/api/answers"))
+        mockMvc.perform(delete("/api/answers/1"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
