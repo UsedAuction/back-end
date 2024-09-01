@@ -43,8 +43,7 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
             refreshTokenExpiration);
 
         log.info("successHandler refreshTokenExpirationValue = {}", refreshTokenExpirationValue);
-        CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
-            refreshTokenExpirationValue);
+        CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken());
         response.sendRedirect(
             URI + "?accessToken=" + token.getAccessToken() + "&memberId=" + details.getName());
     }

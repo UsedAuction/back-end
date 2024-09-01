@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CookieUtil {
 
+    private final static int MAX_AGE = 7 * 24 * 60 * 60; // 1주일
+
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -21,12 +23,11 @@ public class CookieUtil {
         return Optional.empty();
     }
 
-    public static void addCookie(HttpServletResponse response, String name, String value,
-        int maxAge) {
+    public static void addCookie(HttpServletResponse response, String name, String value) {
         Cookie cookie = new Cookie(name, value);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
-        cookie.setMaxAge(maxAge);
+        cookie.setMaxAge(MAX_AGE);
         cookie.setPath("/");
         cookie.setAttribute("SameSite", "None");
         response.addCookie(cookie);

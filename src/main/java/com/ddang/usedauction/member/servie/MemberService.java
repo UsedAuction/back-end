@@ -81,8 +81,7 @@ public class MemberService {
         refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
             refreshTokenExpiration);
 
-        CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
-            (int) refreshTokenExpiration);
+        CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken());
 
         return MemberLoginResponseDto.builder()
             .accessToken(token.getAccessToken())
