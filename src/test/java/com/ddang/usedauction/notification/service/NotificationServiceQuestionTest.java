@@ -81,6 +81,8 @@ class NotificationServiceQuestionTest {
             .id(1L)
             .title("문의 제목")
             .content("문의 내용")
+            .auction(auction)
+            .writer(buyer)
             .build();
     }
 
