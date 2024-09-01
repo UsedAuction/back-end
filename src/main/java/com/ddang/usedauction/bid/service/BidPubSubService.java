@@ -70,7 +70,7 @@ public class BidPubSubService {
 
         // 해당 경매 채널에 성공 메시지 발송
         simpMessageSendingOperations.convertAndSend(
-            "/sub/auction/" + message.getAuctionId() + "/" + message.getMemberId(),
+            "/sub/auction/" + message.getAuctionId(),
             BidMessageDto.Response.from(message, message.getMemberId()));
 
         // 경매 리스트 채널에 성공 메시지 발송
