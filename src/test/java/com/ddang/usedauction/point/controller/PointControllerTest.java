@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.member.domain.Member;
-import com.ddang.usedauction.point.domain.PointHistory;
+import com.ddang.usedauction.point.dto.PointHistoryDto;
 import com.ddang.usedauction.point.service.PointService;
 import com.ddang.usedauction.security.auth.PrincipalOauth2UserService;
 import com.ddang.usedauction.security.jwt.Oauth2FailureHandler;
@@ -112,24 +112,24 @@ class PointControllerTest {
             .memberId("memberId")
             .build();
 
-        PointHistory pointHistory1 = PointHistory.builder()
+        PointHistoryDto.Response response1 = PointHistoryDto.Response.builder()
             .id(1L)
             .pointType(CHARGE)
             .pointAmount(10000L)
             .curPointAmount(10000L)
-            .member(member)
+            .memberId(member.getId())
             .build();
 
-        PointHistory pointHistory2 = PointHistory.builder()
+        PointHistoryDto.Response response2 = PointHistoryDto.Response.builder()
             .id(2L)
             .pointType(USE)
             .pointAmount(-2000L)
             .curPointAmount(8000L)
-            .member(member)
+            .memberId(member.getId())
             .build();
 
-        Page<PointHistory> pointHistoryPage =
-            new PageImpl<>(List.of(pointHistory1, pointHistory2), pageable, 2);
+        Page<PointHistoryDto.Response> pointHistoryPage =
+            new PageImpl<>(List.of(response1, response2), pageable, 2);
 
         given(pointService.getPointList(member.getMemberId(), startDate, endDate, sorted, pageable))
             .willReturn(pointHistoryPage);
