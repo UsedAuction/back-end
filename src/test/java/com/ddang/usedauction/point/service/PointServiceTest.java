@@ -12,6 +12,7 @@ import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
+import com.ddang.usedauction.point.dto.PointHistoryDto;
 import com.ddang.usedauction.point.repository.PointRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -132,7 +133,7 @@ class PointServiceTest {
             .willReturn(new PageImpl<>(pointHistoryList, sortPage, pointHistoryList.size()));
 
         //when
-        Page<PointHistory> pointHistoryPage =
+        Page<PointHistoryDto.Response> pointHistoryPage =
             pointService.getPointList(member.getMemberId(), startDate, endDate, sorted, pageable);
 
         //then
@@ -142,12 +143,12 @@ class PointServiceTest {
         assertEquals(CHARGE, pointHistoryPage.getContent().get(0).getPointType());
         assertEquals(5000L, pointHistoryPage.getContent().get(0).getPointAmount());
         assertEquals(10000L, pointHistoryPage.getContent().get(0).getCurPointAmount());
-        assertEquals(1, pointHistoryPage.getContent().get(0).getMember().getId());
+        assertEquals(1, pointHistoryPage.getContent().get(0).getMemberId());
 
         assertEquals(USE, pointHistoryPage.getContent().get(1).getPointType());
         assertEquals(3000L, pointHistoryPage.getContent().get(1).getPointAmount());
         assertEquals(7000L, pointHistoryPage.getContent().get(1).getCurPointAmount());
-        assertEquals(1, pointHistoryPage.getContent().get(1).getMember().getId());
+        assertEquals(1, pointHistoryPage.getContent().get(1).getMemberId());
     }
 
     @Test
