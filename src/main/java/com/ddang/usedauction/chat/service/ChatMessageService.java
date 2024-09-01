@@ -59,7 +59,7 @@ public class ChatMessageService {
             throw new UnauthorizedAccessException();
         }
 
-        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(chatRoomId).stream()
+        return chatMessageRepository.findByChatRoomId(chatRoomId).stream()
             .map(ChatMessageSendDto.Response::from)
             .collect(Collectors.toList());
     }
