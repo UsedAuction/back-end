@@ -4,6 +4,7 @@ import static com.ddang.usedauction.notification.domain.NotificationType.ANSWER;
 
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.answer.dto.AnswerCreateDto;
+import com.ddang.usedauction.answer.dto.AnswerGetDto;
 import com.ddang.usedauction.answer.dto.AnswerUpdateDto;
 import com.ddang.usedauction.answer.repository.AnswerRepository;
 import com.ddang.usedauction.ask.domain.Ask;
@@ -40,10 +41,12 @@ public class AnswerService {
      * @return 조회된 답변
      */
     @Transactional(readOnly = true)
-    public Answer getAnswer(Long answerId) {
+    public AnswerGetDto.Response getAnswer(Long answerId) {
 
-        return answerRepository.findById(answerId)
+        Answer answer = answerRepository.findById(answerId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 질문입니다."));
+
+        return AnswerGetDto.Response.from(answer);
     }
 
     /**
@@ -54,9 +57,11 @@ public class AnswerService {
      * @return 페이징 처리된 답변 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Answer> getAnswerList(String memberId, Pageable pageable) {
+    public Page<AnswerGetDto.Response> getAnswerList(String memberId, Pageable pageable) {
 
-        return answerRepository.findAllByMemberId(memberId, pageable);
+        Page<Answer> answerPageList = answerRepository.findAllByMemberId(memberId, pageable);
+
+        return answerPageList.map(AnswerGetDto.Response::from);
     }
 
     /**
@@ -68,7 +73,8 @@ public class AnswerService {
      * @return 작성된 답변
      */
     @Transactional
-    public Answer createAnswer(List<MultipartFile> imageList, AnswerCreateDto createDto,
+    public AnswerGetDto.Response createAnswer(List<MultipartFile> imageList,
+        AnswerCreateDto createDto,
         String writerId) {
 
         Auction auction = auctionRepository.findById(createDto.getAuctionId())
@@ -92,7 +98,9 @@ public class AnswerService {
 
         sendNotificationForAnswer(auction, ask.getWriter().getId());
 
-        return answerRepository.save(answer);
+        Answer savedAnswer = answerRepository.save(answer);
+
+        return AnswerGetDto.Response.from(savedAnswer);
     }
 
     /**
@@ -105,7 +113,7 @@ public class AnswerService {
      * @return 수정된 답변
      */
     @Transactional
-    public Answer updateAnswer(Long answerId, List<MultipartFile> imageList,
+    public AnswerGetDto.Response updateAnswer(Long answerId, List<MultipartFile> imageList,
         AnswerUpdateDto updateDto, String memberId) {
 
         Answer answer = answerRepository.findById(answerId)
@@ -129,7 +137,9 @@ public class AnswerService {
 
         saveImage(imageList, answer);
 
-        return answerRepository.save(answer);
+        Answer savedAnswer = answerRepository.save(answer);
+
+        return AnswerGetDto.Response.from(savedAnswer);
     }
 
     /**

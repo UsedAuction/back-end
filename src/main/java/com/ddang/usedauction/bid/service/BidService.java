@@ -1,6 +1,7 @@
 package com.ddang.usedauction.bid.service;
 
 import com.ddang.usedauction.bid.domain.Bid;
+import com.ddang.usedauction.bid.dto.BidGetDto;
 import com.ddang.usedauction.bid.repository.BidRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,8 +23,10 @@ public class BidService {
      * @return 페이징 처리된 입찰 목록
      */
     @Transactional(readOnly = true)
-    public Page<Bid> getBidList(String memberId, Pageable pageable) {
+    public Page<BidGetDto.Response> getBidList(String memberId, Pageable pageable) {
 
-        return bidRepository.findAllByMemberId(memberId, pageable);
+        Page<Bid> bidList = bidRepository.findAllByMemberId(memberId, pageable);
+
+        return bidList.map(BidGetDto.Response::from);
     }
 }

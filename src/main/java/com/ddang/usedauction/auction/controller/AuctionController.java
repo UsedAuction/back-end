@@ -1,10 +1,9 @@
 package com.ddang.usedauction.auction.controller;
 
-import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionGetDto;
-import com.ddang.usedauction.auction.dto.AuctionRecentDto;
+import com.ddang.usedauction.auction.dto.AuctionGetDto.Response;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
 import com.ddang.usedauction.validation.IsImage;
@@ -48,9 +47,9 @@ public class AuctionController {
     public ResponseEntity<AuctionGetDto.Response> getAuctionController(
         @Positive(message = "PK값은 0 또는 음수일 수 없습니다.") @PathVariable Long auctionId) {
 
-        Auction auction = auctionService.getAuction(auctionId);
+        Response response = auctionService.getAuction(auctionId);
 
-        return ResponseEntity.ok(AuctionGetDto.Response.from(auction));
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -70,11 +69,11 @@ public class AuctionController {
         @RequestParam(required = false) String sorted,
         @PageableDefault Pageable pageable) {
 
-        Page<Auction> auctionList = auctionService.getAuctionList(word, mainCategory, subCategory,
+        Page<Response> auctionList = auctionService.getAuctionList(word, mainCategory, subCategory,
             sorted,
             pageable);
 
-        return ResponseEntity.ok(auctionList.map(AuctionGetDto.Response::from));
+        return ResponseEntity.ok(auctionList);
     }
 
     /**
@@ -87,22 +86,9 @@ public class AuctionController {
         @RequestParam(required = false) String mainCategory,
         @RequestParam(required = false) String subCategory) {
 
-        List<Auction> auctionList = auctionService.getTop5(mainCategory, subCategory);
+        List<Response> top5 = auctionService.getTop5(mainCategory, subCategory);
 
-        return ResponseEntity.ok(auctionList.stream().map(AuctionGetDto.Response::from).toList());
-    }
-
-    /**
-     * 최근 본 경매 리스트 조회 컨트롤러
-     *
-     * @return 성공 시 200 코드와 최근 본 경매 리스트, 없으면 200 코드와 빈 리스트, 실패 시 에러코드와 에러메시지
-     */
-    @GetMapping("/recent")
-    public ResponseEntity<List<AuctionRecentDto>> getAuctionRecentListController() {
-
-        List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
-
-        return ResponseEntity.ok(auctionRecentList);
+        return ResponseEntity.ok(top5);
     }
 
     /**
@@ -125,11 +111,12 @@ public class AuctionController {
 
         String memberEmail = principalDetails.getName();
 
-        Auction auction = auctionService.createAuction(thumbnail, imageList, memberEmail,
+        AuctionCreateDto.Response response = auctionService.createAuction(thumbnail, imageList,
+            memberEmail,
             createDto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(AuctionCreateDto.Response.from(auction));
+            .body(response);
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.ddang.usedauction.point.controller;
 
-import com.ddang.usedauction.point.domain.PointHistory;
 import com.ddang.usedauction.point.dto.PointBalanceDto;
 import com.ddang.usedauction.point.dto.PointHistoryDto;
 import com.ddang.usedauction.point.dto.PointHistoryDto.Response;
@@ -65,9 +64,9 @@ public class PointController {
         @PageableDefault Pageable pageable
     ) {
         String memberId = principalDetails.getName();
-        Page<PointHistory> pointHistoryPage = pointService.getPointList(memberId, startDate,
+        Page<Response> pointList = pointService.getPointList(memberId, startDate,
             endDate,
             sorted, pageable);
-        return ResponseEntity.ok(pointHistoryPage.map(Response::from));
+        return ResponseEntity.ok(pointList);
     }
 }

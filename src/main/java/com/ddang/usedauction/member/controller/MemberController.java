@@ -1,12 +1,12 @@
 package com.ddang.usedauction.member.controller;
 
-import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.dto.MemberChangeEmailDto;
 import com.ddang.usedauction.member.dto.MemberChangePasswordDto;
 import com.ddang.usedauction.member.dto.MemberCheckIdDto;
 import com.ddang.usedauction.member.dto.MemberFindIdDto;
 import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
 import com.ddang.usedauction.member.dto.MemberGetDto;
+import com.ddang.usedauction.member.dto.MemberGetDto.Response;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
@@ -41,9 +41,9 @@ public class MemberController {
     public ResponseEntity<MemberGetDto.Response> getMemberController(
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Member member = memberService.getMember(principalDetails.getName());
+        Response member = memberService.getMember(principalDetails.getName());
 
-        return ResponseEntity.ok(MemberGetDto.Response.from(member));
+        return ResponseEntity.ok(member);
     }
 
     @PostMapping("/login")

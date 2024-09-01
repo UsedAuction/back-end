@@ -1,8 +1,8 @@
 package com.ddang.usedauction.ask.controller;
 
-import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.ask.dto.AskCreateDto;
 import com.ddang.usedauction.ask.dto.AskGetDto;
+import com.ddang.usedauction.ask.dto.AskGetDto.Response;
 import com.ddang.usedauction.ask.dto.AskUpdateDto;
 import com.ddang.usedauction.ask.service.AskService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
@@ -46,9 +46,9 @@ public class AskController {
     public ResponseEntity<AskGetDto.Response> getAskController(
         @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long askId) {
 
-        Ask ask = askService.getAsk(askId);
+        Response ask = askService.getAsk(askId);
 
-        return ResponseEntity.ok(AskGetDto.Response.from(ask));
+        return ResponseEntity.ok(ask);
     }
 
     /**
@@ -65,9 +65,9 @@ public class AskController {
         @PageableDefault(sort = "createdAt", direction = Direction.DESC)
         Pageable pageable) {
 
-        Page<Ask> askPageList = askService.getAskList(principalDetails.getName(), pageable);
+        Page<Response> askList = askService.getAskList(principalDetails.getName(), pageable);
 
-        return ResponseEntity.ok(askPageList.map(AskGetDto.Response::from));
+        return ResponseEntity.ok(askList);
     }
 
     /**
@@ -83,10 +83,10 @@ public class AskController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @PageableDefault(sort = "createdAt", direction = Direction.DESC) Pageable pageable) {
 
-        Page<Ask> askList = askService.getReceiveAskList(principalDetails.getName(),
+        Page<Response> receiveAskList = askService.getReceiveAskList(principalDetails.getName(),
             pageable);
 
-        return ResponseEntity.ok(askList.map(AskGetDto.Response::from));
+        return ResponseEntity.ok(receiveAskList);
     }
 
     /**
@@ -102,10 +102,10 @@ public class AskController {
         @Valid @RequestBody AskCreateDto createDto,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Ask ask = askService.createAsk(createDto, principalDetails.getName());
+        Response ask = askService.createAsk(createDto, principalDetails.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(AskGetDto.Response.from(ask));
+            .body(ask);
     }
 
     /**
@@ -123,9 +123,9 @@ public class AskController {
         @Valid @RequestBody
         AskUpdateDto updateDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Ask ask = askService.updateAsk(askId, updateDto, principalDetails.getName());
+        Response response = askService.updateAsk(askId, updateDto, principalDetails.getName());
 
-        return ResponseEntity.ok(AskGetDto.Response.from(ask));
+        return ResponseEntity.ok(response);
     }
 
     /**

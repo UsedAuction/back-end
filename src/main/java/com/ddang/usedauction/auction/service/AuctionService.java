@@ -13,6 +13,7 @@ import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto.Request;
 import com.ddang.usedauction.auction.dto.AuctionEndDto;
+import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
@@ -77,7 +78,7 @@ public class AuctionService {
      * @return 조회된 경매글 serviceDto
      */
     @Transactional(readOnly = true)
-    public Auction getAuction(Long auctionId) {
+    public AuctionGetDto.Response getAuction(Long auctionId) {
 
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
@@ -100,7 +101,7 @@ public class AuctionService {
                 : new ArrayList<>())
             .build();
 
-        return auction;
+        return AuctionGetDto.Response.from(auction);
     }
 
     /**
@@ -114,7 +115,8 @@ public class AuctionService {
      * @return 페이징 처리된 경매 서비스 dto
      */
     @Transactional(readOnly = true)
-    public Page<Auction> getAuctionList(String word, String mainCategory, String subCategory,
+    public Page<AuctionGetDto.Response> getAuctionList(String word, String mainCategory,
+        String subCategory,
         String sorted,
         Pageable pageable) {
 
@@ -125,15 +127,16 @@ public class AuctionService {
             pageable);
 
         if (sorted != null && sorted.equals(VIEW)) { // 경메에 참여한 회원순으로 정렬해야하는 경우
-            List<Auction> auctionList = auctionPageList.stream()
+            List<AuctionGetDto.Response> auctionList = auctionPageList.stream()
                 .sorted(
                     (o1, o2) -> Math.toIntExact(o2.getBidMemberCount() - o1.getBidMemberCount()))
+                .map(AuctionGetDto.Response::from)
                 .toList();
 
             return new PageImpl<>(auctionList, pageable, auctionPageList.getTotalElements());
         }
 
-        return auctionPageList;
+        return auctionPageList.map(AuctionGetDto.Response::from);
     }
 
     /**
@@ -142,21 +145,11 @@ public class AuctionService {
      * @return 조회된 경매 리스트
      */
     @Transactional(readOnly = true)
-    public List<Auction> getTop5(String mainCategory, String subCategory) {
+    public List<AuctionGetDto.Response> getTop5(String mainCategory, String subCategory) {
 
-        return auctionRepository.findTop5(mainCategory, subCategory);
-    }
+        List<Auction> auctionList = auctionRepository.findTop5(mainCategory, subCategory);
 
-    /**
-     * 최근 본 경매 리스트 조회
-     *
-     * @return 최근 본 경매 리스트
-     */
-    public List<AuctionRecentDto> getAuctionRecentList() {
-
-        String key =
-            RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX + "test@example.com"; // todo: 토큰을 통한 회원 이메일
-        return redisTemplate.opsForList().range(key, 0, 4);
+        return auctionList.stream().map(AuctionGetDto.Response::from).toList();
     }
 
     /**
@@ -169,7 +162,8 @@ public class AuctionService {
      * @return 작성된 경매글의 serviceDto
      */
     @Transactional
-    public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
+    public AuctionCreateDto.Response createAuction(MultipartFile thumbnail,
+        List<MultipartFile> imageList,
         String memberId, AuctionCreateDto.Request createDto) {
 
         createValidation(imageList, createDto);
@@ -196,7 +190,9 @@ public class AuctionService {
 
         addImageList(images, auction);
 
-        return auctionRepository.save(auction);
+        Auction savedAuction = auctionRepository.save(auction);
+
+        return AuctionCreateDto.Response.from(savedAuction);
     }
 
     /**

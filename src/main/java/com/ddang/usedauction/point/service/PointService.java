@@ -3,6 +3,7 @@ package com.ddang.usedauction.point.service;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
+import com.ddang.usedauction.point.dto.PointHistoryDto;
 import com.ddang.usedauction.point.repository.PointRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +34,8 @@ public class PointService {
     }
 
     // 포인트 충전/사용 내역 조회
-    public Page<PointHistory> getPointList(
+    @Transactional(readOnly = true)
+    public Page<PointHistoryDto.Response> getPointList(
         String memberId, LocalDate startDate, LocalDate endDate, String sorted, Pageable pageable
     ) {
         LocalDateTime startDateTime = (startDate != null) ? startDate.atStartOfDay()
@@ -51,8 +54,11 @@ public class PointService {
         Sort sort = sorting(sorted);
         Pageable sortPage = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
 
-        return pointRepository.findByMemberMemberIdAndCreatedAtBetween(memberId, startDateTime,
+        Page<PointHistory> pointHistoryPageList = pointRepository.findByMemberMemberIdAndCreatedAtBetween(
+            memberId, startDateTime,
             endDateTime, sortPage);
+
+        return pointHistoryPageList.map(PointHistoryDto.Response::from);
     }
 
     // 정렬

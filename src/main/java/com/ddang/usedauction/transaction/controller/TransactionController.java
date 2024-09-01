@@ -1,8 +1,8 @@
 package com.ddang.usedauction.transaction.controller;
 
 import com.ddang.usedauction.security.auth.PrincipalDetails;
-import com.ddang.usedauction.transaction.domain.Transaction;
 import com.ddang.usedauction.transaction.dto.TransactionGetDto;
+import com.ddang.usedauction.transaction.dto.TransactionGetDto.Response;
 import com.ddang.usedauction.transaction.service.TransactionService;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +48,10 @@ public class TransactionController {
 
         String memberId = principalDetails.getName();
 
-        Page<Transaction> transactionPageList = transactionService.getTransactionListBySeller(
+        Page<Response> transactionPageList = transactionService.getTransactionListBySeller(
             memberId, word, transTypeString, sorted, startDate, endDate, pageable);
 
-        return ResponseEntity.ok(transactionPageList.map(TransactionGetDto.Response::from));
+        return ResponseEntity.ok(transactionPageList);
     }
 
     /**
@@ -78,9 +78,9 @@ public class TransactionController {
 
         String memberId = principalDetails.getName();
 
-        Page<Transaction> transactionPageList = transactionService.getTransactionListByBuyer(
+        Page<Response> transactionPageList = transactionService.getTransactionListByBuyer(
             memberId, word, transTypeString, sorted, startDate, endDate, pageable);
 
-        return ResponseEntity.ok(transactionPageList.map(TransactionGetDto.Response::from));
+        return ResponseEntity.ok(transactionPageList);
     }
 }

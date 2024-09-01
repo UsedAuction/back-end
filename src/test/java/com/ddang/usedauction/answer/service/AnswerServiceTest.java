@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.answer.dto.AnswerCreateDto;
+import com.ddang.usedauction.answer.dto.AnswerGetDto.Response;
 import com.ddang.usedauction.answer.dto.AnswerUpdateDto;
 import com.ddang.usedauction.answer.repository.AnswerRepository;
 import com.ddang.usedauction.ask.domain.Ask;
@@ -16,6 +17,7 @@ import com.ddang.usedauction.ask.repository.AskRepository;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.image.domain.Image;
+import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.image.service.ImageService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.notification.service.NotificationService;
@@ -63,8 +65,27 @@ class AnswerServiceTest {
     @BeforeEach
     void setup() {
 
+        Member seller = Member.builder()
+            .memberId("seller")
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("title")
+            .seller(seller)
+            .build();
+
+        Image image = Image.builder()
+            .imageUrl("url")
+            .id(1L)
+            .imageName("image")
+            .imageType(ImageType.NORMAL)
+            .build();
+
         answer = Answer.builder()
             .id(1L)
+            .auction(auction)
+            .imageList(List.of(image))
             .build();
     }
 
@@ -72,11 +93,17 @@ class AnswerServiceTest {
     @DisplayName("답변 단건 조회")
     void getAnswer() {
 
+        answer = answer.toBuilder()
+            .title("title")
+            .content("content")
+            .build();
+
         when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
 
-        Answer result = answerService.getAnswer(1L);
+        Response result = answerService.getAnswer(1L);
 
         assertEquals(1, result.getId());
+        assertEquals("seller", result.getWriterId());
     }
 
     @Test

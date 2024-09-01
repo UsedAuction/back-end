@@ -4,6 +4,7 @@ import static com.ddang.usedauction.notification.domain.NotificationType.QUESTIO
 
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.ask.dto.AskCreateDto;
+import com.ddang.usedauction.ask.dto.AskGetDto;
 import com.ddang.usedauction.ask.dto.AskUpdateDto;
 import com.ddang.usedauction.ask.repository.AskRepository;
 import com.ddang.usedauction.auction.domain.Auction;
@@ -36,10 +37,12 @@ public class AskService {
      * @return 조회된 문의
      */
     @Transactional(readOnly = true)
-    public Ask getAsk(Long askId) {
+    public AskGetDto.Response getAsk(Long askId) {
 
-        return askRepository.findById(askId)
+        Ask ask = askRepository.findById(askId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
+
+        return AskGetDto.Response.from(ask);
     }
 
     /**
@@ -50,9 +53,11 @@ public class AskService {
      * @return 페이징된 문의 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Ask> getAskList(String memberId, Pageable pageable) {
+    public Page<AskGetDto.Response> getAskList(String memberId, Pageable pageable) {
 
-        return askRepository.findAllByMemberId(memberId, pageable);
+        Page<Ask> askPageList = askRepository.findAllByMemberId(memberId, pageable);
+
+        return askPageList.map(AskGetDto.Response::from);
     }
 
     /**
@@ -63,9 +68,11 @@ public class AskService {
      * @return 페이징된 문의 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Ask> getReceiveAskList(String memberId, Pageable pageable) {
+    public Page<AskGetDto.Response> getReceiveAskList(String memberId, Pageable pageable) {
 
-        return askRepository.findALlBySellerId(memberId, pageable);
+        Page<Ask> askPageList = askRepository.findALlBySellerId(memberId, pageable);
+
+        return askPageList.map(AskGetDto.Response::from);
     }
 
     /**
@@ -76,7 +83,7 @@ public class AskService {
      * @return 생성된 문의
      */
     @Transactional
-    public Ask createAsk(AskCreateDto createDto, String memberId) {
+    public AskGetDto.Response createAsk(AskCreateDto createDto, String memberId) {
 
         Auction auction = auctionRepository.findById(createDto.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
@@ -98,7 +105,9 @@ public class AskService {
 
         sendNotificationForQuestion(auction, member.getMemberId());
 
-        return askRepository.save(ask);
+        Ask savedAsk = askRepository.save(ask);
+
+        return AskGetDto.Response.from(savedAsk);
     }
 
     /**
@@ -110,7 +119,7 @@ public class AskService {
      * @return 수정된 문의
      */
     @Transactional
-    public Ask updateAsk(Long askId, AskUpdateDto updateDto, String memberId) {
+    public AskGetDto.Response updateAsk(Long askId, AskUpdateDto updateDto, String memberId) {
 
         Ask ask = askRepository.findById(askId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 문의입니다."));
@@ -124,7 +133,9 @@ public class AskService {
             .content(updateDto.getContent())
             .build();
 
-        return askRepository.save(ask);
+        Ask savedAsk = askRepository.save(ask);
+
+        return AskGetDto.Response.from(savedAsk);
     }
 
     /**

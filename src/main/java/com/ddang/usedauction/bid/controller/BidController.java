@@ -1,7 +1,7 @@
 package com.ddang.usedauction.bid.controller;
 
-import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.bid.dto.BidGetDto;
+import com.ddang.usedauction.bid.dto.BidGetDto.Response;
 import com.ddang.usedauction.bid.service.BidService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +35,10 @@ public class BidController {
         @PageableDefault Pageable pageable,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        String memberEmail = principalDetails.getName();
+        String memberId = principalDetails.getName();
 
-        Page<Bid> bidList = bidService.getBidList(memberEmail, pageable);
+        Page<Response> bidList = bidService.getBidList(memberId, pageable);
 
-        return ResponseEntity.ok(bidList.map(BidGetDto.Response::from));
+        return ResponseEntity.ok(bidList);
     }
 }

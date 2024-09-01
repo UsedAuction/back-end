@@ -1,8 +1,8 @@
 package com.ddang.usedauction.answer.controller;
 
-import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.answer.dto.AnswerCreateDto;
 import com.ddang.usedauction.answer.dto.AnswerGetDto;
+import com.ddang.usedauction.answer.dto.AnswerGetDto.Response;
 import com.ddang.usedauction.answer.dto.AnswerUpdateDto;
 import com.ddang.usedauction.answer.service.AnswerService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
@@ -48,9 +48,9 @@ public class AnswerController {
     public ResponseEntity<AnswerGetDto.Response> getAnswerController(
         @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @PathVariable Long answerId) {
 
-        Answer answer = answerService.getAnswer(answerId);
+        Response answer = answerService.getAnswer(answerId);
 
-        return ResponseEntity.ok(AnswerGetDto.Response.from(answer));
+        return ResponseEntity.ok(answer);
     }
 
     /**
@@ -68,10 +68,10 @@ public class AnswerController {
         @PageableDefault(sort = "createdAt", direction = Direction.DESC)
         Pageable pageable) {
 
-        Page<Answer> answerPageList = answerService.getAnswerList(principalDetails.getName(),
+        Page<Response> answerList = answerService.getAnswerList(principalDetails.getName(),
             pageable);
 
-        return ResponseEntity.ok(answerPageList.map(AnswerGetDto.Response::from));
+        return ResponseEntity.ok(answerList);
     }
 
     /**
@@ -89,11 +89,11 @@ public class AnswerController {
         @Valid @RequestPart
         AnswerCreateDto createDto, @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Answer answer = answerService.createAnswer(imageList, createDto,
+        Response answer = answerService.createAnswer(imageList, createDto,
             principalDetails.getName());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(AnswerGetDto.Response.from(answer));
+            .body(answer);
     }
 
     /**
@@ -113,10 +113,10 @@ public class AnswerController {
         @Valid @RequestPart AnswerUpdateDto updateDto,
         @AuthenticationPrincipal PrincipalDetails principalDetails) {
 
-        Answer answer = answerService.updateAnswer(answerId, imageList, updateDto,
+        Response answer = answerService.updateAnswer(answerId, imageList, updateDto,
             principalDetails.getName());
 
-        return ResponseEntity.ok(AnswerGetDto.Response.from(answer));
+        return ResponseEntity.ok(answer);
     }
 
     /**

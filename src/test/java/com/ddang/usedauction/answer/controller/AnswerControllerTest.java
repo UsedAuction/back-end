@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.answer.dto.AnswerCreateDto;
+import com.ddang.usedauction.answer.dto.AnswerGetDto;
 import com.ddang.usedauction.answer.dto.AnswerUpdateDto;
 import com.ddang.usedauction.answer.service.AnswerService;
 import com.ddang.usedauction.auction.domain.Auction;
@@ -108,12 +109,13 @@ class AnswerControllerTest {
     @DisplayName("답변 단건 조회 컨트롤러")
     void getAnswerController() throws Exception {
 
-        when(answerService.getAnswer(1L)).thenReturn(answer);
+        when(answerService.getAnswer(1L)).thenReturn(AnswerGetDto.Response.from(answer));
 
         mockMvc.perform(get("/api/answers/1"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id").value(1));
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.writerId").value("test"));
     }
 
     @Test

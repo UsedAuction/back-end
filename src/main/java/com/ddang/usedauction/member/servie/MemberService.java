@@ -9,6 +9,7 @@ import com.ddang.usedauction.member.dto.MemberChangePasswordDto;
 import com.ddang.usedauction.member.dto.MemberCheckIdDto;
 import com.ddang.usedauction.member.dto.MemberFindIdDto;
 import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
@@ -54,10 +55,12 @@ public class MemberService {
      * @return 조회된 회원 정보
      */
     @Transactional(readOnly = true)
-    public Member getMember(String memberId) {
+    public MemberGetDto.Response getMember(String memberId) {
 
-        return memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        return MemberGetDto.Response.from(member);
     }
 
     public MemberLoginResponseDto login(HttpServletResponse response,

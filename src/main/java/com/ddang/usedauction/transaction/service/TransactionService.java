@@ -1,6 +1,7 @@
 package com.ddang.usedauction.transaction.service;
 
 import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
@@ -28,12 +29,14 @@ public class TransactionService {
      * @return 페이징된 거래 내역 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Transaction> getTransactionListBySeller(String sellerId, String word,
+    public Page<TransactionGetDto.Response> getTransactionListBySeller(String sellerId, String word,
         String transTypeString, String sorted, LocalDate startDate, LocalDate endDate,
         Pageable pageable) {
 
-        return transactionRepository.findAllByTransactionListBySeller(
+        Page<Transaction> transactionPageList = transactionRepository.findAllByTransactionListBySeller(
             sellerId, word, transTypeString, sorted, startDate, endDate, pageable);
+
+        return transactionPageList.map(TransactionGetDto.Response::from);
     }
 
     /**
@@ -49,11 +52,13 @@ public class TransactionService {
      * @return 페이징 처리된 거래 내역 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Transaction> getTransactionListByBuyer(String buyerId, String word,
+    public Page<TransactionGetDto.Response> getTransactionListByBuyer(String buyerId, String word,
         String transTypeString, String sorted, LocalDate startDate, LocalDate endDate,
         Pageable pageable) {
 
-        return transactionRepository.findAllByTransactionListByBuyer(
+        Page<Transaction> transactionPageList = transactionRepository.findAllByTransactionListByBuyer(
             buyerId, word, transTypeString, sorted, startDate, endDate, pageable);
+
+        return transactionPageList.map(TransactionGetDto.Response::from);
     }
 }
