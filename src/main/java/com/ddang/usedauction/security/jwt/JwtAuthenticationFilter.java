@@ -56,17 +56,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 만료되었으면 accessToken 재발급
         Authentication authentication = tokenProvider.getAuthentication(oldAccessToken);
         String memberIdByToken = tokenProvider.getMemberIdByToken(oldAccessToken);
-        String refreshToken = refreshTokenService.findRefreshTokenByAccessToken(
-            oldAccessToken);
+//        String refreshToken = refreshTokenService.findRefreshTokenByAccessToken(
+//            oldAccessToken);
         Cookie cookie = CookieUtil.getCookie(request, "refreshToken")
             .orElse(null);
 
         // refreshToken 만료되었으면 로그아웃 처리
-        if (tokenProvider.isExpiredToken(refreshToken) || refreshToken == null
-            || cookie == null || !refreshToken.equals(
-            cookie.getValue())) {
+        if (cookie == null || tokenProvider.isExpiredToken(cookie.getValue())) {
             log.info("로그아웃 처리 진행");
-            log.info("handleExpiredAccessToken refreshToken In Redis = {}", refreshToken);
+//            log.info("handleExpiredAccessToken refreshToken In Redis = {}", refreshToken);
             log.info("handleExpiredAccessToken cookie = {}",
                 cookie != null ? cookie.getValue() : null);
             logout(request, response, oldAccessToken);
@@ -81,12 +79,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //            authentication.getAuthorities());
         TokenDto tokenDto = tokenProvider.generateToken(memberIdByToken,
             authentication.getAuthorities());
-        long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
-        // Redis accessToken 값 업데이트
-        log.info("filter refreshTokenExpiration = {}", refreshTokenExpiration);
-        refreshTokenService.deleteRefreshTokenByAccessToken(oldAccessToken);
-        refreshTokenService.save(tokenDto.getAccessToken(), tokenDto.getRefreshToken(),
-            refreshTokenExpired);
+//        long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
+//        // Redis accessToken 값 업데이트
+//        log.info("filter refreshTokenExpiration = {}", refreshTokenExpiration);
+//        refreshTokenService.deleteRefreshTokenByAccessToken(oldAccessToken);
+//        refreshTokenService.save(tokenDto.getAccessToken(), tokenDto.getRefreshToken(),
+//            refreshTokenExpired);
 
         setAuthentication(tokenDto.getAccessToken());
 
@@ -104,14 +102,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void logout(HttpServletRequest request, HttpServletResponse response,
         String accessToken) {
         // Redis 사용자의 refreshToken 삭제
-        refreshTokenService.deleteRefreshTokenByAccessToken(accessToken);
-
-        if (!tokenProvider.isExpiredToken(accessToken)) {
-            long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
-
-            refreshTokenService.setBlackList(accessToken, "accessToken",
-                accessTokenExpiration);
-        }
+//        refreshTokenService.deleteRefreshTokenByAccessToken(accessToken);
+//
+//        if (!tokenProvider.isExpiredToken(accessToken)) {
+//            long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
+//
+//            refreshTokenService.setBlackList(accessToken, "accessToken",
+//                accessTokenExpiration);
+//        }
 
         CookieUtil.deleteCookie(request, response, "refreshToken");
 
