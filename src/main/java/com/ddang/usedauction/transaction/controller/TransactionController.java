@@ -1,9 +1,12 @@
 package com.ddang.usedauction.transaction.controller;
 
 import com.ddang.usedauction.security.auth.PrincipalDetails;
+import com.ddang.usedauction.transaction.dto.TransactionDto;
 import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.dto.TransactionGetDto.Response;
 import com.ddang.usedauction.transaction.service.TransactionService;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class TransactionController {
 
     private final TransactionService transactionService;
+
+    /**
+     * 경매 pk로 거래 조회
+     *
+     * @param auctionId 경매 pk
+     * @return 성공 시 200 코드와 거래 내역, 실패 시 에러코드와 에러메시지
+     */
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping
+    public ResponseEntity<TransactionDto> getTransaction(
+        @NotNull(message = "pk 값은 null 일 수 없습니다.") @Positive(message = "pk 값은 0 또는 음수일 수 없습니다.") @RequestParam Long auctionId) {
+
+        TransactionDto transaction = transactionService.getTransaction(auctionId);
+
+        return ResponseEntity.ok(transaction);
+    }
 
     /**
      * 판매 내역 조회 컨트롤러
