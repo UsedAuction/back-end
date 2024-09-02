@@ -13,4 +13,7 @@ public interface AuctionRepository extends JpaRepository<Auction, Long>, Auction
     @Query("select a from Auction a inner join a.bidList b where b.member.memberId = :memberId and a.auctionState = :auctionState")
     List<Auction> findAllByMemberIdAndAuctionState(String memberId,
         AuctionState auctionState); // 현재 회원이 참여중인 경매 리스트 조회
+
+    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END from Auction a where a.seller.memberId = :memberId and a.auctionState = :auctionState")
+    boolean existsByMemberIdAndAuctionState(String memberId, AuctionState auctionState);
 }
