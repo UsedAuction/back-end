@@ -46,6 +46,17 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.configuration.JobRegistry;
+import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.NoSuchJobException;
+import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -58,7 +69,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AuctionService {
+public class AuctionService implements CommandLineRunner {
 
     private final AuctionRepository auctionRepository;
     private final CategoryRepository categoryRepository;
@@ -71,8 +82,30 @@ public class AuctionService {
     private final ChatRoomService chatRoomService;
     private final ChatMessageService chatMessageService;
     private final RedisTemplate<String, AuctionRecentDto> redisTemplate;
+    private final JobLauncher jobLauncher;
+    private final JobRegistry jobRegistry;
+
+    @Value("${job.job-name}")
+    private String jobName;
 
     private static final String RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX = "recently::";
+
+    // 애플리케이션 시작 시 한번만 실행
+    @Override
+    public void run(String... args) throws Exception {
+
+        String time = LocalDateTime.now().toString();
+        try {
+            Job job = jobRegistry.getJob(jobName);
+            JobParametersBuilder jobParam = new JobParametersBuilder().addString("time", time);
+            jobLauncher.run(job, jobParam.toJobParameters());
+        } catch (NoSuchJobException | JobInstanceAlreadyCompleteException |
+                 JobExecutionAlreadyRunningException |
+                 JobParametersInvalidException | JobRestartException e) {
+            log.error("배치 실행 도중 에러 발생!!", e);
+            throw e;
+        }
+    }
 
     /**
      * 경매글 단건 조회
