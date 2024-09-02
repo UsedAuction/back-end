@@ -159,7 +159,11 @@ public class JobConfig {
                     // 구매자에게 경매 종료 알림보내기
                     sendNotificationForEnd(buyerId, auction);
 
-                    chatRoomService.createChatRoom(buyer.getId(), auction.getId());
+                    try {
+                        chatRoomService.createChatRoom(buyer.getId(), auction.getId());
+                    } catch (IllegalStateException e) {
+                        log.error("이미 채팅방 생성된 경우 메소드 종료 x", e);
+                    }
                 }
 
                 // 판매자에게 경매 종료 알림보내기
