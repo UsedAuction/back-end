@@ -44,6 +44,12 @@ public class ChatRoom extends BaseTimeEntity implements Serializable {
     @JoinColumn(name = "chatroom_id")
     private Auction auction;
 
+    private int unReadCnt;
+
+    private String lastMessage;
+
+    private LocalDateTime lastMessageTime;
+
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 

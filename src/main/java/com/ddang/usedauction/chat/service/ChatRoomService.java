@@ -3,7 +3,9 @@ package com.ddang.usedauction.chat.service;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.chat.domain.dto.ChatRoomCreateDto;
+import com.ddang.usedauction.chat.domain.entity.ChatMessage;
 import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.chat.repository.ChatMessageRepository;
 import com.ddang.usedauction.chat.repository.ChatRoomRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
@@ -31,6 +33,7 @@ public class ChatRoomService {
     private final MemberRepository memberRepository;
     private final AuctionRepository auctionRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     // 채팅방(topic)에 발행되는 메시지 처리하는 Listener
     private final RedisMessageListenerContainer redisMessageListener;
@@ -38,6 +41,7 @@ public class ChatRoomService {
     private final RedisSubscriber redisSubscriber;
     // Redis와 관련된 데이터 작업 수행
     private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Integer> unReadRedisTemplate;
     private HashOperations<String, String, ChatRoomCreateDto.Response> opsHashChatRoom;
     // 서버별로 채팅방에 매치되는 topic 정보를 Map에 넣어 roomId로 찾을 수 있음
     private Map<String, ChannelTopic> topics;
@@ -49,12 +53,28 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomCreateDto.Response> findChatRoomsByMemberId(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return opsHashChatRoom.values(CHAT_ROOMS).stream()
-            .filter(chatRoom -> chatRoom.getSeller().getMemberId().equals(member.getMemberId()) ||
-                chatRoom.getBuyer().getMemberId().equals(member.getMemberId()))
+            .map(chatRoom -> {
+
+                String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + memberId;
+                Integer unreadCnt = unReadRedisTemplate.opsForValue().get(unreadKey);
+                unreadCnt = unreadCnt == null ? 0 : unreadCnt; // null 체크하여 기본값 0 설정
+
+                ChatMessage chatMessage = chatMessageRepository.findByChatRoomId(
+                    chatRoom.getId()).orElse(null);
+
+                // Response 객체 생성 시 필요한 값들 설정
+                return ChatRoomCreateDto.Response.builder()
+                    .id(chatRoom.getId())
+                    .buyer(chatRoom.getBuyer())
+                    .seller(chatRoom.getSeller())
+                    .auction(chatRoom.getAuction())
+                    .unReadCnt(unreadCnt)
+                    .lastMessage(chatMessage != null ? chatMessage.getMessage() : null)
+                    .lastMessageTime(chatMessage != null ? chatMessage.getCreatedAt() : null)
+                    .build();
+            })
             .collect(Collectors.toList());
     }
 
@@ -78,6 +98,7 @@ public class ChatRoomService {
             ChatRoomCreateDto.Response.from(chatRoom));
 
         createTopic(chatRoom.getId().toString());
+
     }
 
     public ChannelTopic getTopic(Long roomId) {
