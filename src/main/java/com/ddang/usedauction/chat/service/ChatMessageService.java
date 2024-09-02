@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,8 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
+
+    private final RedisTemplate<String, Integer> redisTemplate;
 
     /**
      * 메시지 저장 Service
@@ -45,6 +48,13 @@ public class ChatMessageService {
             .build();
 
         chatMessageRepository.save(chatMessage);
+
+        String receiverId = member.getMemberId().equals(chatRoom.getSeller().getMemberId())
+            ? chatRoom.getBuyer().getMemberId() : chatRoom.getSeller().getMemberId();
+
+        // CHAT_ROOM1_UN_READ:asdf8887
+        String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + receiverId;
+        redisTemplate.opsForValue().increment(unreadKey, 1);
     }
 
     @Transactional(readOnly = true)
@@ -57,6 +67,13 @@ public class ChatMessageService {
         // 로그인한 사용자가 채팅방에 속해 있는지 확인
         if (!isMemberOfChatRoom(chatRoom, memberId)) {
             throw new UnauthorizedAccessException();
+        }
+
+        String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + memberId;
+        Integer unreadCnt = redisTemplate.opsForValue().get(unreadKey);
+
+        if (unreadCnt != null && unreadCnt > 0) {
+            redisTemplate.opsForValue().set(unreadKey, 0);
         }
 
         return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(chatRoomId).stream()
