@@ -214,6 +214,16 @@ public class MemberService {
         Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
+        if (auctionRepository.existsByMemberIdAndAuctionState(
+            member.getMemberId(), AuctionState.CONTINUE)) {
+            throw new IllegalStateException("진행 중인 경매가 존재하여 회원탈퇴를 진행할 수 없습니다.");
+        }
+
+        if (transactionRepository.existsByUser(member.getMemberId(),
+            TransType.CONTINUE)) {
+            throw new IllegalStateException("진행 중인 거래가 존재하여 회원탈퇴를 진행할 수 없습니다.");
+        }
+
         member.withdrawal(withDrawalReason);
 
         memberRepository.save(member);
