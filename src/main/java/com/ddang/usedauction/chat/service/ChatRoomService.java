@@ -101,6 +101,22 @@ public class ChatRoomService {
 
     }
 
+    public void enterChatRoom(Long roomId, String memberId) {
+        redisTemplate.opsForSet().add("CHAT_ROOM" + roomId + "_MEMBERS:", memberId);
+
+    }
+
+    public void exitChatRoom(Long roomId, String memberId) {
+        redisTemplate.opsForSet()
+            .remove("CHAT_ROOM" + roomId + "_MEMBERS:", memberId);
+    }
+
+    public List<ChatRoomCreateDto.Response> searchChatRoomByAuctionTitle(String title) {
+        return chatRoomRepository.findByAuctionTitle(title).stream()
+            .map(ChatRoomCreateDto.Response::from)
+            .collect(Collectors.toList());
+    }
+
     public ChannelTopic getTopic(Long roomId) {
         return topics.get(roomId.toString());
     }

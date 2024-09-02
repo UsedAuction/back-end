@@ -26,7 +26,8 @@ public class ChatMessageService {
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
 
-    private final RedisTemplate<String, Integer> redisTemplate;
+    private final RedisTemplate<String, Integer> unReadTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 메시지 저장 Service
@@ -52,11 +53,19 @@ public class ChatMessageService {
         String receiverId = member.getMemberId().equals(chatRoom.getSeller().getMemberId())
             ? chatRoom.getBuyer().getMemberId() : chatRoom.getSeller().getMemberId();
 
-        // CHAT_ROOM1_UN_READ:asdf8887
-        String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + receiverId;
-        redisTemplate.opsForValue().increment(unreadKey, 1);
+        if (!redisTemplate.opsForSet().isMember(
+            "CHAT_ROOM" + chatRoom.getId() + "_MEMBERS:", receiverId)) {
+            String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + receiverId;
+            unReadTemplate.opsForValue().increment(unreadKey, 1);
+        }
+
     }
 
+    /**
+     * @param memberId   회원 계정(아이디)
+     * @param chatRoomId 채팅방 id
+     * @return 채팅 메시지 최신순 조회
+     */
     @Transactional(readOnly = true)
     public List<ChatMessageSendDto.Response> findMessagesByChatRoomId(String memberId,
         Long chatRoomId) {
@@ -70,10 +79,10 @@ public class ChatMessageService {
         }
 
         String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + memberId;
-        Integer unreadCnt = redisTemplate.opsForValue().get(unreadKey);
+        Integer unreadCnt = unReadTemplate.opsForValue().get(unreadKey);
 
         if (unreadCnt != null && unreadCnt > 0) {
-            redisTemplate.opsForValue().set(unreadKey, 0);
+            unReadTemplate.opsForValue().set(unreadKey, 0);
         }
 
         return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(chatRoomId).stream()
