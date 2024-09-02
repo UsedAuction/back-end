@@ -141,7 +141,7 @@ public class MemberService {
         member.updateEmail(dto.getEmail());
 
         memberRepository.save(member);
-
+        mailRedisService.deleteData(dto.getAuthNum());
     }
 
     public void changePassword(String memberId, MemberChangePasswordDto dto) {
