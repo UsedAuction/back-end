@@ -88,7 +88,7 @@ public class AskService {
         Auction auction = auctionRepository.findById(createDto.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         // 이미 경매가 종료된 경우

@@ -54,7 +54,7 @@ public class PaymentService {
 
         log.info("ready() request.getOrderId {}", request.getOrderId());
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Orders order = orderRepository.findById(request.getOrderId())

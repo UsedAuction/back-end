@@ -27,7 +27,7 @@ public class PointService {
 
     // 포인트 잔액 조회
     public long getPointBalance(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return member.getPoint();
@@ -48,7 +48,7 @@ public class PointService {
             throw new IllegalArgumentException("종료일은 시작일보다 빠를 수 없습니다.");
         }
 
-        memberRepository.findByMemberId(memberId)
+        memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Sort sort = sorting(sorted);

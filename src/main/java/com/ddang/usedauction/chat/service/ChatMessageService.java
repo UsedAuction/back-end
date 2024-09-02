@@ -34,7 +34,7 @@ public class ChatMessageService {
      */
     @Transactional
     public void sendMessage(ChatMessageSendDto.Request request) {
-        Member member = memberRepository.findByMemberId(request.getSenderId())
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(request.getSenderId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         ChatRoom chatRoom = chatRoomRepository.findById(request.getRoomId())

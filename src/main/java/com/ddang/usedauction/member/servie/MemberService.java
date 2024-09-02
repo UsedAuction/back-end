@@ -1,5 +1,7 @@
 package com.ddang.usedauction.member.servie;
 
+import com.ddang.usedauction.auction.domain.AuctionState;
+import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.mail.service.MailPasswordService;
 import com.ddang.usedauction.mail.service.MailRedisService;
 import com.ddang.usedauction.member.domain.Member;
@@ -19,6 +21,8 @@ import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
+import com.ddang.usedauction.transaction.domain.TransType;
+import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import com.ddang.usedauction.util.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,6 +49,8 @@ public class MemberService {
     private final TokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuctionRepository auctionRepository;
+    private final TransactionRepository transactionRepository;
     private final MailPasswordService mailPasswordService;
     private final MailRedisService mailRedisService;
 
@@ -57,7 +63,7 @@ public class MemberService {
     @Transactional(readOnly = true)
     public MemberGetDto.Response getMember(String memberId) {
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return MemberGetDto.Response.from(member);
@@ -65,7 +71,7 @@ public class MemberService {
 
     public MemberLoginResponseDto login(HttpServletResponse response,
         @RequestBody MemberLoginRequestDto dto) {
-        Member member = memberRepository.findByMemberId(dto.getMemberId())
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(dto.getMemberId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (!passwordEncoder.matches(dto.getPassword(), member.getPassWord())) {
@@ -91,7 +97,7 @@ public class MemberService {
 
     public void checkMemberId(MemberCheckIdDto dto) {
         log.info("id = {}", dto.getMemberId());
-        if (memberRepository.existsByMemberId(dto.getMemberId())) {
+        if (memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())) {
             throw new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
         }
     }
@@ -102,11 +108,11 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.NOT_MATCHED_PASSWORD);
         }
 
-        if (memberRepository.existsByMemberId(dto.getMemberId())) {
+        if (memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())) {
             throw new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
         }
 
-        if (memberRepository.existsByEmail(dto.getEmail())) {
+        if (memberRepository.existsByEmailAndDeletedAtIsNull(dto.getEmail())) {
             throw new MemberException(MemberErrorCode.ALREADY_EXISTS_EMAIL);
         }
 
@@ -127,7 +133,7 @@ public class MemberService {
     }
 
     public void changeEmail(String memberId, MemberChangeEmailDto dto) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (member.getEmail().equals(dto.getEmail())) {
@@ -145,7 +151,7 @@ public class MemberService {
     }
 
     public void changePassword(String memberId, MemberChangePasswordDto dto) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         if (!passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())) {
@@ -166,17 +172,17 @@ public class MemberService {
     }
 
     public String findMemberId(MemberFindIdDto dto) {
-        Member member = memberRepository.findByEmail(dto.getEmail())
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(dto.getEmail())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return member.getMemberId();
     }
 
     public void findPassword(MemberFindPasswordDto dto) {
-        if (!memberRepository.existsByMemberId(dto.getMemberId())) {
+        if (!memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())) {
             throw new NoSuchElementException("존재하지 않는 회원입니다.");
         }
-        Member member = memberRepository.findByEmail(dto.getEmail())
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(dto.getEmail())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         String newPassword = UUID.randomUUID().toString().substring(0, 8);
@@ -205,7 +211,7 @@ public class MemberService {
     }
 
     public void withdrawal(String memberId, String withDrawalReason) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         member.withdrawal(withDrawalReason);

@@ -50,7 +50,7 @@ public class BidPubSubService {
         log.info("currentPrice = {}", auction.getCurrentPrice());
         log.info("instantPrice = {}", auction.getInstantPrice());
 
-        Member member = memberRepository.findByMemberId(message.getMemberId())
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(message.getMemberId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         // 검증 및 에러메시지 발송

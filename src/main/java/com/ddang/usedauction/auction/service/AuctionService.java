@@ -204,7 +204,7 @@ public class AuctionService implements CommandLineRunner {
 
         createValidation(imageList, createDto);
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
@@ -286,7 +286,7 @@ public class AuctionService implements CommandLineRunner {
             throw new IllegalStateException("이미 종료된 거래입니다.");
         }
 
-        Member buyer = memberRepository.findByMemberId(memberId)
+        Member buyer = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
@@ -319,7 +319,7 @@ public class AuctionService implements CommandLineRunner {
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        Member buyer = memberRepository.findByMemberId(memberId)
+        Member buyer = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         validationOfInstantPurchase(auction, buyer);

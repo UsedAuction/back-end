@@ -49,7 +49,7 @@ public class ChatRoomService {
     }
 
     public List<ChatRoomCreateDto.Response> findChatRoomsByMemberId(String memberId) {
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         return opsHashChatRoom.values(CHAT_ROOMS).stream()

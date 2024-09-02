@@ -49,7 +49,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
         String passWord = passwordEncoder.encode("passWord");
 
         // 플랫폼별 로그인 시 이메일이 중복되어도 개별적으로 회원가입 가능
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findByEmailAndDeletedAtIsNull(email)
             .orElseGet(() -> signUp(memberId, passWord, email, provider, providerId));
 
         return new PrincipalDetails(member.getMemberId(), member.getEmail(), member.getPassWord(),

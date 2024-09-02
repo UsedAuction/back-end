@@ -38,7 +38,7 @@ public class NotificationService {
     // 알림 구독
     public SseEmitter subscribe(String memberId, String lastEventId) {
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         String emitterId =
@@ -91,7 +91,7 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public List<Notification> getNotificationList(String memberId) {
 
-        memberRepository.findByMemberId(memberId)
+        memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);

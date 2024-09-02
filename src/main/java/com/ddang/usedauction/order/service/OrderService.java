@@ -19,7 +19,7 @@ public class OrderService {
     // 주문 생성
     public Orders createOrder(String memberId, OrderCreateDto.Request request) {
 
-        Member member = memberRepository.findByMemberId(memberId)
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         String itemName = request.getPrice() + " 포인트";
