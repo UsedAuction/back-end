@@ -10,6 +10,7 @@ import com.ddang.usedauction.member.dto.MemberGetDto.Response;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
+import com.ddang.usedauction.member.dto.MemberWithdrawalDto;
 import com.ddang.usedauction.member.servie.MemberService;
 import com.ddang.usedauction.security.auth.PrincipalDetails;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -80,8 +82,9 @@ public class MemberController {
     @PreAuthorize("hasRole('USER')")
     @PostMapping("/withdrawl")
     public ResponseEntity<String> withdrawl(
-        @AuthenticationPrincipal PrincipalDetails principalDetails) {
-        memberService.withdrawal(principalDetails.getName());
+        @AuthenticationPrincipal PrincipalDetails principalDetails,
+        @RequestBody MemberWithdrawalDto dto) {
+        memberService.withdrawal(principalDetails.getName(), dto.getWithDrawalReason());
 
         return ResponseEntity.status(HttpStatus.OK)
             .body("회원 탈퇴가 완료되었습니다.");
