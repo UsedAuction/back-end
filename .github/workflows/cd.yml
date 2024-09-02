@@ -3,8 +3,7 @@ name: CD
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
@@ -56,7 +55,6 @@ jobs:
 
       - name: Deploy to prod
         uses: appleboy/ssh-action@master
-        if: contains(github.ref, 'main')
         with:
           host: ${{ secrets.HOST_PROD }}
           username: ${{ secrets.USERNAME }}
