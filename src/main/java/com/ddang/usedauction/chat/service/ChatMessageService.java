@@ -64,6 +64,11 @@ public class ChatMessageService {
             .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteMessagesByChatRoom(Long chatRoomId) {
+        chatMessageRepository.deleteChatMessageByChatRoomId(chatRoomId);
+    }
+
     private boolean isMemberOfChatRoom(ChatRoom chatRoom, String memberId) {
         return chatRoom.getSeller().getMemberId().equals(memberId) ||
             chatRoom.getBuyer().getMemberId().equals(memberId);
