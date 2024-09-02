@@ -19,6 +19,7 @@ import com.ddang.usedauction.member.dto.MemberChangePasswordDto;
 import com.ddang.usedauction.member.dto.MemberCheckIdDto;
 import com.ddang.usedauction.member.dto.MemberFindIdDto;
 import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
@@ -78,11 +79,16 @@ class MemberServiceTest {
 
         Member member = Member.builder()
             .memberId("test")
+            .email("test@naver.com")
+            .point(0)
+            .id(1L)
+            .siteAlarm(true)
+            .passWord("1234")
             .build();
 
         when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
 
-        Member result = memberService.getMember("test");
+        MemberGetDto.Response result = memberService.getMember("test");
 
         assertEquals("test", result.getMemberId());
     }
