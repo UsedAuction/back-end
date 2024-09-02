@@ -23,6 +23,7 @@ import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
+import com.ddang.usedauction.member.dto.MemberWithdrawalDto;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
@@ -662,7 +663,7 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원 탈퇴 - 성공")
-    void withdrawal() throws Exception {
+    void withdrawal() {
 
         Member member = Member.builder()
             .memberId("test1234")
@@ -671,16 +672,20 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
+        MemberWithdrawalDto dto = MemberWithdrawalDto.builder()
+            .withDrawalReason("개인정보 보호")
+            .build();
+
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
 
-        memberService.withdrawal(member.getMemberId());
+        memberService.withdrawal(member.getMemberId(), dto.getWithDrawalReason());
 
         verify(memberRepository, times(1)).save(member);
     }
 
     @Test
     @DisplayName("회원 탈퇴 - 실패")
-    void withdrawalFail() throws Exception {
+    void withdrawalFail() {
 
         Member member = Member.builder()
             .memberId("test1234")
@@ -689,13 +694,16 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
+        MemberWithdrawalDto dto = MemberWithdrawalDto.builder()
+            .withDrawalReason("개인정보 보호")
+            .build();
+
         when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> memberService.withdrawal(member.getMemberId()));
+            () -> memberService.withdrawal(member.getMemberId(), dto.getWithDrawalReason()));
 
         verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
         verify(memberRepository, never()).save(member);
-
     }
 }
