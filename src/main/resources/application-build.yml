@@ -94,6 +94,15 @@ spring:
     password: ${EMAIL_PASSWORD}
     email_expiration_time: 300
 
+  # batch
+  batch:
+    job:
+      enabled: false
+
+job:
+  job-name: "auctionJob"
+  step-name: "auctionStep"
+
 # redisson
 redisson:
   host: ${REDISSON_HOST}

@@ -96,6 +96,17 @@ spring:
     password: ${EMAIL_PASSWORD}
     email_expiration_time: 300
 
+  # batch
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: always
+
+job:
+  job-name: "auctionJob"
+  step-name: "auctionStep"
+
 redisson:
   host: localhost
   port: 6379
