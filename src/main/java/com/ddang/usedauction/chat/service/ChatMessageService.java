@@ -13,6 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,7 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
+    private final SimpMessageSendingOperations sendingOperations;
 
     /**
      * 메시지 저장 Service
@@ -45,6 +47,7 @@ public class ChatMessageService {
             .build();
 
         chatMessageRepository.save(chatMessage);
+        sendingOperations.convertAndSend("/sub/chat/room/" + request.getRoomId(), request);
     }
 
     @Transactional(readOnly = true)

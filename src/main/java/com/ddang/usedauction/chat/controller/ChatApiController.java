@@ -30,7 +30,7 @@ public class ChatApiController {
     public void send(@RequestBody ChatMessageSendDto.Request request) {
 
         chatMessageService.sendMessage(request);
-        redisPublisher.publish(chatRoomService.getTopic(request.getRoomId()), request);
+//        redisPublisher.publish(chatRoomService.getTopic(request.getRoomId()), request);
     }
 
     @PreAuthorize("hasRole('USER')")
