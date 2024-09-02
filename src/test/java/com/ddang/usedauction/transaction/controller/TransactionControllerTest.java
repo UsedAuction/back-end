@@ -21,6 +21,7 @@ import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.dto.TransactionDto;
 import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.service.TransactionService;
 import java.util.List;
@@ -123,6 +124,64 @@ class TransactionControllerTest {
 
         transactionList = List.of(TransactionGetDto.Response.from(transaction1),
             TransactionGetDto.Response.from(transaction2));
+    }
+
+    @Test
+    @WithCustomMockUser
+    @DisplayName("경매 pk로 거래 조회")
+    void getTransactionController() throws Exception {
+
+        Member seller = Member.builder()
+            .id(1L)
+            .memberId("seller")
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .seller(seller)
+            .build();
+
+        Transaction transaction = Transaction.builder()
+            .id(1L)
+            .price(5000)
+            .auction(auction)
+            .build();
+
+        when(transactionService.getTransaction(1L)).thenReturn(TransactionDto.from(transaction));
+
+        mockMvc.perform(get("/api/transactions?auctionId=1"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.price").value(5000));
+    }
+
+    @Test
+    @DisplayName("경매 pk로 거래 조회 실패 - 로그인 x")
+    void getTransactionControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/transactions?auctionId=1"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithCustomMockUser
+    @DisplayName("경매 pk로 거래 조회 실패 - 경로 다름")
+    void getTransactionControllerFail2() throws Exception {
+
+        mockMvc.perform(get("/api/transaction?auctionId=1"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithCustomMockUser
+    @DisplayName("경매 pk로 거래 조회 실패 - param 유효성 검사 실패")
+    void getTransactionControllerFail3() throws Exception {
+
+        mockMvc.perform(get("/api/transactions?auctionId=0"))
+            .andDo(print())
+            .andExpect(status().isBadRequest());
     }
 
     @Test
