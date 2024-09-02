@@ -117,7 +117,8 @@ public class JobConfig {
 
         return new JpaPagingItemReaderBuilder<Auction>()
             .pageSize(10)
-            .queryString("select a from Auction a where a.auctionState = CONTINUE order by id asc")
+            .queryString(
+                "select a from Auction a where a.auctionState = com.ddang.usedauction.auction.domain.AuctionState.CONTINUE order by id asc")
             .entityManagerFactory(entityManagerFactory)
             .name("jpaPagingItemReader")
             .build();
