@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 public class PaymentReadyDto {
@@ -38,7 +37,6 @@ public class PaymentReadyDto {
 
             log.info("toMap this.partnerOrderId: {}", this.partnerOrderId);
 
-
             Map<String, String> map = new HashMap<>();
             map.put("cid", this.cid);
             map.put("partner_order_id", this.partnerOrderId);
@@ -47,9 +45,11 @@ public class PaymentReadyDto {
             map.put("quantity", "1");
             map.put("total_amount", this.totalAmount);
             map.put("tax_free_amount", "0");
-            map.put("approval_url", "https://localhost:5173/members/payment/approve?partner_order_id=" + this.partnerOrderId);
-            map.put("cancel_url", "https://localhost:5173/members/payment/cancel");
-            map.put("fail_url", "https://localhost:5173/members/payment/fail");
+            map.put("approval_url",
+                "https://dddang.vercel.app/members/payment/approve?partner_order_id="
+                    + this.partnerOrderId);
+            map.put("cancel_url", "https://dddang.vercel.app/members/payment/cancel");
+            map.put("fail_url", "https://dddang.vercel.app/members/payment/fail");
             return map;
         }
     }

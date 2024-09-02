@@ -91,9 +91,9 @@ public class PaymentService {
             .totalAmount(priceStr)
             .taxFreeAmount("0")
             .approvalUrl(
-                "https://localhost:5173/members/payment/approve?partner_order_id=" + orderIdStr)
-            .cancelUrl("https://localhost:5173/members/payment/cancel")
-            .failUrl("https://localhost:5173/members/payment/fail")
+                "https://dddang.vercel.app/members/payment/approve?partner_order_id=" + orderIdStr)
+            .cancelUrl("https://dddang.vercel.app/members/payment/cancel")
+            .failUrl("https://dddang.vercel.app/members/payment/fail")
             .build();
 
         // paymentRequest를 map으로 변환
