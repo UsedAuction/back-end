@@ -13,4 +13,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     @Query("select t from Transaction t where t.buyer.memberId = :buyerId and t.auction.id = :auctionId")
     Optional<Transaction> findByBuyerIdAndAuctionId(String buyerId,
         Long auctionId); // 구매자 아이디와 경매 pk로 거래 내역 조회
+
+    @Query("select t from Transaction t where t.auction.id = :auctionId")
+    Optional<Transaction> findByAuctionId(Long auctionId); // 경매 pk 로 거래 조회
 }
