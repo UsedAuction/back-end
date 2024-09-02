@@ -15,11 +15,13 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 public class AuctionGetForChatDto implements Serializable {
 
+    private Long id;
     private String title;
     private String thumbnail;
 
     public static AuctionGetForChatDto from(Auction auction) {
         return AuctionGetForChatDto.builder()
+            .id(auction.getId())
             .title(auction.getTitle())
             .thumbnail(auction.getImageList().stream()
                 .filter(thumb -> thumb.getImageType() == ImageType.THUMBNAIL)
