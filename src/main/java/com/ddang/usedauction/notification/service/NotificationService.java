@@ -75,6 +75,7 @@ public class NotificationService {
         Notification notification =
             notificationRepository.save(
                 createNotification(memberId, auctionId, content, notificationType));
+        log.info("notification: {}", notification);
 
         Map<String, SseEmitter> emitters =
             emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
@@ -102,6 +103,8 @@ public class NotificationService {
     // 실제로 알림을 전송하는 메서드
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
         try {
+            log.info("emitterId: {}" , emitterId);
+            log.info("data: {}", data.toString());
             sseEmitter.send(SseEmitter.event()
                 .id(emitterId)
                 .name("sse")
