@@ -241,11 +241,11 @@ public class JobConfig {
     }
 
     // 경매의 종료 기간(만료 시간)을 초 단위로 계산하여 반환하는 메서드
-    // auction의 생성 시간(createdAt)과 종료 시간(endedAt) 간의 차이를 구함
+    // 현재 시간(createdAt)과 종료 시간(endedAt) 간의 차이를 구함
     private long getExpireSecond(Auction auction) {
 
         return Duration.between(
-            auction.getCreatedAt(),
+            LocalDateTime.now(),
             auction.getEndedAt()
         ).getSeconds();
     }
