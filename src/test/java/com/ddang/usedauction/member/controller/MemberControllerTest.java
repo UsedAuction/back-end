@@ -24,6 +24,7 @@ import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
+import com.ddang.usedauction.member.dto.MemberWithdrawalDto;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.servie.MemberService;
@@ -228,8 +229,13 @@ class MemberControllerTest {
     @WithCustomMockUser
     void withdrawl() throws Exception {
 
+        MemberWithdrawalDto dto = MemberWithdrawalDto.builder()
+            .withDrawalReason("개인정보 보호")
+            .build();
+
         mockMvc.perform(post("/api/auth/withdrawl")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto)))
             .andDo(print())
             .andExpect(status().isOk());
     }
