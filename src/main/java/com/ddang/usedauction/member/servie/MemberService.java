@@ -134,7 +134,7 @@ public class MemberService {
             throw new MemberException(MemberErrorCode.DUPLICATED_EMAIL);
         }
 
-        if (!member.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
+        if (!dto.getEmail().equals(mailRedisService.getData(dto.getAuthNum()))) {
             throw new MemberException(MemberErrorCode.NOT_MATCHED_AUTHNUM);
         }
 
