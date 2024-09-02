@@ -105,7 +105,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, String> stringRedisTemplate(
+    public RedisTemplate<String, String> tokenRedisTemplate(
         RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
@@ -122,6 +122,17 @@ public class RedisConfig {
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisTemplate<String, Integer> unReadTemplate(
+        RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Integer> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Integer.class));
 
         return redisTemplate;
     }
