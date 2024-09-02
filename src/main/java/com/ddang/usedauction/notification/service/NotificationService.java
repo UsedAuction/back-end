@@ -79,9 +79,11 @@ public class NotificationService {
 
         Map<String, SseEmitter> emitters =
             emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
+        log.info("emitters: {}", emitters);
 
         emitters.forEach(
             (key, emitter) -> {
+                log.info("foreach emitter: {}", emitter);
                 emitterRepository.saveEventCache(key, notification);
                 sendNotification(emitter, key, NotificationDto.Response.from(notification));
             }
