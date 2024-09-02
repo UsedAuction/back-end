@@ -36,6 +36,9 @@ public class EmitterRepository {
 
     // 해당 memberId와 관련된 모든 emitter 찾기
     public Map<String, SseEmitter> findAllEmitterStartWithMemberId(String memberId) {
+        log.info("memberId: " + memberId);
+        log.info("emitters: {}", emitters);
+        log.info("emitters keyset: {}", emitters.keySet());
         Map<String, SseEmitter> result = emitters.entrySet().stream()
             .filter(entry -> entry.getKey().startsWith(memberId))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
