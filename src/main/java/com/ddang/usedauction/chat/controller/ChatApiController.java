@@ -30,7 +30,7 @@ public class ChatApiController {
     public void send(@RequestBody ChatMessageSendDto.Request request) {
 
         chatMessageService.sendMessage(request);
-        redisPublisher.publish(chatRoomService.getTopic(request.getRoomId()), request);
+//        redisPublisher.publish(chatRoomService.getTopic(request.getRoomId()), request);
     }
 
     @PreAuthorize("hasRole('USER')")
@@ -41,7 +41,7 @@ public class ChatApiController {
         return ResponseEntity.status(HttpStatus.OK)
             .body(chatRoomService.findChatRoomsByMemberId(principalDetails.getName()));
     }
-  
+
     @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/chat/rooms/{roomId}/messages")
     public ResponseEntity<List<ChatMessageSendDto.Response>> getChatMessages(
