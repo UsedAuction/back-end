@@ -1,9 +1,11 @@
 package com.ddang.usedauction.transaction.service;
 
 import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.dto.TransactionDto;
 import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+
+    /**
+     * 경매 pk로 거래 조회
+     *
+     * @param auctionId 경매 pk
+     * @return 조회된 거래
+     */
+    @Transactional(readOnly = true)
+    public TransactionDto getTransaction(Long auctionId) {
+
+        Transaction transaction = transactionRepository.findByAuctionId(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래입니다."));
+
+        return TransactionDto.from(transaction);
+    }
 
     /**
      * 판매 내역 조회 서비스
