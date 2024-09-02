@@ -114,9 +114,9 @@ class PaymentServiceTest {
             "quantity", "1",
             "total_amount", "10000",
             "tax_free_amount", "0",
-            "approval_url", "https://localhost:5173/members/payment/approve?partner_order_id=1",
-            "cancel_url", "https://localhost:5173/members/payment/cancel",
-            "fail_url", "https://localhost:5173/members/payment/fail"
+            "approval_url", "https://dddang.vercel.app/members/payment/approve?partner_order_id=1",
+            "cancel_url", "https://dddang.vercel.app/members/payment/cancel",
+            "fail_url", "https://dddang.vercel.app/members/payment/fail"
         );
 
         readyRequestEntity = new HttpEntity<>(readyMap, headers);
@@ -183,7 +183,7 @@ class PaymentServiceTest {
     @DisplayName("결제 준비 - 성공")
     void readySuccess() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(orderRepository.findById(readyOrder.getId())).willReturn(Optional.of(readyOrder));
         given(restTemplate.postForObject(READY_URL, readyRequestEntity,
@@ -200,7 +200,7 @@ class PaymentServiceTest {
         assertEquals(readyResponse.getNext_redirect_pc_url(), response.getNext_redirect_pc_url());
         assertEquals(readyResponse.getCreated_at(), response.getCreated_at());
 
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(1)).findById(readyOrder.getId());
         verify(restTemplate, times(1)).postForObject(READY_URL, readyRequestEntity,
             PaymentReadyDto.Response.class);
@@ -211,11 +211,12 @@ class PaymentServiceTest {
     @DisplayName("결제 준비 - 실패 (회원이 존재하지 않음)")
     void readyFail_MemberNotFound() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
+            Optional.empty());
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity,
             PaymentReadyDto.Response.class);
@@ -228,13 +229,13 @@ class PaymentServiceTest {
     @DisplayName("결제 준비 - 실패 (주문내역이 존재하지 않음)")
     void readyFail_OrderNotFound() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.empty());
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity,
             PaymentReadyDto.Response.class);
@@ -253,13 +254,13 @@ class PaymentServiceTest {
             .price(10000)
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.of(readyOrder));
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity,
             PaymentReadyDto.Response.class);
@@ -278,13 +279,13 @@ class PaymentServiceTest {
             .price(20000)
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.of(readyOrder));
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity,
             PaymentReadyDto.Response.class);
@@ -297,7 +298,7 @@ class PaymentServiceTest {
     @DisplayName("결제 준비 - 실패 (결제 준비 요청에 대한 응답이 없음)")
     void readyFail_apiFailed() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(orderRepository.findById(request.getOrderId())).willReturn(Optional.of(readyOrder));
         given(restTemplate.postForObject(READY_URL, readyRequestEntity,
@@ -306,7 +307,7 @@ class PaymentServiceTest {
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0)).postForObject(READY_URL, readyRequestEntity,
             PaymentReadyDto.Response.class);
@@ -364,7 +365,7 @@ class PaymentServiceTest {
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0))
             .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
@@ -384,7 +385,7 @@ class PaymentServiceTest {
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0))
             .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);
@@ -408,7 +409,7 @@ class PaymentServiceTest {
 
         //when
         //then
-        verify(memberRepository, times(0)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(0)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(0)).findById(readyOrder.getId());
         verify(restTemplate, times(0))
             .postForObject(APPROVE_URL, approveRequestEntity, PaymentApproveDto.Response.class);

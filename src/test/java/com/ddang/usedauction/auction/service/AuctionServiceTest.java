@@ -24,6 +24,8 @@ import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
+import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.chat.service.ChatMessageService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.domain.ImageType;
@@ -86,6 +88,9 @@ class AuctionServiceTest {
 
     @Mock
     private ChatRoomService chatRoomService;
+
+    @Mock
+    private ChatMessageService chatMessageService;
 
     @Mock
     private RedisTemplate<String, AuctionRecentDto> redisTemplate;
@@ -463,7 +468,8 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
         when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
@@ -610,7 +616,8 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.createAuction(thumbnail, imageList, "memberId",
@@ -651,7 +658,8 @@ class AuctionServiceTest {
             .email("test@naver.com")
             .build();
 
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -693,11 +701,17 @@ class AuctionServiceTest {
             .transType(TransType.CONTINUE)
             .build();
 
+        ChatRoom chatRoom = ChatRoom.builder()
+            .id(1L)
+            .build();
+
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
         when(transactionRepository.findByBuyerIdAndAuctionId("memberId", 1L)).thenReturn(
             Optional.of(transaction));
+        when(chatRoomService.deleteChatRoom(1L)).thenReturn(chatRoom);
 
         auctionService.confirmAuction(1L, "memberId", confirmDto);
 
@@ -775,7 +789,8 @@ class AuctionServiceTest {
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(transactionRepository.findByBuyerIdAndAuctionId("memberId", 1L)).thenReturn(
             Optional.of(transaction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.confirmAuction(1L, "memberId", confirmDto));
@@ -931,7 +946,8 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(buyer));
 
         auctionService.instantPurchaseAuction(1L, "memberId");
 
@@ -963,7 +979,8 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> auctionService.instantPurchaseAuction(1L, "memberId"));
@@ -992,7 +1009,8 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(buyer));
 
         assertThrows(IllegalStateException.class,
             () -> auctionService.instantPurchaseAuction(1L, "memberId"));
@@ -1021,7 +1039,8 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(buyer));
 
         assertThrows(MemberPointOutOfBoundsException.class,
             () -> auctionService.instantPurchaseAuction(1L, "memberId"));

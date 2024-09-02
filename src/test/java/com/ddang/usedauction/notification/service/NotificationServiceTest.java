@@ -38,8 +38,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -91,7 +89,7 @@ class NotificationServiceTest {
         //given
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(emitterRepository.save(
             argThat(arg -> arg.startsWith(member.getId() + "_")),
@@ -114,7 +112,7 @@ class NotificationServiceTest {
     @DisplayName("알림 구독 - 실패 (emitterRepository 저장 실패)")
     void subscribeFail_emitterRepositorySave() {
         //given
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(emitterRepository.save(
             argThat(arg -> arg.startsWith(member.getId() + "_")),
@@ -133,7 +131,7 @@ class NotificationServiceTest {
         //given
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(emitterRepository.save(
             argThat(arg -> arg.startsWith(member.getId() + "_")),
@@ -157,7 +155,7 @@ class NotificationServiceTest {
         //given
         SseEmitter sseEmitter = mock(SseEmitter.class);
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(emitterRepository.save(
             argThat(arg -> arg.startsWith(member.getId() + "_")),
@@ -411,7 +409,7 @@ class NotificationServiceTest {
                     .member(member)
                     .build());
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(notificationRepository.findNotificationList(
             eq(member.getMemberId()), any(LocalDateTime.class))
@@ -440,7 +438,8 @@ class NotificationServiceTest {
         //given
         Pageable pageable = PageRequest.of(0, 10);
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
+            Optional.empty());
 
         ArgumentCaptor<LocalDateTime> dateTimeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
 
@@ -449,7 +448,7 @@ class NotificationServiceTest {
             () -> notificationService.getNotificationList(member.getMemberId()));
 
         //then
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(notificationRepository, times(0)).findNotificationList(
             eq(member.getMemberId()), dateTimeCaptor.capture());
     }
@@ -461,7 +460,7 @@ class NotificationServiceTest {
         LocalDateTime beforeOneMonth = LocalDateTime.now().minusMonths(1);
         Pageable pageable = PageRequest.of(0, 10);
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(notificationRepository.findNotificationList(member.getMemberId(), beforeOneMonth))
             .willThrow(new RuntimeException());
@@ -473,7 +472,7 @@ class NotificationServiceTest {
             () -> notificationService.getNotificationList(member.getMemberId()));
 
         //then
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(notificationRepository, times(1)).findNotificationList(
             eq(member.getMemberId()), dateTimeCaptor.capture());
     }

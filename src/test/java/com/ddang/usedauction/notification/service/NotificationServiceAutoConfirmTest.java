@@ -14,6 +14,9 @@ import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.auction.service.AuctionService;
+import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.chat.service.ChatMessageService;
+import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.point.domain.PointHistory;
@@ -24,7 +27,6 @@ import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -49,6 +51,12 @@ class NotificationServiceAutoConfirmTest {
 
     @Mock
     private NotificationService notificationService;
+
+    @Mock
+    private ChatRoomService chatRoomService;
+
+    @Mock
+    private ChatMessageService chatMessageService;
 
     @InjectMocks
     private AuctionService auctionService;
@@ -109,12 +117,18 @@ class NotificationServiceAutoConfirmTest {
     @DisplayName("구매확정시 판매자, 구매자에게 알림 전송 - 성공")
     void auto_confirm_success() {
 
+        ChatRoom chatRoom = ChatRoom.builder()
+            .id(1L)
+            .build();
+
         //given
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
         given(memberRepository.findById(seller.getId())).willReturn(Optional.of(seller));
+        given(chatRoomService.deleteChatRoom(1L)).willReturn(chatRoom);
 
         //when
         auctionService.confirmAuction(auction.getId(), buyer.getMemberId(), confirmDto);
@@ -212,7 +226,8 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
@@ -244,7 +259,8 @@ class NotificationServiceAutoConfirmTest {
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
         given(transactionRepository.findByBuyerIdAndAuctionId(buyer.getMemberId(), auction.getId()))
             .willReturn(Optional.of(buyerTransaction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
         given(memberRepository.findById(confirmDto.getSellerId())).willReturn(Optional.empty());
 
         //when

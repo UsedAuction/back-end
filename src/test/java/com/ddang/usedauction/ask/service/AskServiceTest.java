@@ -199,7 +199,8 @@ class AskServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(member));
         when(askRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
             ask.toBuilder().title(createDto.getTitle()).writer(member)
                 .content(createDto.getContent()).auction(auction).build());
@@ -241,7 +242,8 @@ class AskServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> askService.createAsk(createDto, "memberId"));
@@ -268,7 +270,8 @@ class AskServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("memberId")).thenReturn(
+            Optional.of(member));
 
         assertThrows(IllegalStateException.class,
             () -> askService.createAsk(createDto, "memberId"));

@@ -10,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ddang.usedauction.auction.domain.AuctionState;
+import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.mail.service.MailPasswordService;
 import com.ddang.usedauction.mail.service.MailRedisService;
 import com.ddang.usedauction.member.domain.Member;
@@ -30,6 +32,8 @@ import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
+import com.ddang.usedauction.transaction.domain.TransType;
+import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import jakarta.servlet.http.Cookie;
 import java.util.Collections;
 import java.util.NoSuchElementException;
@@ -53,6 +57,12 @@ class MemberServiceTest {
 
     @Mock
     MemberRepository memberRepository;
+
+    @Mock
+    AuctionRepository auctionRepository;
+
+    @Mock
+    TransactionRepository transactionRepository;
 
     @Mock
     MailRedisService mailRedisService;
@@ -87,7 +97,8 @@ class MemberServiceTest {
             .passWord("1234")
             .build();
 
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
 
         MemberGetDto.Response result = memberService.getMember("test");
 
@@ -98,7 +109,8 @@ class MemberServiceTest {
     @DisplayName("회원 정보 조회 실패 - 없는 회원")
     void getMemberFail1() {
 
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> memberService.getMember("test"));
     }
@@ -125,7 +137,8 @@ class MemberServiceTest {
 
         long refreshTokenExpiration = 8000L;
 
-        when(memberRepository.findByMemberId(dto.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            Optional.of(member));
         when(passwordEncoder.matches(dto.getPassword(), member.getPassWord())).thenReturn(true);
         when(tokenProvider.generateToken(member.getMemberId(),
             Collections.singletonList(
@@ -135,7 +148,7 @@ class MemberServiceTest {
 
         MemberLoginResponseDto responseDto = memberService.login(response, dto);
 
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(passwordEncoder, times(1)).matches(dto.getPassword(), member.getPassWord());
         verify(tokenProvider, times(1)).generateToken(member.getMemberId(),
             Collections.singletonList(new SimpleGrantedAuthority(member.getRole().toString())));
@@ -161,11 +174,12 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.findByMemberId(dto.getMemberId())).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> memberService.login(response, dto));
 
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
 
     }
 
@@ -184,11 +198,12 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.findByMemberId(dto.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            Optional.of(member));
         when(passwordEncoder.matches(dto.getPassword(), member.getPassWord())).thenReturn(false);
 
         assertThrows(MemberException.class, () -> memberService.login(response, dto));
-        verify(memberRepository, times(1)).findByMemberId(dto.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(dto.getMemberId());
         verify(passwordEncoder, times(1)).matches(dto.getPassword(), member.getPassWord());
 
     }
@@ -212,8 +227,9 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(false);
-        when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            false);
+        when(memberRepository.existsByEmailAndDeletedAtIsNull(dto.getEmail())).thenReturn(false);
         when(passwordEncoder.encode(dto.getPassword())).thenReturn("encodedPassword");
         when(mailRedisService.getData("1234")).thenReturn("saab35@naver.com");
         when(memberRepository.save(argThat(arg -> arg.getMemberId().equals("test1234"))))
@@ -245,8 +261,9 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(false);
-        when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(false);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            false);
+        when(memberRepository.existsByEmailAndDeletedAtIsNull(dto.getEmail())).thenReturn(false);
         when(mailRedisService.getData("1234")).thenReturn("wrong@email.com");
 
         assertThrows(MemberException.class, () -> memberService.signUp(dto));
@@ -272,7 +289,8 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            true);
 
         assertThrows(MemberException.class, () -> memberService.signUp(dto));
 
@@ -297,8 +315,9 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(false);
-        when(memberRepository.existsByEmail(dto.getEmail())).thenReturn(true);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            false);
+        when(memberRepository.existsByEmailAndDeletedAtIsNull(dto.getEmail())).thenReturn(true);
 
         assertThrows(MemberException.class, () -> memberService.signUp(dto));
 
@@ -335,7 +354,8 @@ class MemberServiceTest {
             .memberId("existingID")
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(false);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            false);
 
         assertDoesNotThrow(() -> memberService.checkMemberId(dto));
     }
@@ -347,7 +367,8 @@ class MemberServiceTest {
             .memberId("existingID")
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            true);
 
         MemberException exception = assertThrows(MemberException.class,
             () -> memberService.checkMemberId(dto));
@@ -370,8 +391,9 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
-        when(mailRedisService.getData(dto.getAuthNum())).thenReturn("oldEmail@email.com");
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
+        when(mailRedisService.getData(dto.getAuthNum())).thenReturn("newEmail@email.com");
 
         assertDoesNotThrow(() -> memberService.changeEmail(member.getMemberId(), dto));
 
@@ -387,7 +409,8 @@ class MemberServiceTest {
             .build();
         String memberId = "test1234";
 
-        when(memberRepository.findByMemberId(memberId)).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> memberService.changeEmail(memberId, dto));
     }
@@ -406,7 +429,8 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
 
         MemberException exception = assertThrows(MemberException.class,
             () -> memberService.changeEmail(member.getMemberId(), dto));
@@ -429,7 +453,8 @@ class MemberServiceTest {
             .role(Role.ROLE_USER)
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
         when(mailRedisService.getData(dto.getAuthNum())).thenReturn("wrong@email.com");
 
         MemberException exception = assertThrows(MemberException.class,
@@ -453,7 +478,8 @@ class MemberServiceTest {
             .confirmPassword("newPassword1")
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
         when(passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())).thenReturn(true);
         when(passwordEncoder.encode(dto.getNewPassword())).thenReturn("encodedNewPassword1");
 
@@ -479,7 +505,8 @@ class MemberServiceTest {
             .confirmPassword("newPassword1")
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> memberService.changePassword(member.getMemberId(), dto));
@@ -503,7 +530,8 @@ class MemberServiceTest {
             .confirmPassword("newPassword1")
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
         when(passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())).thenReturn(
             false);
 
@@ -530,7 +558,8 @@ class MemberServiceTest {
             .confirmPassword("wrongPassword1")
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
         when(passwordEncoder.matches(dto.getCurPassword(), member.getPassWord())).thenReturn(true);
 
         assertThrows(MemberException.class, () -> memberService.changePassword("test1234", dto),
@@ -554,7 +583,8 @@ class MemberServiceTest {
             .email("test@email.com")
             .build();
 
-        when(memberRepository.findByEmail(member.getEmail())).thenReturn(Optional.of(member));
+        when(memberRepository.findByEmailAndDeletedAtIsNull(member.getEmail())).thenReturn(
+            Optional.of(member));
 
         String findMemberId = memberService.findMemberId(dto);
 
@@ -568,7 +598,8 @@ class MemberServiceTest {
             .email("test@email.com")
             .build();
 
-        when(memberRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
+        when(memberRepository.findByEmailAndDeletedAtIsNull(dto.getEmail())).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> memberService.findMemberId(dto),
             "가입된 아이디가 존재하지 않습니다,");
@@ -589,8 +620,10 @@ class MemberServiceTest {
             .email("test@email.com")
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
-        when(memberRepository.findByEmail(dto.getEmail())).thenReturn(Optional.of(member));
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            true);
+        when(memberRepository.findByEmailAndDeletedAtIsNull(dto.getEmail())).thenReturn(
+            Optional.of(member));
         when(passwordEncoder.encode(any())).thenReturn("newEncodedPassword");
 
         memberService.findPassword(dto);
@@ -612,12 +645,13 @@ class MemberServiceTest {
             .email("test@email.com")
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            true);
 
         assertThrows(NoSuchElementException.class, () -> memberService.findPassword(dto));
 
-        verify(memberRepository, times(1)).existsByMemberId(dto.getMemberId());
-        verify(memberRepository, times(0)).existsByEmail(dto.getEmail());
+        verify(memberRepository, times(1)).existsByMemberIdAndDeletedAtIsNull(dto.getMemberId());
+        verify(memberRepository, times(0)).existsByEmailAndDeletedAtIsNull(dto.getEmail());
     }
 
     @Test
@@ -629,13 +663,15 @@ class MemberServiceTest {
             .email("test@email.com")
             .build();
 
-        when(memberRepository.existsByMemberId(dto.getMemberId())).thenReturn(true);
-        when(memberRepository.findByEmail(dto.getEmail())).thenReturn(Optional.empty());
+        when(memberRepository.existsByMemberIdAndDeletedAtIsNull(dto.getMemberId())).thenReturn(
+            true);
+        when(memberRepository.findByEmailAndDeletedAtIsNull(dto.getEmail())).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> memberService.findPassword(dto));
 
-        verify(memberRepository, times(1)).existsByMemberId(dto.getMemberId());
-        verify(memberRepository, times(1)).findByEmail(dto.getEmail());
+        verify(memberRepository, times(1)).existsByMemberIdAndDeletedAtIsNull(dto.getMemberId());
+        verify(memberRepository, times(1)).findByEmailAndDeletedAtIsNull(dto.getEmail());
     }
 
     @Test
@@ -676,7 +712,12 @@ class MemberServiceTest {
             .withDrawalReason("개인정보 보호")
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
+        when(auctionRepository.existsByMemberIdAndAuctionState(
+            member.getMemberId(), AuctionState.CONTINUE)).thenReturn(false);
+        when(transactionRepository.existsByUser(member.getMemberId(),
+            TransType.CONTINUE)).thenReturn(false);
 
         memberService.withdrawal(member.getMemberId(), dto.getWithDrawalReason());
 
@@ -698,12 +739,13 @@ class MemberServiceTest {
             .withDrawalReason("개인정보 보호")
             .build();
 
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> memberService.withdrawal(member.getMemberId(), dto.getWithDrawalReason()));
 
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(memberRepository, never()).save(member);
     }
 }

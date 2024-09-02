@@ -81,8 +81,10 @@ class NotificationServiceInstantPurchaseTest {
         PointHistory pointHistory = PointHistory.builder().build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
-        given(pointRepository.save(argThat(arg -> arg.getPointType().equals(PointType.USE)))).willReturn(pointHistory);
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
+        given(pointRepository.save(
+            argThat(arg -> arg.getPointType().equals(PointType.USE)))).willReturn(pointHistory);
 
         //when
         auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId());
@@ -166,7 +168,8 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.empty());
 
         // when
         assertThrows(NoSuchElementException.class,
@@ -209,7 +212,8 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
 
         // when
         assertThrows(IllegalStateException.class,
@@ -254,7 +258,8 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
 
         // when
         assertThrows(MemberPointOutOfBoundsException.class,

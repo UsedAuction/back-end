@@ -47,7 +47,7 @@ class OrderServiceTest {
             .price(10000)
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
 
         //when
@@ -58,7 +58,7 @@ class OrderServiceTest {
         assertEquals("10000 포인트", result.getItemName());
         assertEquals(10000, result.getPrice());
 
-        verify(memberRepository, times(1)).findByMemberId(member.getMemberId());
+        verify(memberRepository, times(1)).findByMemberIdAndDeletedAtIsNull(member.getMemberId());
         verify(orderRepository, times(1)).save(result);
     }
 
@@ -76,7 +76,8 @@ class OrderServiceTest {
             .price(1000)
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
+            Optional.empty());
 
         // when
         // then
@@ -103,13 +104,13 @@ class OrderServiceTest {
             .price(10000)
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(orderRepository.save(order)).willThrow(new RuntimeException("DB 저장 실패"));
 
         // when
         // then
-        verify(memberRepository, times(0)).findByEmail(member.getMemberId());
+        verify(memberRepository, times(0)).findByEmailAndDeletedAtIsNull(member.getMemberId());
         assertThrows(RuntimeException.class,
             () -> orderService.createOrder(member.getMemberId(), request));
     }

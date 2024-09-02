@@ -93,7 +93,8 @@ class NotificationServiceQuestionTest {
         //given
         given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
             Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
         given(askRepository.save(
             argThat(arg -> arg.getTitle().equals(createDto.getTitle()) &&
                 arg.getContent().equals(createDto.getContent()))
@@ -140,7 +141,8 @@ class NotificationServiceQuestionTest {
         //given
         given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
             Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.empty());
 
         //when
         assertThrows(NoSuchElementException.class,
@@ -169,7 +171,8 @@ class NotificationServiceQuestionTest {
 
         given(auctionRepository.findById(createDto.getAuctionId())).willReturn(
             Optional.of(auction));
-        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(buyer.getMemberId())).willReturn(
+            Optional.of(buyer));
 
         //when
         assertThrows(IllegalStateException.class,

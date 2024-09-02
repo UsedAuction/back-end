@@ -57,7 +57,7 @@ class PointServiceTest {
             .point(10000L)
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
 
         // when
@@ -78,7 +78,8 @@ class PointServiceTest {
             .memberId("memberId")
             .build();
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
+            Optional.empty());
 
         // when
         // then
@@ -126,7 +127,7 @@ class PointServiceTest {
                 .build()
         );
 
-        given(memberRepository.findByMemberId(member.getMemberId())).willReturn(
+        given(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).willReturn(
             Optional.of(member));
         given(pointRepository.findByMemberMemberIdAndCreatedAtBetween(member.getMemberId(),
             startDateTime, endDateTime, sortPage))
@@ -196,7 +197,8 @@ class PointServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.empty());
 
         // then
         assertThrows(NoSuchElementException.class, () ->
@@ -224,7 +226,8 @@ class PointServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
 
         // when
-        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull(member.getMemberId())).thenReturn(
+            Optional.of(member));
 
         // then
         assertThrows(IllegalArgumentException.class, () ->

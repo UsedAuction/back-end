@@ -105,7 +105,8 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
         when(auctionRepository.findAllByMemberIdAndAuctionState("test",
             AuctionState.CONTINUE)).thenReturn(auctionList);
         when(auctionRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(
@@ -151,7 +152,8 @@ class BidPubSubServiceTest {
     void createBidFail6() {
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.empty());
 
         assertThrows(NoSuchElementException.class,
             () -> bidPubSubService.createBid(message));
@@ -166,7 +168,8 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
 
         assertThrows(IllegalStateException.class,
             () -> bidPubSubService.createBid(message));
@@ -192,7 +195,8 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
 
         assertThrows(IllegalArgumentException.class,
             () -> bidPubSubService.createBid(message));
@@ -223,7 +227,8 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
 
         assertThrows(IllegalArgumentException.class,
             () -> bidPubSubService.createBid(message));
@@ -250,7 +255,8 @@ class BidPubSubServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
 
         assertThrows(IllegalArgumentException.class,
             () -> bidPubSubService.createBid(message));
@@ -287,7 +293,8 @@ class BidPubSubServiceTest {
         List<Auction> auctionList = List.of(anotherAuction);
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByMemberId("test")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberIdAndDeletedAtIsNull("test")).thenReturn(
+            Optional.of(member));
         when(auctionRepository.findAllByMemberIdAndAuctionState("test",
             AuctionState.CONTINUE)).thenReturn(auctionList);
 
