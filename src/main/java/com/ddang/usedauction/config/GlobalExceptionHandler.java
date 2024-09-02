@@ -27,6 +27,7 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
@@ -133,6 +134,16 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest()
             .body("unique 제약 조건에 위반된 요청입니다. 생성 또는 변경하려는 요청 중 중복된 값이 포함되어있습니다.");
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    private ResponseEntity<String> handleHandlerMethodValidationException(
+        HandlerMethodValidationException e) {
+
+        log.error("parameter 유효성 검증 실패", e);
+
+        return ResponseEntity.badRequest()
+            .body("올바른 parameter 값이 아닙니다.");
     }
 
     @ExceptionHandler(MemberPointOutOfBoundsException.class)
