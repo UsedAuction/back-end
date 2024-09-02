@@ -20,6 +20,7 @@ public class EmitterRepository {
         log.info("save()save()save()save()save()");
         emitters.put(emitterId, sseEmitter);
         log.info("save emitterId: " + emitterId);
+        log.info("save sseEmitter:" + sseEmitter);
         return sseEmitter;
     }
 
