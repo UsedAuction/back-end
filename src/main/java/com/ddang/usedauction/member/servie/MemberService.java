@@ -204,11 +204,11 @@ public class MemberService {
 
     }
 
-    public void withdrawal(String memberId) {
+    public void withdrawal(String memberId, String withDrawalReason) {
         Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        member.withdrawal();
+        member.withdrawal(withDrawalReason);
 
         memberRepository.save(member);
     }
