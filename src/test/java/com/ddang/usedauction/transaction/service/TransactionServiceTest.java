@@ -1,6 +1,7 @@
 package com.ddang.usedauction.transaction.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.auction.domain.Auction;
@@ -13,10 +14,13 @@ import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.dto.TransactionDto;
 import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +40,41 @@ class TransactionServiceTest {
 
     @InjectMocks
     private TransactionService transactionService;
+
+    @Test
+    @DisplayName("경매 pk로 거래 조회")
+    void getTransaction() {
+
+        Member seller = Member.builder()
+            .memberId("seller")
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .seller(seller)
+            .build();
+
+        Transaction transaction = Transaction.builder()
+            .id(1L)
+            .price(5000)
+            .auction(auction)
+            .build();
+
+        when(transactionRepository.findByAuctionId(1L)).thenReturn(Optional.of(transaction));
+
+        TransactionDto result = transactionService.getTransaction(1L);
+
+        assertEquals(5000, result.getPrice());
+    }
+
+    @Test
+    @DisplayName("경매 pk로 거래 조회 실패 - 없는 거래")
+    void getTransactionFail1() {
+
+        when(transactionRepository.findByAuctionId(1L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class, () -> transactionService.getTransaction(1L));
+    }
 
     @Test
     @DisplayName("판매 내역 조회")
