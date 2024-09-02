@@ -52,6 +52,9 @@ public class ChatRoomService {
         topics = new HashMap<>();
     }
 
+    /**
+     * 회원이 속한 모든 채팅방 조회
+     */
     public List<ChatRoomCreateDto.Response> findChatRoomsByMemberId(String memberId) {
 
         return opsHashChatRoom.values(CHAT_ROOMS).stream()
@@ -78,6 +81,9 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * 채팅방 생성 (판매자, 구매자, 해당 경매)
+     */
     public void createChatRoom(Long memberId, Long auctionId) {
         if (chatRoomRepository.existsByAuctionId(auctionId)) {
             throw new IllegalStateException("이미 존재하는 채팅방입니다.");
@@ -101,16 +107,25 @@ public class ChatRoomService {
 
     }
 
+    /**
+     * 채팅방 입장
+     */
     public void enterChatRoom(Long roomId, String memberId) {
         redisTemplate.opsForSet().add("CHAT_ROOM" + roomId + "_MEMBERS:", memberId);
 
     }
 
+    /**
+     * 채팅방 퇴장
+     */
     public void exitChatRoom(Long roomId, String memberId) {
         redisTemplate.opsForSet()
             .remove("CHAT_ROOM" + roomId + "_MEMBERS:", memberId);
     }
 
+    /**
+     * 경매 제목으로 회원이 속한 채팅방 조회
+     */
     public List<ChatRoomCreateDto.Response> searchChatRoomByAuctionTitle(String title) {
         return chatRoomRepository.findByAuctionTitle(title).stream()
             .map(ChatRoomCreateDto.Response::from)
