@@ -72,6 +72,7 @@ public class NotificationService {
     public void send(Long memberId, Long auctionId, String content,
         NotificationType notificationType) {
 
+        log.info("send()send()send()send()");
         Notification notification =
             notificationRepository.save(
                 createNotification(memberId, auctionId, content, notificationType));

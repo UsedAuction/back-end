@@ -1,11 +1,14 @@
 package com.ddang.usedauction.notification.repository;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+@Slf4j
 @Repository
 public class EmitterRepository {
 
@@ -14,7 +17,9 @@ public class EmitterRepository {
 
     // emitter 저장
     public SseEmitter save(String emitterId, SseEmitter sseEmitter) {
+        log.info("save()save()save()save()save()");
         emitters.put(emitterId, sseEmitter);
+        log.info("save emitterId: " + emitterId);
         return sseEmitter;
     }
 
@@ -30,9 +35,11 @@ public class EmitterRepository {
 
     // 해당 memberId와 관련된 모든 emitter 찾기
     public Map<String, SseEmitter> findAllEmitterStartWithMemberId(String memberId) {
-        return emitters.entrySet().stream()
+        Map<String, SseEmitter> result = emitters.entrySet().stream()
             .filter(entry -> entry.getKey().startsWith(memberId))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        log.info("findAllEmitterStartWithMemberId(): " + result);
+        return result;
     }
 
     // 해당 memberId와 관련된 모든 이벤트 찾기
