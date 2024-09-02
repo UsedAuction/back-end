@@ -41,7 +41,9 @@ public class AnswerGetDto {
                 .auctionTitle(answer.getAuction().getTitle())
                 .title(answer.getTitle())
                 .content(answer.getContent())
-                .writerId(answer.getAuction().getSeller().getMemberId())
+                .writerId(
+                    answer.getAuction().getSeller().getDeletedAt() == null ? answer.getAuction()
+                        .getSeller().getMemberId() : "탈퇴한 회원")
                 .imageList(answer.getImageList() != null && !answer.getImageList().isEmpty()
                     ? answer.getImageList().stream().map(ImageGetDto.Response::from).toList()
                     : new ArrayList<>())

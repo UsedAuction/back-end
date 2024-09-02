@@ -78,7 +78,9 @@ public class AuctionGetDto {
                 .instantPrice(auction.getInstantPrice())
                 .memberCount(auction.getBidMemberCount())
                 .endedAt(auction.getEndedAt())
-                .seller(MemberGetDto.Response.from(auction.getSeller()))
+                .seller(auction.getSeller().getDeletedAt() == null ? MemberGetDto.Response.from(
+                    auction.getSeller())
+                    : MemberGetDto.Response.builder().memberId("탈퇴한 회원").build())
                 .parentCategory(CategoryGetDto.Response.from(auction.getParentCategory()))
                 .childCategory(CategoryGetDto.Response.from(auction.getChildCategory()))
                 .bidList(auction.getBidList() != null && !auction.getBidList().isEmpty()
