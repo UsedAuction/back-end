@@ -62,6 +62,7 @@ public class ChatApiController {
     /**
      * 경매 제목으로 채팅방 검색
      */
+    @PreAuthorize("hasRole('USER')")
     @GetMapping("/api/chat/rooms/search")
     public ResponseEntity<List<ChatRoomCreateDto.Response>> searchChatRooms(
         @RequestParam("title") String title) {
@@ -73,6 +74,7 @@ public class ChatApiController {
     /**
      * 채팅방 입장한 회원 redis 저장
      */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/chat/room/{roomId}/enter")
     public ResponseEntity<Void> enterChatRoom(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -85,6 +87,7 @@ public class ChatApiController {
     /**
      * 채팅방 나간 회원 redis 삭제
      */
+    @PreAuthorize("hasRole('USER')")
     @PostMapping("/api/chat/room/{roomId}/exit")
     public ResponseEntity<Void> exitChatRoom(
         @AuthenticationPrincipal PrincipalDetails principalDetails,
