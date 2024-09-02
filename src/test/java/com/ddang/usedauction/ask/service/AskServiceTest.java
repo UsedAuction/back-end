@@ -7,13 +7,17 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.ask.dto.AskCreateDto;
+import com.ddang.usedauction.ask.dto.AskGetDto;
 import com.ddang.usedauction.ask.dto.AskUpdateDto;
 import com.ddang.usedauction.ask.repository.AskRepository;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.image.domain.Image;
+import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.service.NotificationService;
@@ -56,8 +60,42 @@ class AskServiceTest {
     @BeforeEach
     void setup() {
 
+        Member seller = Member.builder()
+            .memberId("seller")
+            .build();
+
+        Auction auction = Auction.builder()
+            .id(1L)
+            .title("auctionTitle")
+            .seller(seller)
+            .build();
+
+        Member writer = Member.builder()
+            .memberId("writer")
+            .build();
+
+        Image image = Image.builder()
+            .id(1L)
+            .imageUrl("url")
+            .imageType(ImageType.NORMAL)
+            .imageName("name")
+            .build();
+
+        Answer answer = Answer.builder()
+            .id(1L)
+            .auction(auction)
+            .title("title")
+            .content("content")
+            .imageList(List.of(image))
+            .build();
+
         ask = Ask.builder()
             .id(1L)
+            .auction(auction)
+            .writer(writer)
+            .title("title")
+            .content("content")
+            .answerList(List.of(answer))
             .build();
     }
 
@@ -67,7 +105,7 @@ class AskServiceTest {
 
         when(askRepository.findById(1L)).thenReturn(Optional.of(ask));
 
-        Ask result = askService.getAsk(1L);
+        AskGetDto.Response result = askService.getAsk(1L);
 
         assertEquals(1, result.getId());
     }
@@ -102,7 +140,7 @@ class AskServiceTest {
         when(askRepository.findAllByMemberId("test", pageable)).thenReturn(
             askPageList);
 
-        Page<Ask> result = askService.getAskList("test", pageable);
+        Page<AskGetDto.Response> result = askService.getAskList("test", pageable);
 
         assertEquals(1, result.getTotalElements());
         assertEquals(1, result.getContent().get(0).getId());
@@ -130,9 +168,9 @@ class AskServiceTest {
 
         when(askRepository.findALlBySellerId("seller", pageable)).thenReturn(askPageList);
 
-        Page<Ask> result = askService.getReceiveAskList("seller", pageable);
+        Page<AskGetDto.Response> result = askService.getReceiveAskList("seller", pageable);
 
-        assertEquals("seller", result.getContent().get(0).getAuction().getSeller().getMemberId());
+        assertEquals(1, result.getContent().get(0).getId());
     }
 
     @Test
@@ -166,7 +204,7 @@ class AskServiceTest {
             ask.toBuilder().title(createDto.getTitle()).writer(member)
                 .content(createDto.getContent()).auction(auction).build());
 
-        Ask result = askService.createAsk(createDto, "memberId");
+        AskGetDto.Response result = askService.createAsk(createDto, "memberId");
 
         assertEquals("title", result.getTitle());
     }
@@ -258,7 +296,7 @@ class AskServiceTest {
             ask.toBuilder().content(
                 updateDto.getContent()).build());
 
-        Ask result = askService.updateAsk(1L, updateDto, "memberId");
+        AskGetDto.Response result = askService.updateAsk(1L, updateDto, "memberId");
 
         assertEquals("content", result.getContent());
     }

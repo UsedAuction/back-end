@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.answer.dto.AnswerCreateDto;
+import com.ddang.usedauction.answer.dto.AnswerGetDto;
 import com.ddang.usedauction.answer.dto.AnswerGetDto.Response;
 import com.ddang.usedauction.answer.dto.AnswerUpdateDto;
 import com.ddang.usedauction.answer.repository.AnswerRepository;
@@ -138,11 +139,11 @@ class AnswerServiceTest {
         when(answerRepository.findAllByMemberId("test", pageable)).thenReturn(
             answerPageList);
 
-        Page<Answer> result = answerService.getAnswerList("test", pageable);
+        Page<AnswerGetDto.Response> result = answerService.getAnswerList("test", pageable);
 
         assertEquals(1, result.getTotalElements());
-        assertEquals("test@naver.com",
-            result.getContent().get(0).getAuction().getSeller().getEmail());
+        assertEquals("test",
+            result.getContent().get(0).getWriterId());
     }
 
     @Test
@@ -197,7 +198,8 @@ class AnswerServiceTest {
         when(answerRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
             answer);
 
-        Answer result = answerService.createAnswer(multipartFileList, createDto, "memberId");
+        AnswerGetDto.Response result = answerService.createAnswer(multipartFileList, createDto,
+            "memberId");
 
         assertEquals("title", result.getTitle());
     }
@@ -324,7 +326,7 @@ class AnswerServiceTest {
         when(answerRepository.findById(1L)).thenReturn(Optional.of(answer));
         when(answerRepository.save(argThat(arg -> arg.getId().equals(1L)))).thenReturn(answer);
 
-        Answer result = answerService.updateAnswer(1L, multipartFileList, updateDto,
+        AnswerGetDto.Response result = answerService.updateAnswer(1L, multipartFileList, updateDto,
             "memberId");
 
         assertEquals(1, result.getId());

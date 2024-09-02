@@ -14,6 +14,7 @@ import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
 import com.ddang.usedauction.auction.dto.AuctionEndDto;
+import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.auction.dto.AuctionRecentDto;
 import com.ddang.usedauction.auction.exception.AuctionMaxDateOutOfBoundsException;
 import com.ddang.usedauction.auction.exception.ImageCountOutOfBoundsException;
@@ -104,16 +105,61 @@ class AuctionServiceTest {
             .build();
         List<Image> imageList = List.of(image);
 
+        Category category2 = Category.builder()
+            .categoryName("category2")
+            .build();
+
+        Category childCategory = Category.builder()
+            .categoryName("child")
+            .build();
+
+        Member member = Member.builder()
+            .memberId("test1")
+            .build();
+
+        Bid bid = Bid.builder()
+            .member(member)
+            .build();
+
+        Member seller = Member.builder()
+            .id(2L)
+            .memberId("seller")
+            .build();
+
         Auction auction = Auction.builder()
             .id(1L)
             .title("title")
             .imageList(imageList)
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .bidList(List.of(bid))
+            .seller(seller)
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .receiveType(ReceiveType.CONTACT)
+            .productName("name")
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
+            .build();
+
+        bid = bid.toBuilder()
+            .auction(auction)
+            .build();
+
+        auction = auction.toBuilder()
+            .bidList(List.of(bid))
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
         when(redisTemplate.opsForList()).thenReturn(listOperations);
 
-        Auction result = auctionService.getAuction(1L);
+        AuctionGetDto.Response result = auctionService.getAuction(1L);
 
         assertEquals("title", result.getTitle());
         verify(redisTemplate.opsForList(), times(1)).leftPush(
@@ -154,12 +200,42 @@ class AuctionServiceTest {
             .categoryName("category2")
             .build();
 
+        Category childCategory = Category.builder()
+            .categoryName("child")
+            .build();
+
+        Member seller = Member.builder()
+            .id(2L)
+            .memberId("seller")
+            .build();
+
+        Image image = Image.builder()
+            .imageName("name")
+            .imageType(ImageType.THUMBNAIL)
+            .imageUrl("url")
+            .id(1L)
+            .build();
+
         Auction auction1 = Auction.builder()
+            .id(1L)
             .title("title")
             .parentCategory(category1)
             .currentPrice(1000)
             .endedAt(LocalDateTime.now())
             .bidList(List.of(bid))
+            .seller(seller)
+            .imageList(List.of(image))
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .receiveType(ReceiveType.CONTACT)
+            .productName("name")
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
             .build();
 
         Auction auction2 = Auction.builder()
@@ -167,6 +243,34 @@ class AuctionServiceTest {
             .parentCategory(category2)
             .currentPrice(2000)
             .endedAt(LocalDateTime.now().plusDays(1))
+            .id(1L)
+            .title("title")
+            .bidList(List.of(bid))
+            .seller(seller)
+            .imageList(List.of(image))
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .receiveType(ReceiveType.CONTACT)
+            .productName("name")
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
+            .build();
+
+        bid = bid.toBuilder()
+            .auction(auction1)
+            .build();
+
+        auction1 = auction1.toBuilder()
+            .bidList(List.of(bid))
+            .build();
+
+        auction2 = auction2.toBuilder()
+            .bidList(List.of(bid))
             .build();
 
         List<Auction> auctionList = List.of(auction1, auction2);
@@ -175,7 +279,8 @@ class AuctionServiceTest {
         when(auctionRepository.findAllByOptions(null, null, null, null, pageable)).thenReturn(
             auctionPageList);
 
-        Page<Auction> resultList = auctionService.getAuctionList(null, null, null, null, pageable);
+        Page<AuctionGetDto.Response> resultList = auctionService.getAuctionList(null, null, null,
+            null, pageable);
 
         assertEquals(2, resultList.getTotalElements());
     }
@@ -200,39 +305,93 @@ class AuctionServiceTest {
             .member(member2)
             .build();
 
+        Image image = Image.builder()
+            .imageName("name")
+            .imageType(ImageType.THUMBNAIL)
+            .imageUrl("url")
+            .id(1L)
+            .build();
+
+        Category category2 = Category.builder()
+            .categoryName("category2")
+            .build();
+
+        Category childCategory = Category.builder()
+            .categoryName("child")
+            .build();
+
+        Member seller = Member.builder()
+            .id(2L)
+            .memberId("seller")
+            .build();
+
         Auction auction1 = Auction.builder()
             .bidList(List.of(bid1, bid2))
+            .id(1L)
+            .title("title")
+            .imageList(List.of(image))
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .seller(seller)
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .receiveType(ReceiveType.CONTACT)
+            .productName("name")
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
             .build();
 
         Auction auction2 = Auction.builder()
             .bidList(List.of(bid1))
+            .id(1L)
+            .title("title")
+            .imageList(List.of(image))
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .seller(seller)
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .receiveType(ReceiveType.CONTACT)
+            .productName("name")
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
+            .build();
+
+        bid1 = bid1.toBuilder()
+            .auction(auction1)
+            .build();
+
+        bid2 = bid2.toBuilder()
+            .auction(auction2)
+            .build();
+
+        auction1 = auction1.toBuilder()
+            .bidList(List.of(bid1, bid2))
+            .build();
+
+        auction2 = auction2.toBuilder()
+            .bidList(List.of(bid2))
             .build();
 
         when(auctionRepository.findTop5(null, null)).thenReturn(List.of(auction1, auction2));
 
-        List<Auction> auctionList = auctionService.getTop5(null, null);
+        List<AuctionGetDto.Response> auctionList = auctionService.getTop5(null, null);
 
         assertEquals(2, auctionList.size());
         assertEquals(2, auctionList.get(0).getBidList().size());
         assertEquals(1, auctionList.get(1).getBidList().size());
-    }
-
-    @Test
-    @DisplayName("최근 본 경매 리스트 조회")
-    void getAuctionRecentList() {
-
-        AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
-            .auctionTitle("title")
-            .build();
-        List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
-
-        when(redisTemplate.opsForList()).thenReturn(listOperations);
-        when(listOperations.range("recently::test@example.com", 0, 4)).thenReturn(
-            auctionRecentDtoList);
-
-        List<AuctionRecentDto> auctionRecentList = auctionService.getAuctionRecentList();
-
-        assertEquals("title", auctionRecentList.get(0).getAuctionTitle());
     }
 
     @Test
@@ -312,7 +471,8 @@ class AuctionServiceTest {
         when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
             auction);
 
-        Auction result = auctionService.createAuction(thumbnail, imageList, "memberId",
+        AuctionCreateDto.Response result = auctionService.createAuction(thumbnail, imageList,
+            "memberId",
             createDto);
 
         assertEquals("title", result.getTitle());

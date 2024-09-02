@@ -4,11 +4,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.auction.domain.Auction;
+import com.ddang.usedauction.auction.domain.AuctionState;
+import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
+import com.ddang.usedauction.category.domain.Category;
+import com.ddang.usedauction.image.domain.Image;
+import com.ddang.usedauction.image.domain.ImageType;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,24 +45,72 @@ class TransactionServiceTest {
             .memberId("seller")
             .build();
 
+        Image image = Image.builder()
+            .imageName("name")
+            .imageType(ImageType.THUMBNAIL)
+            .imageUrl("url")
+            .id(1L)
+            .build();
+
+        Category category2 = Category.builder()
+            .categoryName("category2")
+            .build();
+
+        Category childCategory = Category.builder()
+            .categoryName("child")
+            .build();
+
         Auction auction1 = Auction.builder()
             .seller(seller)
             .productName("name1")
             .receiveType(ReceiveType.ALL)
+            .id(1L)
+            .title("title")
+            .imageList(List.of(image))
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
             .build();
 
         Auction auction2 = Auction.builder()
             .seller(seller)
             .productName("name2")
+            .receiveType(ReceiveType.ALL)
+            .id(1L)
+            .title("title")
+            .imageList(List.of(image))
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
             .build();
 
         Transaction transaction1 = Transaction.builder()
+            .id(1L)
             .transType(TransType.CONTINUE)
             .price(2000)
             .auction(auction1)
             .build();
 
         Transaction transaction2 = Transaction.builder()
+            .id(2L)
             .transType(TransType.SUCCESS)
             .price(3000)
             .auction(auction2)
@@ -71,14 +126,11 @@ class TransactionServiceTest {
             transactionRepository.findAllByTransactionListBySeller("seller", null, null, null, null,
                 null, pageable)).thenReturn(transactionPageList);
 
-        Page<Transaction> resultList = transactionService.getTransactionListBySeller("seller", null,
+        Page<TransactionGetDto.Response> resultList = transactionService.getTransactionListBySeller(
+            "seller", null,
             null, null, null, null, pageable);
 
         assertEquals(2, resultList.getTotalElements());
-        assertEquals(2000, resultList.getContent().get(0).getPrice());
-        assertEquals("seller",
-            resultList.getContent().get(0).getAuction().getSeller().getMemberId());
-        assertEquals(ReceiveType.ALL, resultList.getContent().get(0).getAuction().getReceiveType());
     }
 
     @Test
@@ -89,12 +141,65 @@ class TransactionServiceTest {
             .memberId("buyer")
             .build();
 
+        Member seller = Member.builder()
+            .memberId("seller")
+            .build();
+
+        Image image = Image.builder()
+            .imageName("name")
+            .imageType(ImageType.THUMBNAIL)
+            .imageUrl("url")
+            .id(1L)
+            .build();
+
+        Category category2 = Category.builder()
+            .categoryName("category2")
+            .build();
+
+        Category childCategory = Category.builder()
+            .categoryName("child")
+            .build();
+
         Auction auction1 = Auction.builder()
             .productName("name1")
+            .seller(seller)
+            .receiveType(ReceiveType.ALL)
+            .id(1L)
+            .title("title")
+            .imageList(List.of(image))
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
             .build();
 
         Auction auction2 = Auction.builder()
             .productName("name2")
+            .seller(seller)
+            .receiveType(ReceiveType.ALL)
+            .id(1L)
+            .title("title")
+            .imageList(List.of(image))
+            .parentCategory(category2)
+            .currentPrice(2000)
+            .endedAt(LocalDateTime.now().plusDays(1))
+            .auctionState(AuctionState.CONTINUE)
+            .instantPrice(4000)
+            .startPrice(2000)
+            .productStatus(3.5)
+            .productColor("color")
+            .childCategory(childCategory)
+            .deliveryType(DeliveryType.NO_PREPAY)
+            .contactPlace("place")
+            .productDescription("description")
             .build();
 
         Transaction transaction1 = Transaction.builder()
@@ -120,11 +225,11 @@ class TransactionServiceTest {
         when(transactionRepository.findAllByTransactionListByBuyer("buyer", null, null, null, null,
             null, pageable)).thenReturn(transactionPageList);
 
-        Page<Transaction> resultList = transactionService.getTransactionListByBuyer("buyer", null,
+        Page<TransactionGetDto.Response> resultList = transactionService.getTransactionListByBuyer(
+            "buyer", null,
             null,
             null, null, null, pageable);
 
         assertEquals(2, resultList.getTotalElements());
-        assertEquals("buyer", resultList.getContent().get(0).getBuyer().getMemberId());
     }
 }

@@ -21,6 +21,7 @@ import com.ddang.usedauction.member.dto.MemberChangePasswordDto;
 import com.ddang.usedauction.member.dto.MemberCheckIdDto;
 import com.ddang.usedauction.member.dto.MemberFindIdDto;
 import com.ddang.usedauction.member.dto.MemberFindPasswordDto;
+import com.ddang.usedauction.member.dto.MemberGetDto;
 import com.ddang.usedauction.member.dto.MemberLoginRequestDto;
 import com.ddang.usedauction.member.dto.MemberLoginResponseDto;
 import com.ddang.usedauction.member.dto.MemberSignUpDto;
@@ -84,7 +85,7 @@ class MemberControllerTest {
             .siteAlarm(true)
             .build();
 
-        when(memberService.getMember("memberId")).thenReturn(member);
+        when(memberService.getMember("memberId")).thenReturn(MemberGetDto.Response.from(member));
 
         mockMvc.perform(get("/api/auth/members"))
             .andDo(print())

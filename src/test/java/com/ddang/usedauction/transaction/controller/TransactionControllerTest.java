@@ -21,6 +21,7 @@ import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.transaction.domain.BuyType;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.domain.Transaction;
+import com.ddang.usedauction.transaction.dto.TransactionGetDto;
 import com.ddang.usedauction.transaction.service.TransactionService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +60,7 @@ class TransactionControllerTest {
     @MockBean
     private TransactionService transactionService;
 
-    private List<Transaction> transactionList;
+    private List<TransactionGetDto.Response> transactionList;
 
     @BeforeEach
     void setup() {
@@ -120,7 +121,8 @@ class TransactionControllerTest {
             .buyer(buyer)
             .build();
 
-        transactionList = List.of(transaction1, transaction2);
+        transactionList = List.of(TransactionGetDto.Response.from(transaction1),
+            TransactionGetDto.Response.from(transaction2));
     }
 
     @Test
@@ -129,7 +131,8 @@ class TransactionControllerTest {
     void getTransactionListBySellerController() throws Exception {
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Transaction> transactionPageList = new PageImpl<>(transactionList, pageable,
+        Page<TransactionGetDto.Response> transactionPageList = new PageImpl<>(transactionList,
+            pageable,
             transactionList.size());
 
         when(
@@ -159,7 +162,8 @@ class TransactionControllerTest {
     void getTransactionListByBuyerController() throws Exception {
 
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Transaction> transactionPageList = new PageImpl<>(transactionList, pageable,
+        Page<TransactionGetDto.Response> transactionPageList = new PageImpl<>(transactionList,
+            pageable,
             transactionList.size());
 
         when(

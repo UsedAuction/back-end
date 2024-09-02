@@ -16,7 +16,7 @@ import com.ddang.usedauction.auction.domain.DeliveryType;
 import com.ddang.usedauction.auction.domain.ReceiveType;
 import com.ddang.usedauction.auction.dto.AuctionConfirmDto;
 import com.ddang.usedauction.auction.dto.AuctionCreateDto;
-import com.ddang.usedauction.auction.dto.AuctionRecentDto;
+import com.ddang.usedauction.auction.dto.AuctionGetDto;
 import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
@@ -138,7 +138,7 @@ class AuctionControllerTest {
     @WithAnonymousUser
     void getAuctionController() throws Exception {
 
-        when(auctionService.getAuction(1L)).thenReturn(auction);
+        when(auctionService.getAuction(1L)).thenReturn(AuctionGetDto.Response.from(auction));
 
         mockMvc.perform(get("/api/auctions/1"))
             .andDo(print())
@@ -169,9 +169,10 @@ class AuctionControllerTest {
     @DisplayName("경매글 리스트 조회 컨트롤러")
     void getAuctionListController() throws Exception {
 
-        List<Auction> auctionList = List.of(auction);
+        List<AuctionGetDto.Response> auctionList = List.of(AuctionGetDto.Response.from(auction));
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Auction> auctionPageList = new PageImpl<>(auctionList, pageable, auctionList.size());
+        Page<AuctionGetDto.Response> auctionPageList = new PageImpl<>(auctionList, pageable,
+            auctionList.size());
 
         when(auctionService.getAuctionList(null, null, null, null, pageable)).thenReturn(
             auctionPageList);
@@ -221,7 +222,8 @@ class AuctionControllerTest {
             .bidList(List.of(bid1))
             .build();
 
-        when(auctionService.getTop5(null, null)).thenReturn(List.of(auction1, auction2));
+        when(auctionService.getTop5(null, null)).thenReturn(
+            List.of(AuctionGetDto.Response.from(auction1), AuctionGetDto.Response.from(auction2)));
 
         mockMvc.perform(get("/api/auctions/top5"))
             .andDo(print())
@@ -236,32 +238,6 @@ class AuctionControllerTest {
     void getTop5ControllerFail1() throws Exception {
 
         mockMvc.perform(get("/api/auction/top5"))
-            .andDo(print())
-            .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("최근 본 경매 리스트 조회 컨트롤러")
-    void getAuctionRecentListController() throws Exception {
-
-        AuctionRecentDto auctionRecentDto = AuctionRecentDto.builder()
-            .auctionTitle("title")
-            .build();
-        List<AuctionRecentDto> auctionRecentDtoList = List.of(auctionRecentDto);
-
-        when(auctionService.getAuctionRecentList()).thenReturn(auctionRecentDtoList);
-
-        mockMvc.perform(get("/api/auctions/recent"))
-            .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].auctionTitle").value("title"));
-    }
-
-    @Test
-    @DisplayName("최근 본 경매 리스트 조회 컨트롤러 실패 - url 경로 다름")
-    void getAuctionRecentListControllerFail1() throws Exception {
-
-        mockMvc.perform(get("/api/auction/recent"))
             .andDo(print())
             .andExpect(status().isNotFound());
     }
@@ -299,7 +275,8 @@ class AuctionControllerTest {
             argThat(arg -> arg.getName().equals("thumbnail")),
             argThat(arg -> arg.get(0).getName().equals("imageList")),
             argThat(arg -> arg.equals("memberId")),
-            argThat(arg -> arg.getTitle().equals("title")))).thenReturn(auction);
+            argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
+            AuctionCreateDto.Response.from(auction));
 
         mockMvc.perform(MockMvcRequestBuilders
                 .multipart("/api/auctions")
@@ -508,7 +485,8 @@ class AuctionControllerTest {
             argThat(arg -> arg.getName().equals("thumbnail")),
             argThat(arg -> arg.get(0).getName().equals("imageList")),
             argThat(arg -> arg.equals("test@naver.com")),
-            argThat(arg -> arg.getTitle().equals("title")))).thenReturn(auction);
+            argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
+            AuctionCreateDto.Response.from(auction));
 
         mockMvc.perform(MockMvcRequestBuilders
                 .multipart("/api/auctions")

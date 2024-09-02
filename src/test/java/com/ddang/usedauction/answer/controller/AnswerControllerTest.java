@@ -142,8 +142,9 @@ class AnswerControllerTest {
     void getAnswerListController() throws Exception {
 
         Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "createdAt");
-        List<Answer> answerList = List.of(answer);
-        Page<Answer> answerPageList = new PageImpl<>(answerList, pageable, answerList.size());
+        List<AnswerGetDto.Response> answerList = List.of(AnswerGetDto.Response.from(answer));
+        Page<AnswerGetDto.Response> answerPageList = new PageImpl<>(answerList, pageable,
+            answerList.size());
 
         when(answerService.getAnswerList("memberId", pageable)).thenReturn(answerPageList);
 
@@ -191,7 +192,7 @@ class AnswerControllerTest {
         when(answerService.createAnswer(argThat(arg -> arg.get(0).getName().equals("imageList")),
             argThat(arg -> arg.getTitle().equals("title")),
             argThat(arg -> arg.equals("memberId")))).thenReturn(
-            answer);
+            AnswerGetDto.Response.from(answer));
 
         mockMvc.perform(multipart("/api/answers")
                 .file(mockImage)
@@ -319,7 +320,7 @@ class AnswerControllerTest {
         when(answerService.updateAnswer(argThat(arg -> arg.equals(1L)),
             argThat(arg -> arg.get(0).getName().equals("imageList")),
             argThat(arg -> arg.getContent().equals("content")),
-            argThat(arg -> arg.equals("memberId")))).thenReturn(answer);
+            argThat(arg -> arg.equals("memberId")))).thenReturn(AnswerGetDto.Response.from(answer));
 
         mockMvc.perform(multipart("/api/answers/1")
                 .file(mockImage)

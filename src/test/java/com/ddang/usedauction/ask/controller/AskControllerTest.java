@@ -16,6 +16,7 @@ import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.answer.domain.Answer;
 import com.ddang.usedauction.ask.domain.Ask;
 import com.ddang.usedauction.ask.dto.AskCreateDto;
+import com.ddang.usedauction.ask.dto.AskGetDto;
 import com.ddang.usedauction.ask.dto.AskUpdateDto;
 import com.ddang.usedauction.ask.service.AskService;
 import com.ddang.usedauction.auction.domain.Auction;
@@ -125,7 +126,7 @@ class AskControllerTest {
     @DisplayName("문의 단건 조회 컨트롤러")
     void getAskController() throws Exception {
 
-        when(askService.getAsk(1L)).thenReturn(ask);
+        when(askService.getAsk(1L)).thenReturn(AskGetDto.Response.from(ask));
 
         mockMvc.perform(get("/api/asks/1"))
             .andDo(print())
@@ -139,7 +140,7 @@ class AskControllerTest {
     @DisplayName("문의 단건 조회 컨트롤러 실패 - url 경로 다름")
     void getAskControllerFail1() throws Exception {
 
-        when(askService.getAsk(1L)).thenReturn(ask);
+        when(askService.getAsk(1L)).thenReturn(AskGetDto.Response.from(ask));
 
         mockMvc.perform(get("/api/ask/1"))
             .andDo(print())
@@ -150,7 +151,7 @@ class AskControllerTest {
     @DisplayName("문의 단건 조회 컨트롤러 실패 - pathVariable 유효성 검사 실패")
     void getAskControllerFail2() throws Exception {
 
-        when(askService.getAsk(1L)).thenReturn(ask);
+        when(askService.getAsk(1L)).thenReturn(AskGetDto.Response.from(ask));
 
         mockMvc.perform(get("/api/asks/0"))
             .andDo(print())
@@ -164,8 +165,8 @@ class AskControllerTest {
 
         Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "createdAt");
 
-        List<Ask> askList = List.of(ask);
-        Page<Ask> askPageList = new PageImpl<>(askList, pageable, askList.size());
+        List<AskGetDto.Response> askList = List.of(AskGetDto.Response.from(ask));
+        Page<AskGetDto.Response> askPageList = new PageImpl<>(askList, pageable, askList.size());
 
         when(askService.getAskList("memberId", pageable)).thenReturn(askPageList);
 
@@ -219,8 +220,8 @@ class AskControllerTest {
             .build();
 
         Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "createdAt");
-        List<Ask> askList = List.of(ask);
-        Page<Ask> askPageList = new PageImpl<>(askList, pageable, askList.size());
+        List<AskGetDto.Response> askList = List.of(AskGetDto.Response.from(ask));
+        Page<AskGetDto.Response> askPageList = new PageImpl<>(askList, pageable, askList.size());
 
         when(askService.getReceiveAskList("memberId", pageable)).thenReturn(askPageList);
 
@@ -261,7 +262,7 @@ class AskControllerTest {
             .build();
 
         when(askService.createAsk(argThat(arg -> arg.getTitle().equals("title")),
-            argThat(arg -> arg.equals("memberId")))).thenReturn(ask);
+            argThat(arg -> arg.equals("memberId")))).thenReturn(AskGetDto.Response.from(ask));
 
         mockMvc.perform(post("/api/asks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -331,10 +332,13 @@ class AskControllerTest {
             .content("content1")
             .build();
 
+        ask = ask.toBuilder()
+            .content("content1")
+            .build();
+
         when(askService.updateAsk(argThat(arg -> arg.equals(1L)),
             argThat(arg -> arg.getContent().equals("content1")),
-            argThat(arg -> arg.equals("memberId")))).thenReturn(
-            ask.toBuilder().content("content1").build());
+            argThat(arg -> arg.equals("memberId")))).thenReturn(AskGetDto.Response.from(ask));
 
         mockMvc.perform(put("/api/asks/1")
                 .contentType(MediaType.APPLICATION_JSON)

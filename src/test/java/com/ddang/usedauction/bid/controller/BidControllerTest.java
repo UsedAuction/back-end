@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.auction.domain.Auction;
 import com.ddang.usedauction.bid.domain.Bid;
+import com.ddang.usedauction.bid.dto.BidGetDto;
 import com.ddang.usedauction.bid.service.BidService;
 import com.ddang.usedauction.config.SecurityConfig;
 import com.ddang.usedauction.image.domain.Image;
@@ -80,9 +81,9 @@ class BidControllerTest {
             .auction(auction)
             .member(member)
             .build();
-        List<Bid> bidList = List.of(bid);
+        List<BidGetDto.Response> bidList = List.of(BidGetDto.Response.from(bid));
         Pageable pageable = PageRequest.of(0, 10);
-        Page<Bid> bidPageList = new PageImpl<>(bidList, pageable, bidList.size());
+        Page<BidGetDto.Response> bidPageList = new PageImpl<>(bidList, pageable, bidList.size());
 
         when(bidService.getBidList("memberId", pageable)).thenReturn(bidPageList);
 
