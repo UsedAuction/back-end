@@ -90,8 +90,8 @@ public class JobConfig {
             .writer(auctionItemWriter()) // 데이터 저장 또는 수정 또는 삭제 역할
             .listener(stepExecutionListener()) // 리스너, 해당 스텝에선 step 실행 전 엔티티 존재 여부 확인하여 실행할지 말지 결정
             .faultTolerant() // job 실패 시
-            .retry(Exception.class) // 해당 에러 발생한 시점에 대해 재시도
-            .retryLimit(2) // 재시도 2번만 진행
+            .skip(Exception.class)
+            .skipLimit(10)
             .build();
     }
 
