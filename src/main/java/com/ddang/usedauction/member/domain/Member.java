@@ -57,6 +57,9 @@ public class Member extends BaseTimeEntity {
     @Column
     private LocalDateTime deletedAt;
 
+    @Column
+    private String withdrawalReason; // 탈퇴사유
+
     // 포인트 충전
     public void addPoint(int point) {
         this.point += point;
@@ -70,7 +73,8 @@ public class Member extends BaseTimeEntity {
         this.passWord = password;
     }
 
-    public void withdrawal() {
+    public void withdrawal(String withDrawalReason) {
         this.deletedAt = LocalDateTime.now();
+        this.withdrawalReason = withDrawalReason;
     }
 }
