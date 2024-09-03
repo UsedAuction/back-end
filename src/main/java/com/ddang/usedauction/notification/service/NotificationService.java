@@ -68,11 +68,10 @@ public class NotificationService {
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
             Map<String, Object> cacheEvents =
-                emitterRepository.findAllEventCacheStartWithMemberId(
-                    String.valueOf(member.getId()));
+                emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(member.getId()));
             cacheEvents.entrySet().stream()
-                .filter(entry -> lastEventId.compareTo(entry.getKey()) < 0)
-                .forEach(entry -> sendNotification(sseEmitter, entry.getKey(), entry.getValue()));
+                .filter(eventCache -> lastEventId.compareTo(eventCache.getKey()) < 0)
+                .forEach(eventCache -> sendNotification(sseEmitter, eventCache.getKey(), eventCache.getValue()));
         }
 
         return sseEmitter;
@@ -84,21 +83,21 @@ public class NotificationService {
     public void send(Long memberId, Long auctionId, String content,
         NotificationType notificationType) {
 
-        log.info("send()send()send()send()");
+        log.info("알림 전송 send()");
+
         Notification notification =
-            notificationRepository.save(
-                createNotification(memberId, auctionId, content, notificationType));
+            notificationRepository.save(createNotification(memberId, auctionId, content, notificationType));
         log.info("notification: {}", notification);
 
         Map<String, SseEmitter> emitters =
             emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
-        log.info("emitters: {}", emitters);
+        log.info("emitters: {}", emitters.keySet());
 
         emitters.forEach(
-            (key, emitter) -> {
-                log.info("foreach emitter: {}", emitter);
-                emitterRepository.saveEventCache(key, notification);
-                sendNotification(emitter, key, NotificationDto.Response.from(notification));
+            (emitterId, emitter) -> {
+                log.info("emitterId: {}, emitter: {}", emitterId, emitter.toString());
+                emitterRepository.saveEventCache(emitterId, notification);
+                sendNotification(emitter, emitterId, NotificationDto.Response.from(notification));
             }
         );
     }
@@ -118,8 +117,9 @@ public class NotificationService {
     // 실제로 알림을 전송하는 메서드
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
         try {
-            log.info("emitterId: {}" , emitterId);
+            log.info("emitterId: {}", emitterId);
             log.info("data: {}", data.toString());
+
             sseEmitter.send(SseEmitter.event()
                 .id(emitterId)
                 .name("sse")
