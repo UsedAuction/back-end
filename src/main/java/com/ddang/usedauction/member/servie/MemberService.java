@@ -20,7 +20,6 @@ import com.ddang.usedauction.member.dto.MemberSignUpDto;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
-import com.ddang.usedauction.notification.dto.NotificationDto;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
 import com.ddang.usedauction.token.dto.TokenDto;
@@ -217,8 +216,8 @@ public class MemberService {
         SecurityContextHolder.clearContext();
 
         log.info("logout시 emiiter 삭제");
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(
             String.valueOf(member.getId()));
