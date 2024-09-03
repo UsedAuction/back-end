@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,9 @@ public class ChatMessageService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final MemberRepository memberRepository;
-    private final SimpMessageSendingOperations sendingOperations;
+
+    private final RedisTemplate<String, Integer> unReadTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 메시지 저장 Service
@@ -34,7 +36,7 @@ public class ChatMessageService {
      */
     @Transactional
     public void sendMessage(ChatMessageSendDto.Request request) {
-        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(request.getSenderId())
+        Member member = memberRepository.findByMemberId(request.getSenderId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         ChatRoom chatRoom = chatRoomRepository.findById(request.getRoomId())
@@ -47,8 +49,23 @@ public class ChatMessageService {
             .build();
 
         chatMessageRepository.save(chatMessage);
+
+        String receiverId = member.getMemberId().equals(chatRoom.getSeller().getMemberId())
+            ? chatRoom.getBuyer().getMemberId() : chatRoom.getSeller().getMemberId();
+
+        if (!redisTemplate.opsForSet().isMember(
+            "CHAT_ROOM" + chatRoom.getId() + "_MEMBERS", receiverId)) {
+            String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + receiverId;
+            unReadTemplate.opsForValue().increment(unreadKey, 1);
+        }
+
     }
 
+    /**
+     * @param memberId   회원 계정(아이디)
+     * @param chatRoomId 채팅방 id
+     * @return 채팅 메시지 최신순 조회
+     */
     @Transactional(readOnly = true)
     public List<ChatMessageSendDto.Response> findMessagesByChatRoomId(String memberId,
         Long chatRoomId) {
@@ -61,7 +78,14 @@ public class ChatMessageService {
             throw new UnauthorizedAccessException();
         }
 
-        return chatMessageRepository.findByChatRoomId(chatRoomId).stream()
+        String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + memberId;
+        Integer unreadCnt = unReadTemplate.opsForValue().get(unreadKey);
+
+        if (unreadCnt != null && unreadCnt > 0) {
+            unReadTemplate.opsForValue().set(unreadKey, 0);
+        }
+
+        return chatMessageRepository.findByChatRoomIdOrderByCreatedAtAsc(chatRoomId).stream()
             .map(ChatMessageSendDto.Response::from)
             .collect(Collectors.toList());
     }
@@ -70,6 +94,7 @@ public class ChatMessageService {
     public void deleteMessagesByChatRoom(Long chatRoomId) {
         chatMessageRepository.deleteChatMessageByChatRoomId(chatRoomId);
     }
+
 
     private boolean isMemberOfChatRoom(ChatRoom chatRoom, String memberId) {
         return chatRoom.getSeller().getMemberId().equals(memberId) ||

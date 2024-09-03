@@ -40,5 +40,5 @@ public class ChatMessage extends BaseTimeEntity {
     private ChatRoom chatRoom;
 
     @Column
-    private LocalDateTime deletedAt;
+    private LocalDateTime deletedAt; // 삭제 날짜
 }

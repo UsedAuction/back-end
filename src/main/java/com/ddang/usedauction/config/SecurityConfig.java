@@ -75,6 +75,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/change/password").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/auth/members").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/chat/rooms/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/chat/room/**").authenticated()
                 .anyRequest().permitAll()
             )
             .exceptionHandling(exception -> exception

@@ -89,6 +89,7 @@ public class AuctionService implements CommandLineRunner {
     private String jobName;
 
     private static final String RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX = "recently::";
+    private final ChatMessageService chatMessageService;
 
     // 애플리케이션 시작 시 한번만 실행
     @Override

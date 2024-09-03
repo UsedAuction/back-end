@@ -29,11 +29,13 @@ public class ChatRoomCreateDto {
         private MemberGetForChatDto seller;
         private MemberGetForChatDto buyer;
         private AuctionGetForChatDto auction;
+        private int unReadCnt;
+        private String lastMessage;
 
         @JsonDeserialize(using = LocalDateTimeDeserializer.class)
         @JsonSerialize(using = LocalDateTimeSerializer.class)
         @JsonFormat(shape = Shape.STRING, pattern = "yyyy-MM-dd HH:mm", timezone = "Asia/seoul")
-        private LocalDateTime createdAt;
+        private LocalDateTime lastMessageTime;
 
         public static Response from(ChatRoom chatRoom) {
             return Response.builder()
@@ -41,7 +43,6 @@ public class ChatRoomCreateDto {
                 .seller(MemberGetForChatDto.from(chatRoom.getSeller()))
                 .buyer(MemberGetForChatDto.from(chatRoom.getBuyer()))
                 .auction(AuctionGetForChatDto.from(chatRoom.getAuction()))
-                .createdAt(chatRoom.getCreatedAt())
                 .build();
         }
     }
