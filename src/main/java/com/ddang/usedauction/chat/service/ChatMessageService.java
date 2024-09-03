@@ -47,7 +47,6 @@ public class ChatMessageService {
             .build();
 
         chatMessageRepository.save(chatMessage);
-        sendingOperations.convertAndSend("/sub/chat/room/" + request.getRoomId(), request);
     }
 
     @Transactional(readOnly = true)
