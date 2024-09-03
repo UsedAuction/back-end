@@ -20,6 +20,8 @@ import com.ddang.usedauction.member.dto.MemberSignUpDto;
 import com.ddang.usedauction.member.exception.MemberErrorCode;
 import com.ddang.usedauction.member.exception.MemberException;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.notification.dto.NotificationDto;
+import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.security.jwt.TokenProvider;
 import com.ddang.usedauction.token.dto.TokenDto;
 import com.ddang.usedauction.token.service.RefreshTokenService;
@@ -30,6 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +44,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -56,6 +60,7 @@ public class MemberService {
     private final BidRepository bidRepository;
     private final MailPasswordService mailPasswordService;
     private final MailRedisService mailRedisService;
+    private final EmitterRepository emitterRepository;
 
     /**
      * 회원 정보 조회
@@ -211,6 +216,19 @@ public class MemberService {
         // 보안 컨텍스트에서 인증 정보 제거
         SecurityContextHolder.clearContext();
 
+        log.info("logout시 emiiter 삭제");
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+
+        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(
+            String.valueOf(member.getId()));
+
+        emitters.forEach(
+            (key, emitter) -> {
+                log.info("emitter 삭제중: {}", emitter);
+                emitter.complete();
+            }
+        );
     }
 
     public void withdrawal(String memberId, String withDrawalReason) {
