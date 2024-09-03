@@ -215,16 +215,18 @@ public class MemberService {
         // 보안 컨텍스트에서 인증 정보 제거
         SecurityContextHolder.clearContext();
 
-        log.info("logout시 emiiter 삭제");
+        log.info("logout시 emitter 삭제");
         Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
-        Map<String, SseEmitter> emitters = emitterRepository.findAllEmitterStartWithMemberId(
-            String.valueOf(member.getId()));
+        Map<String, SseEmitter> emitters =
+            emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
+        log.info("emitters.keySet(): {}", emitters.keySet());
 
         emitters.forEach(
-            (key, emitter) -> {
-                log.info("emitter 삭제중: {}", emitter);
+            (emitterId, emitter) -> {
+                log.info("삭제하려는 emitterId: {}", emitterId);
+                log.info("삭제하려는 emitter: {}", emitter);
                 emitter.complete();
             }
         );
