@@ -7,6 +7,7 @@ import com.ddang.usedauction.member.repository.MemberRepository;
 import com.ddang.usedauction.notification.domain.Notification;
 import com.ddang.usedauction.notification.domain.NotificationType;
 import com.ddang.usedauction.notification.dto.NotificationDto;
+import com.ddang.usedauction.notification.dto.NotificationDummyDto;
 import com.ddang.usedauction.notification.repository.EmitterRepository;
 import com.ddang.usedauction.notification.repository.NotificationRepository;
 import java.io.IOException;
@@ -59,8 +60,10 @@ public class NotificationService {
             emitterRepository.deleteById(emitterId);
         });
 
+        String dummyStr = "연결 완료 / memberId: " + member.getId();
+
         // 503 에러방지를 위한 더미 이벤트 전송
-        sendNotification(sseEmitter, emitterId, "연결 완료 / memberId: " + member.getId());
+        sendNotification(sseEmitter, emitterId, NotificationDummyDto.builder().dummyContent(dummyStr).build());
 
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
