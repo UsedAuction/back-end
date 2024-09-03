@@ -56,7 +56,7 @@ public class NotificationService {
             emitterRepository.deleteById(emitterId);
         });
         sseEmitter.onError((e) -> {
-                log.info("onError emitterId: {}", emitterId);
+            log.info("onError emitterId: {}", emitterId);
             emitterRepository.deleteById(emitterId);
         });
 
@@ -95,7 +95,8 @@ public class NotificationService {
 
         emitters.forEach(
             (emitterId, emitter) -> {
-                log.info("emitterId: {}, emitter: {}", emitterId, emitter.toString());
+                log.info("emitterId: {}", emitterId);
+                log.info("emitter: {}", emitter.toString());
                 emitterRepository.saveEventCache(emitterId, notification);
                 sendNotification(emitter, emitterId, NotificationDto.Response.from(notification));
             }
@@ -117,6 +118,8 @@ public class NotificationService {
     // 실제로 알림을 전송하는 메서드
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
         try {
+
+            log.info("실제로 알림을 전송 sendNotification()");
             log.info("emitterId: {}", emitterId);
             log.info("data: {}", data.toString());
 

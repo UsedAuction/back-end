@@ -18,7 +18,7 @@ public class EmitterRepository {
     // emitter 저장
     public SseEmitter save(String emitterId, SseEmitter sseEmitter) {
 
-        log.info("emitter 저장");
+        log.info("emitter 저장 save()");
 
         emitters.put(emitterId, sseEmitter);
 
