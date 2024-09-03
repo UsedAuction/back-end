@@ -46,9 +46,18 @@ public class NotificationService {
         SseEmitter sseEmitter = emitterRepository.save(emitterId, new SseEmitter(DEFAULT_TIMEOUT));
 
         // 콜백
-        sseEmitter.onCompletion(() -> emitterRepository.deleteById(emitterId));
-        sseEmitter.onTimeout(() -> emitterRepository.deleteById(emitterId));
-        sseEmitter.onError((e) -> emitterRepository.deleteById(emitterId));
+        sseEmitter.onCompletion(() -> {
+            log.info("onCompletion emitterId: {}", emitterId);
+            emitterRepository.deleteById(emitterId);
+        });
+        sseEmitter.onTimeout(() -> {
+            log.info("onTimeout emitterId: {}", emitterId);
+            emitterRepository.deleteById(emitterId);
+        });
+        sseEmitter.onError((e) -> {
+                log.info("onError emitterId: {}", emitterId);
+            emitterRepository.deleteById(emitterId);
+        });
 
         // 503 에러방지를 위한 더미 이벤트 전송
         sendNotification(sseEmitter, emitterId, "연결 완료 / memberId: " + member.getId());
