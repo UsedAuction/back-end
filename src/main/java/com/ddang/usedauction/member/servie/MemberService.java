@@ -202,18 +202,6 @@ public class MemberService {
 
     @Transactional
     public void logout(String memberId, HttpServletRequest request, HttpServletResponse response) {
-        String accessToken = tokenProvider.resolveTokenFromRequest(request);
-
-        long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
-
-        CookieUtil.deleteCookie(request, response, "refreshToken");
-
-        refreshTokenService.deleteRefreshTokenByAccessToken(accessToken);
-        refreshTokenService.setBlackList(accessToken, "accessToken",
-            accessTokenExpiration);
-
-        // 보안 컨텍스트에서 인증 정보 제거
-        SecurityContextHolder.clearContext();
 
         log.info("logout시 emitter 삭제");
         Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
@@ -230,6 +218,19 @@ public class MemberService {
                 emitter.complete();
             }
         );
+
+        String accessToken = tokenProvider.resolveTokenFromRequest(request);
+
+        long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
+
+        CookieUtil.deleteCookie(request, response, "refreshToken");
+
+        refreshTokenService.deleteRefreshTokenByAccessToken(accessToken);
+        refreshTokenService.setBlackList(accessToken, "accessToken",
+            accessTokenExpiration);
+
+        // 보안 컨텍스트에서 인증 정보 제거
+        SecurityContextHolder.clearContext();
     }
 
     public void withdrawal(String memberId, String withDrawalReason) {
