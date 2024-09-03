@@ -40,7 +40,7 @@ public class EmitterRepository {
         log.info("emitters: {}", emitters);
         log.info("emitters keyset: {}", emitters.keySet());
         Map<String, SseEmitter> result = emitters.entrySet().stream()
-            .filter(entry -> entry.getKey().startsWith(memberId))
+            .filter(entry -> entry.getKey().startsWith(memberId + "_"))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
         log.info("findAllEmitterStartWithMemberId(): " + result);
         return result;
@@ -49,7 +49,7 @@ public class EmitterRepository {
     // 해당 memberId와 관련된 모든 이벤트 찾기
     public Map<String, Object> findAllEventCacheStartWithMemberId(String memberId) {
         return eventCache.entrySet().stream()
-            .filter(entry -> entry.getKey().startsWith(memberId))
+            .filter(entry -> entry.getKey().startsWith(memberId + "_"))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
