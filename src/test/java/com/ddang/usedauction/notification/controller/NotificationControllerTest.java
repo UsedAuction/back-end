@@ -23,10 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,13 +53,13 @@ class NotificationControllerTest {
     private Oauth2FailureHandler oauth2FailureHandler;
 
     @Test
-    @WithCustomMockUser
     @DisplayName("알림 구독 - 성공")
     void subscribeSuccess() throws Exception {
 
         //given
         Member member = Member.builder()
             .id(1L)
+            .memberId("test")
             .email("test@naver.com")
             .build();
 
@@ -74,27 +70,10 @@ class NotificationControllerTest {
         //when
         //then
         mockMvc.perform(
-                get("/api/members/notification/subscribe")
-                    .contentType(MediaType.TEXT_EVENT_STREAM_VALUE)
-                    .header("Last-Event-ID", ""))
+                get("/api/members/notification/subscribe?memberId=test")
+                    .contentType(MediaType.TEXT_EVENT_STREAM_VALUE))
             .andDo(print())
             .andExpect(status().isOk());
-    }
-
-    @Test
-    @WithAnonymousUser
-    @DisplayName("알림 구독 - 실패(인증되지 않은 사용자)")
-    void subscribeFail_1() throws Exception {
-
-        //given
-        //when
-        //then
-        mockMvc.perform(
-                get("/api/members/notification/subscribe")
-                    .contentType(MediaType.TEXT_EVENT_STREAM_VALUE)
-                    .header("Last-Event-ID", ""))
-            .andDo(print())
-            .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -155,9 +134,7 @@ class NotificationControllerTest {
         //when
         //then
         mockMvc.perform(
-                get("/api/members/notification/subscribe")
-                    .contentType(MediaType.TEXT_EVENT_STREAM_VALUE)
-                    .header("Last-Event-ID", ""))
+                get("/api/members/notification"))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
