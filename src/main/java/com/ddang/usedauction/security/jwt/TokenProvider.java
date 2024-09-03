@@ -175,12 +175,4 @@ public class TokenProvider {
         return expiration.getTime() - new Date().getTime();
     }
 
-    public String resolveTokenFromHeader(String token) {
-
-        if (!ObjectUtils.isEmpty(token) && token.startsWith(TOKEN_PREFIX)) {
-            return token.substring(TOKEN_PREFIX.length());
-        }
-
-        return null;
-    }
 }
