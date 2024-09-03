@@ -53,8 +53,8 @@ public class ChatMessageService {
         String receiverId = member.getMemberId().equals(chatRoom.getSeller().getMemberId())
             ? chatRoom.getBuyer().getMemberId() : chatRoom.getSeller().getMemberId();
 
-        if (!redisTemplate.opsForSet().isMember(
-            "CHAT_ROOM" + chatRoom.getId() + "_MEMBERS", receiverId)) {
+        if (Boolean.FALSE.equals(redisTemplate.opsForSet().isMember(
+            "CHAT_ROOM" + chatRoom.getId() + "_MEMBERS", receiverId))) {
             String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + receiverId;
             unReadTemplate.opsForValue().increment(unreadKey, 1);
         }
@@ -94,7 +94,6 @@ public class ChatMessageService {
     public void deleteMessagesByChatRoom(Long chatRoomId) {
         chatMessageRepository.deleteChatMessageByChatRoomId(chatRoomId);
     }
-
 
     private boolean isMemberOfChatRoom(ChatRoom chatRoom, String memberId) {
         return chatRoom.getSeller().getMemberId().equals(memberId) ||
