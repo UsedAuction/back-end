@@ -99,6 +99,13 @@ spring:
     job:
       enabled: false
 
+  # multipart
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+
 job:
   job-name: "auctionJob"
   step-name: "auctionStep"
@@ -107,17 +114,6 @@ job:
 redisson:
   host: ${REDISSON_HOST}
   port: ${REDISSON_PORT}
-
-  #  # JWT 시크릿 키
-  #  jwt:
-  #    secret: ${JWT_SECRET} # 환경 변수
-
-  # multipart
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 20MB
-      max-request-size: 20MB
 
 # S3
 aws:
