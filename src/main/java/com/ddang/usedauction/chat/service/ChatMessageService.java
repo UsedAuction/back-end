@@ -54,7 +54,7 @@ public class ChatMessageService {
             ? chatRoom.getBuyer().getMemberId() : chatRoom.getSeller().getMemberId();
 
         if (!redisTemplate.opsForSet().isMember(
-            "CHAT_ROOM" + chatRoom.getId() + "_MEMBERS:", receiverId)) {
+            "CHAT_ROOM" + chatRoom.getId() + "_MEMBERS", receiverId)) {
             String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + receiverId;
             unReadTemplate.opsForValue().increment(unreadKey, 1);
         }

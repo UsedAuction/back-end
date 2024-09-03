@@ -116,7 +116,7 @@ public class ChatRoomService {
      * 채팅방 입장
      */
     public void enterChatRoom(Long roomId, String memberId) {
-        redisTemplate.opsForSet().add("CHAT_ROOM" + roomId + "_MEMBERS:", memberId);
+        redisTemplate.opsForSet().add("CHAT_ROOM" + roomId + "_MEMBERS", memberId);
 
     }
 
@@ -125,7 +125,7 @@ public class ChatRoomService {
      */
     public void exitChatRoom(Long roomId, String memberId) {
         redisTemplate.opsForSet()
-            .remove("CHAT_ROOM" + roomId + "_MEMBERS:", memberId);
+            .remove("CHAT_ROOM" + roomId + "_MEMBERS", memberId);
     }
 
     /**
