@@ -10,6 +10,8 @@ import com.ddang.usedauction.chat.repository.ChatRoomRepository;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +19,11 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Service;
@@ -41,7 +46,7 @@ public class ChatRoomService {
     private final RedisSubscriber redisSubscriber;
     // Redis와 관련된 데이터 작업 수행
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RedisTemplate<String, Integer> unReadRedisTemplate;
+    private final RedisTemplate<String, Integer> unReadTemplate;
     private HashOperations<String, String, ChatRoomCreateDto.Response> opsHashChatRoom;
     // 서버별로 채팅방에 매치되는 topic 정보를 Map에 넣어 roomId로 찾을 수 있음
     private Map<String, ChannelTopic> topics;
@@ -61,7 +66,7 @@ public class ChatRoomService {
             .map(chatRoom -> {
 
                 String unreadKey = "CHAT_ROOM" + chatRoom.getId() + "_UN_READ:" + memberId;
-                Integer unreadCnt = unReadRedisTemplate.opsForValue().get(unreadKey);
+                Integer unreadCnt = unReadTemplate.opsForValue().get(unreadKey);
                 unreadCnt = unreadCnt == null ? 0 : unreadCnt; // null 체크하여 기본값 0 설정
 
                 ChatMessage chatMessage = chatMessageRepository.findTop1ByChatRoomId(
@@ -132,10 +137,41 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * 경매 id로 채팅방 삭제 (즉시 구매에서 사용됨)
+     */
     public ChatRoom deleteChatRoom(Long auctionId) {
 
         ChatRoom chatRoom = chatRoomRepository.findByAuctionId(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 채팅방입니다"));
+
+        // 읽지 않은 메시지, 채팅방 입장 삭제
+        // 1.삭제할 키들의 접두사를 정의 2.접두사로 시작하는 모든 키 검색
+        // 3. 한번에 3개의 키 검색 (unReadCnt 판매자 구매자 따로, 채팅방 입장 set 형태)
+        // 4. 키 수집 5. 키 String 으로 변환 후 삭제
+        redisTemplate.execute((RedisCallback<Void>) connection -> {
+
+            String prefix = "CHAT_ROOM" + chatRoom.getId();
+
+            Cursor<byte[]> cursor = connection.scan(
+                ScanOptions.scanOptions().match(prefix + "*").count(3).build()
+            );
+
+            List<byte[]> keys = new ArrayList<>();
+
+            while (cursor.hasNext()) {
+                keys.add(cursor.next());
+            }
+
+            if (!keys.isEmpty()) {
+                List<String> strKeys = keys.stream()
+                    .map(key -> new String(key, StandardCharsets.UTF_8))
+                    .collect(Collectors.toList());
+                redisTemplate.delete(strKeys);
+            }
+
+            return null;
+        });
 
         opsHashChatRoom.delete(CHAT_ROOMS, chatRoom.getId().toString());
 
