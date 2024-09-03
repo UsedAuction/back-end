@@ -203,21 +203,21 @@ public class MemberService {
     @Transactional
     public void logout(String memberId, HttpServletRequest request, HttpServletResponse response) {
 
-        log.info("logout시 emitter 삭제");
-        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
-            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
-
-        Map<String, SseEmitter> emitters =
-            emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
-        log.info("emitters.keySet(): {}", emitters.keySet());
-
-        emitters.forEach(
-            (emitterId, emitter) -> {
-                log.info("삭제하려는 emitterId: {}", emitterId);
-                log.info("삭제하려는 emitter: {}", emitter);
-                emitter.complete();
-            }
-        );
+//        log.info("logout시 emitter 삭제");
+//        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
+//            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+//
+//        Map<String, SseEmitter> emitters =
+//            emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(member.getId()));
+//        log.info("emitters.keySet(): {}", emitters.keySet());
+//
+//        emitters.forEach(
+//            (emitterId, emitter) -> {
+//                log.info("삭제하려는 emitterId: {}", emitterId);
+//                log.info("삭제하려는 emitter: {}", emitter);
+//                emitter.complete();
+//            }
+//        );
 
         String accessToken = tokenProvider.resolveTokenFromRequest(request);
 
