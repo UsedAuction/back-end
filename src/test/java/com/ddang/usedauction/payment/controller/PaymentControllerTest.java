@@ -71,6 +71,7 @@ class PaymentControllerTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         PaymentInfoDto.Request request = PaymentInfoDto.Request.builder()
@@ -87,7 +88,7 @@ class PaymentControllerTest {
             .build();
 
         given(paymentService.ready(
-            eq(member.getEmail()),
+            eq(member.getMemberId()),
             argThat(arg -> arg.getOrderId().equals(request.getOrderId()) &&
                 arg.getMemberId().equals(request.getMemberId()) &&
                 arg.getPrice() == (request.getPrice())
@@ -173,13 +174,13 @@ class PaymentControllerTest {
     }
 
     @Test
-    @WithCustomMockUser
     @DisplayName("결제 승인 - 성공")
     void paymentApproveSuccess() throws Exception {
         //given
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         String partnerOrderId = "1";
@@ -199,11 +200,14 @@ class PaymentControllerTest {
             )
             .item_name("10000 포인트")
             .quantity(1)
-            .created_at(LocalDateTime.parse("2024-08-11T17:26:13", DateTimeFormatter.ISO_LOCAL_DATE_TIME))
-            .approved_at(LocalDateTime.parse("2024-08-11T17:26:49", DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+            .created_at(
+                LocalDateTime.parse("2024-08-11T17:26:13", DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+            .approved_at(
+                LocalDateTime.parse("2024-08-11T17:26:49", DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             .build();
 
-        given(paymentService.approve(member.getEmail(), partnerOrderId, pgToken)).willReturn(response);
+        given(paymentService.approve(partnerOrderId, pgToken)).willReturn(
+            response);
 
         //when
         //then
@@ -235,12 +239,13 @@ class PaymentControllerTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         String partnerOrderId = "1";
         String pgToken = "bzb52391ee335e521f3f";
 
-        given(paymentService.approve(member.getEmail(), partnerOrderId, pgToken))
+        given(paymentService.approve(partnerOrderId, pgToken))
             .willThrow(new PaymentApproveException("결제 승인 요청에 대한 응답이 없습니다."));
 
         // when

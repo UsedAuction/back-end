@@ -21,6 +21,8 @@ import com.ddang.usedauction.auction.repository.AuctionRepository;
 import com.ddang.usedauction.bid.domain.Bid;
 import com.ddang.usedauction.category.domain.Category;
 import com.ddang.usedauction.category.repository.CategoryRepository;
+import com.ddang.usedauction.chat.domain.entity.ChatRoom;
+import com.ddang.usedauction.chat.service.ChatMessageService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.image.domain.Image;
 import com.ddang.usedauction.image.service.ImageService;
@@ -41,6 +43,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -50,6 +53,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuctionService {
@@ -66,6 +70,7 @@ public class AuctionService {
     private final RedisTemplate<String, AuctionRecentDto> redisTemplate;
 
     private static final String RECENTLY_AUCTION_LIST_REDIS_KEY_PREFIX = "recently::";
+    private final ChatMessageService chatMessageService;
 
     /**
      * 경매글 단건 조회
@@ -105,7 +110,7 @@ public class AuctionService {
         Pageable pageable) {
 
         final String VIEW = "view";
-      
+
         Page<Auction> auctionPageList = auctionRepository.findAllByOptions(word, mainCategory,
             subCategory, sorted,
             pageable);
@@ -148,19 +153,19 @@ public class AuctionService {
     /**
      * 경매글 생성 서비스
      *
-     * @param thumbnail   대표 이미지
-     * @param imageList   대표 이미지를 제외한 이미지 리스트
-     * @param memberEmail 경매글 작성자
-     * @param createDto   경매글 작성 정보
+     * @param thumbnail 대표 이미지
+     * @param imageList 대표 이미지를 제외한 이미지 리스트
+     * @param memberId  경매글 작성자
+     * @param createDto 경매글 작성 정보
      * @return 작성된 경매글의 serviceDto
      */
     @Transactional
     public Auction createAuction(MultipartFile thumbnail, List<MultipartFile> imageList,
-        String memberEmail, AuctionCreateDto.Request createDto) {
+        String memberId, AuctionCreateDto.Request createDto) {
 
         createValidation(imageList, createDto);
 
-        Member member = memberRepository.findByEmail(memberEmail)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Category parentCategory = categoryRepository.findById(createDto.getParentCategoryId())
@@ -193,6 +198,8 @@ public class AuctionService {
     @Transactional
     public AuctionEndDto endAuction(Long auctionId) {
 
+        log.info("경매 종료 처리 시작");
+
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
@@ -206,6 +213,7 @@ public class AuctionService {
             .auctionState(AuctionState.END) // 경매 종료 처리
             .build();
         Auction savedAuction = auctionRepository.save(auction);
+        log.info("경매 종료 처리 후 저장");
 
         return AuctionEndDto.from(savedAuction, bid);
     }
@@ -213,12 +221,12 @@ public class AuctionService {
     /**
      * 구매 확정 서비스
      *
-     * @param auctionId   경매글 PK
-     * @param memberEmail 구매자 이메일
-     * @param confirmDto  구매 확정 정보
+     * @param auctionId  경매글 PK
+     * @param memberId   구매자 아이디
+     * @param confirmDto 구매 확정 정보
      */
     @RedissonLock("#confirmDto.sellerId")
-    public void confirmAuction(Long auctionId, String memberEmail,
+    public void confirmAuction(Long auctionId, String memberId,
         AuctionConfirmDto.Request confirmDto) {
 
         Auction auction = auctionRepository.findById(auctionId)
@@ -228,7 +236,7 @@ public class AuctionService {
             throw new IllegalStateException("진행 중인 경매에는 구매 확정을 할 수 없습니다.");
         }
 
-        Transaction transaction = transactionRepository.findByBuyerEmailAndAuctionId(memberEmail,
+        Transaction transaction = transactionRepository.findByBuyerIdAndAuctionId(memberId,
                 auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 거래내역입니다."));
 
@@ -237,7 +245,7 @@ public class AuctionService {
             throw new IllegalStateException("이미 종료된 거래입니다.");
         }
 
-        Member buyer = memberRepository.findByEmail(memberEmail)
+        Member buyer = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         Member seller = memberRepository.findById(confirmDto.getSellerId())
@@ -253,21 +261,24 @@ public class AuctionService {
 
         // 구매 확정 알림 전송
         sendNotificationForConfirm(buyer, auction);
+
+        ChatRoom chatRoom = chatRoomService.deleteChatRoom(auctionId);
+        chatMessageService.deleteMessagesByChatRoom(chatRoom.getId());
     }
 
     /**
      * 즉시 구매 서비스
      *
-     * @param auctionId   즉시 구매할 경매글의 PK
-     * @param memberEmail 구매자 이메일
+     * @param auctionId 즉시 구매할 경매글의 PK
+     * @param memberId  구매자 아이디
      */
     @RedissonLock("#auctionId")
-    public void instantPurchaseAuction(Long auctionId, String memberEmail) {
+    public void instantPurchaseAuction(Long auctionId, String memberId) {
 
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
-        Member buyer = memberRepository.findByEmail(memberEmail)
+        Member buyer = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         validationOfInstantPurchase(auction, buyer);
@@ -311,6 +322,14 @@ public class AuctionService {
             .point(buyer.getPoint() - auction.getInstantPrice()) // 즉시 구매 가격만큼 포인트 차감
             .build();
         memberRepository.save(buyer);
+
+        PointHistory pointHistory = PointHistory.builder()
+            .pointType(PointType.USE)
+            .pointAmount(auction.getInstantPrice())
+            .curPointAmount(buyer.getPoint())
+            .member(buyer)
+            .build();
+        pointRepository.save(pointHistory);
 
         Transaction transaction = Transaction.builder()
             .price(auction.getInstantPrice())
@@ -406,6 +425,14 @@ public class AuctionService {
                 .build();
 
             memberRepository.save(member);
+
+            PointHistory pointHistory = PointHistory.builder()
+                .pointType(PointType.USE)
+                .pointAmount(bid.getBidPrice())
+                .curPointAmount(member.getPoint())
+                .member(member)
+                .build();
+            pointRepository.save(pointHistory);
         }
 
         Transaction transaction = Transaction.builder()
@@ -433,14 +460,6 @@ public class AuctionService {
     private void savePointAndTransaction(AuctionConfirmDto.Request confirmDto, Member buyer,
         Member seller,
         Transaction transaction) {
-
-        PointHistory buyerPointHistory = PointHistory.builder()
-            .curPointAmount(buyer.getPoint())
-            .pointType(PointType.USE)
-            .pointAmount(confirmDto.getPrice())
-            .member(buyer)
-            .build();
-        pointRepository.save(buyerPointHistory); // 구매자 포인트 히스토리 저장
 
         PointHistory sellerPointHistory = PointHistory.builder()
             .curPointAmount(seller.getPoint())

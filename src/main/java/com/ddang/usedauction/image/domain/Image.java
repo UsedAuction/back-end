@@ -36,7 +36,7 @@ public class Image extends BaseTimeEntity {
     @Column(nullable = false)
     private String imageName; // s3에 저장된 이미지 이름
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 5000)
     private String imageUrl; // s3에 저장된 이미지 url
 
     @Column(nullable = false)

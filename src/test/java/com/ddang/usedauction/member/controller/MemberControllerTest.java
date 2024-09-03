@@ -14,6 +14,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.ddang.usedauction.annotation.WithCustomMockUser;
 import com.ddang.usedauction.config.SecurityConfig;
+import com.ddang.usedauction.member.domain.Member;
+import com.ddang.usedauction.member.domain.enums.Role;
 import com.ddang.usedauction.member.dto.MemberChangeEmailDto;
 import com.ddang.usedauction.member.dto.MemberChangePasswordDto;
 import com.ddang.usedauction.member.dto.MemberCheckIdDto;
@@ -68,6 +70,47 @@ class MemberControllerTest {
     MemberService memberService;
 
     @Test
+    @WithCustomMockUser
+    @DisplayName("회원 정보 조회 컨트롤러")
+    void getMemberController() throws Exception {
+
+        Member member = Member.builder()
+            .memberId("memberId")
+            .point(0)
+            .email("test@naver.com")
+            .role(Role.ROLE_USER)
+            .passWord("1234")
+            .siteAlarm(true)
+            .build();
+
+        when(memberService.getMember("memberId")).thenReturn(member);
+
+        mockMvc.perform(get("/api/auth/members"))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.memberId").value("memberId"))
+            .andExpect(jsonPath("$.email").value("test@naver.com"));
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 컨트롤러 실패 - 로그인 x")
+    void getMemberControllerFail1() throws Exception {
+
+        mockMvc.perform(get("/api/auth/members"))
+            .andDo(print())
+            .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("회원 정보 조회 컨트롤러 실패 - url 경로 다름")
+    void getMemberControllerFail2() throws Exception {
+
+        mockMvc.perform(get("/api/auth/member"))
+            .andDo(print())
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
     @DisplayName("로그인 - 성공")
     void login() throws Exception {
         MemberLoginRequestDto requestDto = MemberLoginRequestDto.builder()
@@ -103,7 +146,7 @@ class MemberControllerTest {
         doNothing().when(memberService).checkMemberId(
             argThat(arg -> arg.getMemberId().equals(dto.getMemberId())));
 
-        mockMvc.perform(get("/api/auth/check/id")
+        mockMvc.perform(post("/api/auth/check/id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andDo(print())
@@ -122,7 +165,7 @@ class MemberControllerTest {
             .when(memberService).checkMemberId(
                 argThat(arg -> arg.getMemberId().equals(dto.getMemberId())));
 
-        mockMvc.perform(get("/api/auth/check/id")
+        mockMvc.perform(post("/api/auth/check/id")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto)))
             .andDo(print())

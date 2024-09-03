@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,4 +39,6 @@ public class ChatMessage extends BaseTimeEntity {
     @JoinColumn(name = "chatRoom_id")
     private ChatRoom chatRoom;
 
+    @Column
+    private LocalDateTime deletedAt; // 삭제 날짜
 }

@@ -53,5 +53,8 @@ public class ChatRoom extends BaseTimeEntity implements Serializable {
     @Column
     private LocalDateTime deletedAt; // 삭제 날짜
 
+    public void exitChatRoom() {
+        this.deletedAt = LocalDateTime.now();
+    }
 
 }

@@ -49,27 +49,27 @@ public class AnswerService {
     /**
      * 회원이 작성한 답변 리스트 조회
      *
-     * @param memberEmail 회원 이메일
-     * @param pageable    페이징
+     * @param memberId 회원 아이디
+     * @param pageable 페이징
      * @return 페이징 처리된 답변 리스트
      */
     @Transactional(readOnly = true)
-    public Page<Answer> getAnswerList(String memberEmail, Pageable pageable) {
+    public Page<Answer> getAnswerList(String memberId, Pageable pageable) {
 
-        return answerRepository.findAllByMemberEmail(memberEmail, pageable);
+        return answerRepository.findAllByMemberId(memberId, pageable);
     }
 
     /**
      * 답변 생성 서비스
      *
-     * @param imageList   이미지 리스트
-     * @param createDto   답변 생성 정보
-     * @param writerEmail 작성자 이메일
+     * @param imageList 이미지 리스트
+     * @param createDto 답변 생성 정보
+     * @param writerId  작성자 아이디
      * @return 작성된 답변
      */
     @Transactional
     public Answer createAnswer(List<MultipartFile> imageList, AnswerCreateDto createDto,
-        String writerEmail) {
+        String writerId) {
 
         Auction auction = auctionRepository.findById(createDto.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
@@ -77,7 +77,7 @@ public class AnswerService {
         Ask ask = askRepository.findById(createDto.getAskId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 질문글입니다."));
 
-        if (!auction.getSeller().getEmail().equals(writerEmail)) { // 판매자가 아닌 경우
+        if (!auction.getSeller().getMemberId().equals(writerId)) { // 판매자가 아닌 경우
             throw new IllegalStateException("판매자만 답변을 작성할 수 있습니다.");
         }
 
@@ -98,21 +98,21 @@ public class AnswerService {
     /**
      * 답변 수정
      *
-     * @param answerId    수정할 답변 pk
-     * @param imageList   추가할 이미지
-     * @param updateDto   수정할 정보
-     * @param memberEmail 회원 이메일
+     * @param answerId  수정할 답변 pk
+     * @param imageList 추가할 이미지
+     * @param updateDto 수정할 정보
+     * @param memberId  회원 아이디
      * @return 수정된 답변
      */
     @Transactional
     public Answer updateAnswer(Long answerId, List<MultipartFile> imageList,
-        AnswerUpdateDto updateDto, String memberEmail) {
+        AnswerUpdateDto updateDto, String memberId) {
 
         Answer answer = answerRepository.findById(answerId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 답글입니다."));
 
         // 작성자가 다른 경우
-        if (!answer.getAuction().getSeller().getEmail().equals(memberEmail)) {
+        if (!answer.getAuction().getSeller().getMemberId().equals(memberId)) {
             throw new IllegalStateException("해당 문의글을 작성한 회원이 아닙니다.");
         }
 
@@ -135,12 +135,12 @@ public class AnswerService {
     /**
      * 회원이 작성한 답변 삭제
      *
-     * @param memberEmail 회원 이메일
+     * @param memberId 회원 아이디
      */
     @Transactional
-    public void deleteAnswer(String memberEmail) {
+    public void deleteAnswer(String memberId) {
 
-        Answer answer = answerRepository.findByMemberEmail(memberEmail)
+        Answer answer = answerRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 답변입니다."));
 
         answer = answer.toBuilder()
@@ -170,7 +170,8 @@ public class AnswerService {
         notificationService.send(
             buyerId,
             auction.getId(),
-            auction.getSeller().getMemberId() + "님이 " + auction.getTitle() + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
+            auction.getSeller().getMemberId() + "님이 " + auction.getTitle()
+                + " 경매에 남긴 문의에 대한 답변을 달았습니다.",
             ANSWER
         );
     }

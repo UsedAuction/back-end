@@ -17,9 +17,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     // 주문 생성
-    public Orders createOrder(String email, OrderCreateDto.Request request) {
+    public Orders createOrder(String memberId, OrderCreateDto.Request request) {
 
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberRepository.findByMemberId(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         String itemName = request.getPrice() + " 포인트";

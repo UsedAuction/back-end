@@ -47,6 +47,19 @@ public class MemberService {
     private final MailPasswordService mailPasswordService;
     private final MailRedisService mailRedisService;
 
+    /**
+     * 회원 정보 조회
+     *
+     * @param memberId 조회할 회원 아이디
+     * @return 조회된 회원 정보
+     */
+    @Transactional(readOnly = true)
+    public Member getMember(String memberId) {
+
+        return memberRepository.findByMemberId(memberId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
+    }
+
     public MemberLoginResponseDto login(HttpServletResponse response,
         @RequestBody MemberLoginRequestDto dto) {
         Member member = memberRepository.findByMemberId(dto.getMemberId())
@@ -75,6 +88,7 @@ public class MemberService {
     }
 
     public void checkMemberId(MemberCheckIdDto dto) {
+        log.info("id = {}", dto.getMemberId());
         if (memberRepository.existsByMemberId(dto.getMemberId())) {
             throw new MemberException(MemberErrorCode.ALREADY_EXISTS_MEMBER_ID);
         }

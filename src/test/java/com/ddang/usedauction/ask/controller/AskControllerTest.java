@@ -207,7 +207,7 @@ class AskControllerTest {
             .build();
 
         when(askService.createAsk(argThat(arg -> arg.getTitle().equals("title")),
-            argThat(arg -> arg.equals("test@naver.com")))).thenReturn(ask);
+            argThat(arg -> arg.equals("memberId")))).thenReturn(ask);
 
         mockMvc.perform(post("/api/asks")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -279,7 +279,7 @@ class AskControllerTest {
 
         when(askService.updateAsk(argThat(arg -> arg.equals(1L)),
             argThat(arg -> arg.getContent().equals("content1")),
-            argThat(arg -> arg.equals("test@naver.com")))).thenReturn(
+            argThat(arg -> arg.equals("memberId")))).thenReturn(
             ask.toBuilder().content("content1").build());
 
         mockMvc.perform(put("/api/asks/1")
@@ -362,7 +362,7 @@ class AskControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").value("삭제되었습니다."));
 
-        verify(askService, times(1)).deleteAsk("test@naver.com");
+        verify(askService, times(1)).deleteAsk("memberId");
     }
 
     @Test

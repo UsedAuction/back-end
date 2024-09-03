@@ -10,19 +10,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${spring.jwt.refresh.expiration}")
     private int refreshTokenExpirationValue;
-    private static final String URI = "/";
+    private static final String URI = "https://localhost:5173";
     private final TokenProvider tokenProvider;
     private final RefreshTokenService refreshTokenService;
 
@@ -36,9 +38,11 @@ public class Oauth2SuccessHandler implements AuthenticationSuccessHandler {
         TokenDto token = tokenProvider.generateToken(details.getName(), authorities);
 
         long refreshTokenExpiration = tokenProvider.getExpiration(token.getRefreshToken());
+        log.info("successHandler refreshTokenExpiration = {}", refreshTokenExpiration);
         refreshTokenService.save(token.getAccessToken(), token.getRefreshToken(),
             refreshTokenExpiration);
 
+        log.info("successHandler refreshTokenExpirationValue = {}", refreshTokenExpirationValue);
         CookieUtil.addCookie(response, "refreshToken", token.getRefreshToken(),
             refreshTokenExpirationValue);
         response.sendRedirect(

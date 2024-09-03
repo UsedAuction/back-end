@@ -179,7 +179,7 @@ class AuctionServiceTest {
 
         assertEquals(2, resultList.getTotalElements());
     }
-  
+
     @Test
     @DisplayName("top5 경매 리스트 조회")
     void getTop5() {
@@ -215,7 +215,7 @@ class AuctionServiceTest {
         assertEquals(2, auctionList.size());
         assertEquals(2, auctionList.get(0).getBidList().size());
         assertEquals(1, auctionList.get(1).getBidList().size());
-    } 
+    }
 
     @Test
     @DisplayName("최근 본 경매 리스트 조회")
@@ -248,7 +248,7 @@ class AuctionServiceTest {
         List<MultipartFile> imageList = List.of(mockImage, mockImage);
 
         Member member = Member.builder()
-            .memberId("test")
+            .memberId("memberId")
             .email("test@naver.com")
             .build();
 
@@ -304,7 +304,7 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.of(parentCategory));
         when(categoryRepository.findById(2L)).thenReturn(Optional.of(childCategory));
         when(imageService.uploadThumbnail(thumbnail)).thenReturn(image);
@@ -312,7 +312,7 @@ class AuctionServiceTest {
         when(auctionRepository.save(argThat(arg -> arg.getTitle().equals("title")))).thenReturn(
             auction);
 
-        Auction result = auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+        Auction result = auctionService.createAuction(thumbnail, imageList, "memberId",
             createDto);
 
         assertEquals("title", result.getTitle());
@@ -450,10 +450,10 @@ class AuctionServiceTest {
             .parentCategoryId(1L)
             .build();
 
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+            () -> auctionService.createAuction(thumbnail, imageList, "memberId",
                 createDto));
     }
 
@@ -487,15 +487,15 @@ class AuctionServiceTest {
             .build();
 
         Member member = Member.builder()
-            .memberId("test")
+            .memberId("memberId")
             .email("test@naver.com")
             .build();
 
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.of(member));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(member));
         when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.createAuction(thumbnail, imageList, "test@naver.com",
+            () -> auctionService.createAuction(thumbnail, imageList, "memberId",
                 createDto));
     }
 
@@ -523,7 +523,7 @@ class AuctionServiceTest {
 
         Member buyer = Member.builder()
             .id(1L)
-            .memberId("buyer")
+            .memberId("memberId")
             .email("buyer@naver.com")
             .point(5000)
             .build();
@@ -534,16 +534,14 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
         when(memberRepository.findById(2L)).thenReturn(Optional.of(seller));
-        when(transactionRepository.findByBuyerEmailAndAuctionId("buyer@naver.com", 1L)).thenReturn(
+        when(transactionRepository.findByBuyerIdAndAuctionId("memberId", 1L)).thenReturn(
             Optional.of(transaction));
 
-        auctionService.confirmAuction(1L, "buyer@naver.com", confirmDto);
+        auctionService.confirmAuction(1L, "memberId", confirmDto);
 
         verify(memberRepository, times(1)).save(argThat(arg -> arg.getPoint() == 2000));
-        verify(pointRepository, times(1)).save(
-            argThat(arg -> arg.getPointType().equals(PointType.USE)));
         verify(pointRepository, times(1)).save(
             argThat(arg -> arg.getPointType().equals(PointType.GET)));
         verify(transactionRepository, times(1)).save(
@@ -581,7 +579,7 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(transactionRepository.findByBuyerEmailAndAuctionId("test", 1L)).thenReturn(
+        when(transactionRepository.findByBuyerIdAndAuctionId("test", 1L)).thenReturn(
             Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -605,7 +603,7 @@ class AuctionServiceTest {
 
         Member buyer = Member.builder()
             .id(1L)
-            .memberId("buyer")
+            .memberId("memberId")
             .point(5000)
             .build();
 
@@ -615,12 +613,12 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(transactionRepository.findByBuyerEmailAndAuctionId("test@naver.com", 1L)).thenReturn(
+        when(transactionRepository.findByBuyerIdAndAuctionId("memberId", 1L)).thenReturn(
             Optional.of(transaction));
-        when(memberRepository.findByEmail("test@naver.com")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.confirmAuction(1L, "test@naver.com", confirmDto));
+            () -> auctionService.confirmAuction(1L, "memberId", confirmDto));
     }
 
     @Test
@@ -660,7 +658,7 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(transactionRepository.findByBuyerEmailAndAuctionId("buyer", 1L)).thenReturn(
+        when(transactionRepository.findByBuyerIdAndAuctionId("buyer", 1L)).thenReturn(
             Optional.empty());
 
         assertThrows(NoSuchElementException.class,
@@ -767,15 +765,15 @@ class AuctionServiceTest {
             .build();
 
         Member buyer = Member.builder()
-            .memberId("buyer")
+            .memberId("memberId")
             .email("buyer@naver.com")
             .point(2000)
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
 
-        auctionService.instantPurchaseAuction(1L, "buyer@naver.com");
+        auctionService.instantPurchaseAuction(1L, "memberId");
 
         verify(auctionRepository, times(1)).save(
             argThat(arg -> arg.getAuctionState().equals(AuctionState.END)));
@@ -805,10 +803,10 @@ class AuctionServiceTest {
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.empty());
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
+            () -> auctionService.instantPurchaseAuction(1L, "memberId"));
     }
 
     @Test
@@ -828,16 +826,16 @@ class AuctionServiceTest {
 
         Member buyer = Member.builder()
             .id(1L)
-            .memberId("buyer")
+            .memberId("memberId")
             .email("buyer@naver.com")
             .point(2000)
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
 
         assertThrows(IllegalStateException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
+            () -> auctionService.instantPurchaseAuction(1L, "memberId"));
     }
 
     @Test
@@ -857,15 +855,15 @@ class AuctionServiceTest {
 
         Member buyer = Member.builder()
             .id(1L)
-            .memberId("buyer")
+            .memberId("memberId")
             .email("buyer@naver.com")
             .point(1000)
             .build();
 
         when(auctionRepository.findById(1L)).thenReturn(Optional.of(auction));
-        when(memberRepository.findByEmail("buyer@naver.com")).thenReturn(Optional.of(buyer));
+        when(memberRepository.findByMemberId("memberId")).thenReturn(Optional.of(buyer));
 
         assertThrows(MemberPointOutOfBoundsException.class,
-            () -> auctionService.instantPurchaseAuction(1L, "buyer@naver.com"));
+            () -> auctionService.instantPurchaseAuction(1L, "memberId"));
     }
 }

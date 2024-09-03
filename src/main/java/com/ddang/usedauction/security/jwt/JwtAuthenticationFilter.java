@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
@@ -27,6 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = tokenProvider.resolveTokenFromRequest(request);
+
+        log.info("Request URI = {}, Method = {}, Headers = {}",
+            request.getRequestURI(), request.getMethod(), request.getHeaderNames());
+
+        log.info("doFilterInternal accessToken = {}", accessToken);
 
         // accessToken 검증
         if (StringUtils.hasText(accessToken)) {
@@ -53,6 +60,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (tokenProvider.isExpiredToken(refreshToken) || refreshToken == null
             || cookie == null || !refreshToken.equals(
             cookie.getValue())) {
+            log.info("로그아웃 처리 진행");
+            log.info("handleExpiredAccessToken refreshToken In Redis = {}", refreshToken);
+            log.info("handleExpiredAccessToken cookie = {}",
+                cookie != null ? cookie.getValue() : null);
             logout(request, response, oldAccessToken);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -65,6 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             authentication.getAuthorities());
         long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
         // Redis accessToken 값 업데이트
+        log.info("filter refreshTokenExpiration = {}", refreshTokenExpiration);
         refreshTokenService.deleteRefreshTokenByAccessToken(oldAccessToken);
         refreshTokenService.save(newAccessToken, refreshToken, refreshTokenExpiration);
 

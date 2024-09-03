@@ -37,7 +37,7 @@ class BidServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<Bid> bidPageList = new PageImpl<>(bidList, pageable, bidList.size());
 
-        when(bidRepository.findAllByMemberEmail("test", pageable)).thenReturn(bidPageList);
+        when(bidRepository.findAllByMemberId("test", pageable)).thenReturn(bidPageList);
 
         Page<Bid> result = bidService.getBidList("test", pageable);
 

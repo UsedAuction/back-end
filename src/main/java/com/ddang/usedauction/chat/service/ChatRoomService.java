@@ -132,6 +132,20 @@ public class ChatRoomService {
             .collect(Collectors.toList());
     }
 
+    public ChatRoom deleteChatRoom(Long auctionId) {
+
+        ChatRoom chatRoom = chatRoomRepository.findByAuctionId(auctionId)
+            .orElseThrow(() -> new NoSuchElementException("존재하지 않는 채팅방입니다"));
+
+        opsHashChatRoom.delete(CHAT_ROOMS, chatRoom.getId().toString());
+
+        chatRoom.exitChatRoom();
+
+        deleteTopic(chatRoom.getId().toString());
+
+        return chatRoom;
+    }
+
     public ChannelTopic getTopic(Long roomId) {
         return topics.get(roomId.toString());
     }
@@ -142,5 +156,12 @@ public class ChatRoomService {
             redisMessageListener.addMessageListener(redisSubscriber, topic);
             topics.put(roomId, topic);
         }
+    }
+
+    private void deleteTopic(String roomId) {
+        ChannelTopic topic = topics.get(roomId);
+
+        redisMessageListener.removeMessageListener(redisSubscriber, topic);
+        topics.remove(roomId);
     }
 }

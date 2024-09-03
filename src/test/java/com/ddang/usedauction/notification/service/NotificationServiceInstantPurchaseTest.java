@@ -4,6 +4,7 @@ import static com.ddang.usedauction.auction.domain.AuctionState.CONTINUE;
 import static com.ddang.usedauction.auction.domain.AuctionState.END;
 import static com.ddang.usedauction.notification.domain.NotificationType.DONE_INSTANT;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,9 @@ import com.ddang.usedauction.auction.service.AuctionService;
 import com.ddang.usedauction.chat.service.ChatRoomService;
 import com.ddang.usedauction.member.domain.Member;
 import com.ddang.usedauction.member.repository.MemberRepository;
+import com.ddang.usedauction.point.domain.PointHistory;
+import com.ddang.usedauction.point.domain.PointType;
+import com.ddang.usedauction.point.repository.PointRepository;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -47,6 +51,9 @@ class NotificationServiceInstantPurchaseTest {
     @Mock
     private ChatRoomService chatRoomService;
 
+    @Mock
+    private PointRepository pointRepository;
+
     @InjectMocks
     private AuctionService auctionService;
 
@@ -71,11 +78,14 @@ class NotificationServiceInstantPurchaseTest {
             .seller(seller)
             .build();
 
+        PointHistory pointHistory = PointHistory.builder().build();
+
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
+        given(pointRepository.save(argThat(arg -> arg.getPointType().equals(PointType.USE)))).willReturn(pointHistory);
 
         //when
-        auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail());
+        auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId());
 
         //then
         verify(notificationService, times(1)).send(
@@ -156,11 +166,11 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.empty());
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.empty());
 
         // when
         assertThrows(NoSuchElementException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
         verify(notificationService, times(0)).send(
@@ -199,11 +209,11 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
 
         // when
         assertThrows(IllegalStateException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
         verify(notificationService, times(0)).send(
@@ -244,11 +254,11 @@ class NotificationServiceInstantPurchaseTest {
             .build();
 
         given(auctionRepository.findById(auction.getId())).willReturn(Optional.of(auction));
-        given(memberRepository.findByEmail(buyer.getEmail())).willReturn(Optional.of(buyer));
+        given(memberRepository.findByMemberId(buyer.getMemberId())).willReturn(Optional.of(buyer));
 
         // when
         assertThrows(MemberPointOutOfBoundsException.class,
-            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getEmail()));
+            () -> auctionService.instantPurchaseAuction(auction.getId(), buyer.getMemberId()));
 
         // then
         verify(notificationService, times(0)).send(

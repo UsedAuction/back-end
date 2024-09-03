@@ -23,12 +23,10 @@ public class OrderController {
     private final OrderService orderService;
 
     /**
-     * 주문 생성
-     * 1. 포인트 충전 모달에서 구매할 포인트를 선택한다.
-     * 2. 다음 버튼을 누른다. -> 주문생성
+     * 주문 생성 1. 포인트 충전 모달에서 구매할 포인트를 선택한다. 2. 다음 버튼을 누른다. -> 주문생성
      *
      * @param principalDetails 회원 정보
-     * @param request 주문 요청 정보
+     * @param request          주문 요청 정보
      * @return 성공 시 201 코드와 주문 pk 및 회원 pk,  실패 시 에러코드와 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
@@ -37,8 +35,8 @@ public class OrderController {
         @AuthenticationPrincipal PrincipalDetails principalDetails,
         @RequestBody @Valid OrderCreateDto.Request request
     ) {
-        String email = principalDetails.getUsername();
-        Orders order = orderService.createOrder(email, request);
+        String memberId = principalDetails.getName();
+        Orders order = orderService.createOrder(memberId, request);
 
         return ResponseEntity
             .status(HttpStatus.CREATED)

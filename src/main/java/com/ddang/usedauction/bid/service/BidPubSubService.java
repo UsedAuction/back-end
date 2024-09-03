@@ -17,11 +17,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BidPubSubService {
 
     private final BidRepository bidRepository;
@@ -37,8 +39,16 @@ public class BidPubSubService {
     @RedissonLock("#message.auctionId")
     public void createBid(BidMessageDto.Request message) {
 
+        log.info("auctionId = {}", message.getAuctionId());
+        log.info("memberId = {}", message.getMemberId());
+        log.info("bidAmount = {}", message.getBidAmount());
+
         Auction auction = auctionRepository.findById(message.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
+
+        log.info("startPrice = {}", auction.getStartPrice());
+        log.info("currentPrice = {}", auction.getCurrentPrice());
+        log.info("instantPrice = {}", auction.getInstantPrice());
 
         Member member = memberRepository.findByMemberId(message.getMemberId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));

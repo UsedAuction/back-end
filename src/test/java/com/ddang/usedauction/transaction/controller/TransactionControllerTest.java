@@ -133,7 +133,7 @@ class TransactionControllerTest {
             transactionList.size());
 
         when(
-            transactionService.getTransactionListBySeller("test@naver.com", "name", "end", null,
+            transactionService.getTransactionListBySeller("memberId", "name", "end", null,
                 null, null,
                 pageable)).thenReturn(transactionPageList);
 
@@ -164,7 +164,7 @@ class TransactionControllerTest {
             transactionList.size());
 
         when(
-            transactionService.getTransactionListByBuyer("test@naver.com", "name", "end", null,
+            transactionService.getTransactionListByBuyer("memberId", "name", "end", null,
                 null, null,
                 pageable)).thenReturn(transactionPageList);
 

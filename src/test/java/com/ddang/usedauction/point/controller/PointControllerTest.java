@@ -67,15 +67,16 @@ class PointControllerTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
-        given(pointService.getPointBalance(member.getEmail())).willReturn(pointBalance);
+        given(pointService.getPointBalance(member.getMemberId())).willReturn(pointBalance);
 
         //when
         //then
         mockMvc.perform(
-            get("/api/members/points")
-                .contentType(MediaType.APPLICATION_JSON))
+                get("/api/members/points")
+                    .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.pointAmount").value(10000L));
@@ -89,8 +90,8 @@ class PointControllerTest {
         //when
         //then
         mockMvc.perform(
-            get("/api/members/points")
-                .contentType(MediaType.APPLICATION_JSON))
+                get("/api/members/points")
+                    .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }
@@ -108,6 +109,7 @@ class PointControllerTest {
         Member member = Member.builder()
             .id(1L)
             .email("test@naver.com")
+            .memberId("memberId")
             .build();
 
         PointHistory pointHistory1 = PointHistory.builder()
@@ -129,19 +131,19 @@ class PointControllerTest {
         Page<PointHistory> pointHistoryPage =
             new PageImpl<>(List.of(pointHistory1, pointHistory2), pageable, 2);
 
-        given(pointService.getPointList(member.getEmail(), startDate, endDate, sorted, pageable))
+        given(pointService.getPointList(member.getMemberId(), startDate, endDate, sorted, pageable))
             .willReturn(pointHistoryPage);
 
         //when
         //then
         mockMvc.perform(
-            get("/api/members/points/history")
-                .param("startDate", startDate.toString())
-                .param("endDate", endDate.toString())
-                .param("sorted", sorted)
-                .param("page", "0")
-                .param("size", "10")
-                .contentType(MediaType.APPLICATION_JSON))
+                get("/api/members/points/history")
+                    .param("startDate", startDate.toString())
+                    .param("endDate", endDate.toString())
+                    .param("sorted", sorted)
+                    .param("page", "0")
+                    .param("size", "10")
+                    .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content[0].id").value(1))
@@ -162,8 +164,8 @@ class PointControllerTest {
         //when
         //then
         mockMvc.perform(
-            get("/api/members/points/history")
-                .contentType(MediaType.APPLICATION_JSON))
+                get("/api/members/points/history")
+                    .contentType(MediaType.APPLICATION_JSON))
             .andDo(print())
             .andExpect(status().isUnauthorized());
     }

@@ -41,13 +41,13 @@ public class AuctionRedisRepository {
 
     // 일주일 후 만료가 되는 bucket을 생성하여 redis에 저장
     // 만료되었을 때 이벤트 발생
-    public void saveAuctionAutoConfirm(Long auctionId, String buyerEmail,
+    public void saveAuctionAutoConfirm(Long auctionId, String buyerId,
         AuctionConfirmDto.Request confirmDto) {
 
         RBucket<Object> bucket = redissonClient.getBucket(confirmExpireKey + auctionId);
         bucket.set("", Duration.ofDays(7)); // 7일 후 만료
         bucket.addListener((ExpiredObjectListener) name -> {
-            publisher.publishEvent(AuctionAutoConfirmEvent.of(auctionId, buyerEmail, confirmDto));
+            publisher.publishEvent(AuctionAutoConfirmEvent.of(auctionId, buyerId, confirmDto));
             log.info("자동 구매 확정 처리된 경매 PK = {}", auctionId);
         });
     }

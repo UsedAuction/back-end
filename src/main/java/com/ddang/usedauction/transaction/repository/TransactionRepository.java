@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 public interface TransactionRepository extends JpaRepository<Transaction, Long>,
     TransactionRepositoryCustom {
 
-    @Query("select t from Transaction t where t.buyer.email = :buyerEmail and t.auction.id = :auctionId")
-    Optional<Transaction> findByBuyerEmailAndAuctionId(String buyerEmail,
+    @Query("select t from Transaction t where t.buyer.memberId = :buyerId and t.auction.id = :auctionId")
+    Optional<Transaction> findByBuyerIdAndAuctionId(String buyerId,
         Long auctionId); // 구매자 아이디와 경매 pk로 거래 내역 조회
 }
