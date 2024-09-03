@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -27,16 +28,16 @@ public class NotificationController {
     /**
      * 알림 구독
      *
+     * @Param memberId 회원 pk
      * @param lastEventId 마지막 이벤트 id
      * @return 성공 시 200 코드와 sseEmitter, 실패 시 에러메시지
      */
     @PreAuthorize("hasRole('USER')")
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(
-        @AuthenticationPrincipal PrincipalDetails principalDetails,
-        @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId
+        @RequestParam Long memberId,
+        @RequestParam String lastEventId
     ) {
-        String memberId = principalDetails.getName();
         return ResponseEntity.ok(notificationService.subscribe(memberId, lastEventId));
     }
 

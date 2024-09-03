@@ -37,9 +37,9 @@ public class NotificationService {
     private final AuctionRepository auctionRepository;
 
     // 알림 구독
-    public SseEmitter subscribe(String memberId, String lastEventId) {
+    public SseEmitter subscribe(Long memberId, String lastEventId) {
 
-        Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
+        Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
         String emitterId =
