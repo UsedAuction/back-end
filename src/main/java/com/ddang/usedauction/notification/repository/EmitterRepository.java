@@ -17,10 +17,14 @@ public class EmitterRepository {
 
     // emitter 저장
     public SseEmitter save(String emitterId, SseEmitter sseEmitter) {
-        log.info("save()save()save()save()save()");
+
+        log.info("emitter 저장");
+
         emitters.put(emitterId, sseEmitter);
-        log.info("save emitterId: " + emitterId);
-        log.info("save sseEmitter:" + sseEmitter);
+
+        log.info("emitterId(키): " + emitterId);
+        log.info("sseEmitter(값):" + sseEmitter);
+
         return sseEmitter;
     }
 
@@ -30,19 +34,20 @@ public class EmitterRepository {
     }
 
     // 이벤트 저장
-    public void saveEventCache(String eventCacheId, Object event) {
-        eventCache.put(eventCacheId, event);
+    public void saveEventCache(String emitterId, Object event) {
+        eventCache.put(emitterId, event);
     }
 
     // 해당 memberId와 관련된 모든 emitter 찾기
     public Map<String, SseEmitter> findAllEmitterStartWithMemberId(String memberId) {
-        log.info("memberId: " + memberId);
-        log.info("emitters: {}", emitters);
-        log.info("emitters keyset: {}", emitters.keySet());
+        log.info("memberId에 해당하는 모든 emitter 찾기");
+
         Map<String, SseEmitter> result = emitters.entrySet().stream()
             .filter(entry -> entry.getKey().startsWith(memberId + "_"))
             .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-        log.info("findAllEmitterStartWithMemberId(): " + result);
+
+        log.info("memberId에 해당하는 모든 emitter 키값: {}", result.keySet());
+
         return result;
     }
 
