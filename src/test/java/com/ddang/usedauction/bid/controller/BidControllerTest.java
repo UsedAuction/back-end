@@ -30,6 +30,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest({BidController.class, SecurityConfig.class})
@@ -82,7 +83,7 @@ class BidControllerTest {
             .member(member)
             .build();
         List<BidGetDto.Response> bidList = List.of(BidGetDto.Response.from(bid));
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 10, Direction.DESC, "createdAt");
         Page<BidGetDto.Response> bidPageList = new PageImpl<>(bidList, pageable, bidList.size());
 
         when(bidService.getBidList("memberId", pageable)).thenReturn(bidPageList);

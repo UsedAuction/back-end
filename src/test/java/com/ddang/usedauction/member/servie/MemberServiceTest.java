@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.bid.repository.BidRepository;
 import com.ddang.usedauction.mail.service.MailPasswordService;
 import com.ddang.usedauction.mail.service.MailRedisService;
 import com.ddang.usedauction.member.domain.Member;
@@ -35,6 +36,7 @@ import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.transaction.domain.TransType;
 import com.ddang.usedauction.transaction.repository.TransactionRepository;
 import jakarta.servlet.http.Cookie;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -63,6 +65,9 @@ class MemberServiceTest {
 
     @Mock
     TransactionRepository transactionRepository;
+
+    @Mock
+    BidRepository bidRepository;
 
     @Mock
     MailRedisService mailRedisService;
@@ -702,6 +707,7 @@ class MemberServiceTest {
     void withdrawal() {
 
         Member member = Member.builder()
+            .id(1L)
             .memberId("test1234")
             .passWord("encodedPassword1")
             .email("test@email.com")
@@ -718,6 +724,7 @@ class MemberServiceTest {
             member.getMemberId(), AuctionState.CONTINUE)).thenReturn(false);
         when(transactionRepository.existsByUser(member.getMemberId(),
             TransType.CONTINUE)).thenReturn(false);
+        when(bidRepository.findAllByMemberPk(1L)).thenReturn(new ArrayList<>());
 
         memberService.withdrawal(member.getMemberId(), dto.getWithDrawalReason());
 
