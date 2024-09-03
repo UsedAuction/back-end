@@ -32,7 +32,6 @@ public class NotificationController {
      * @param lastEventId 마지막 이벤트 id
      * @return 성공 시 200 코드와 sseEmitter, 실패 시 에러메시지
      */
-    @PreAuthorize("hasRole('USER')")
     @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> subscribe(
         @RequestParam String memberId,

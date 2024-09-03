@@ -68,8 +68,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/members/points").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/points/history").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/members/payment/ready").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/members/notification/subscribe")
-                .authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/members/notification").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/auth/withdrawl").authenticated()
