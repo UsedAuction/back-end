@@ -64,7 +64,7 @@ public class ChatRoomService {
                 Integer unreadCnt = unReadRedisTemplate.opsForValue().get(unreadKey);
                 unreadCnt = unreadCnt == null ? 0 : unreadCnt; // null 체크하여 기본값 0 설정
 
-                ChatMessage chatMessage = chatMessageRepository.findByChatRoomId(
+                ChatMessage chatMessage = chatMessageRepository.findTop1ByChatRoomId(
                     chatRoom.getId()).orElse(null);
 
                 // Response 객체 생성 시 필요한 값들 설정

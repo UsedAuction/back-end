@@ -12,6 +12,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findByChatRoomIdOrderByCreatedAtAsc(Long chatRomeId);
 
     @Query("SELECT m FROM ChatMessage m WHERE m.chatRoom.id = :chatRoomId ORDER BY m.createdAt DESC LIMIT 1")
-    Optional<ChatMessage> findByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+    Optional<ChatMessage> findTop1ByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 
 }
