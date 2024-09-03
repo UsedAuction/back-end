@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
             .allowedOrigins("https://dddang.vercel.app", "https://localhost:5173")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-            .allowedHeaders("Authorization", "Content-Type", "New-Token")
+            .allowedHeaders("Authorization", "Content-Type", "New-Token", "last-event-id")
             .exposedHeaders("Custom-Header", "New-Token")
             .allowCredentials(true)
             .maxAge(86400);
