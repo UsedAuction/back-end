@@ -2,6 +2,8 @@ package com.ddang.usedauction.member.servie;
 
 import com.ddang.usedauction.auction.domain.AuctionState;
 import com.ddang.usedauction.auction.repository.AuctionRepository;
+import com.ddang.usedauction.bid.domain.Bid;
+import com.ddang.usedauction.bid.repository.BidRepository;
 import com.ddang.usedauction.mail.service.MailPasswordService;
 import com.ddang.usedauction.mail.service.MailRedisService;
 import com.ddang.usedauction.member.domain.Member;
@@ -51,6 +53,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final AuctionRepository auctionRepository;
     private final TransactionRepository transactionRepository;
+    private final BidRepository bidRepository;
     private final MailPasswordService mailPasswordService;
     private final MailRedisService mailRedisService;
 
@@ -222,6 +225,11 @@ public class MemberService {
         if (transactionRepository.existsByUser(member.getMemberId(),
             TransType.CONTINUE)) {
             throw new IllegalStateException("진행 중인 거래가 존재하여 회원탈퇴를 진행할 수 없습니다.");
+        }
+
+        List<Bid> bidList = bidRepository.findAllByMemberPk(member.getId());
+        if (bidList != null && !bidList.isEmpty()) {
+            bidRepository.deleteAll(bidList);
         }
 
         member.withdrawal(withDrawalReason);
