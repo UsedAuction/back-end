@@ -52,8 +52,6 @@ public class PaymentService {
     // 결제 준비
     public PaymentReadyDto.Response ready(String memberId, PaymentInfoDto.Request request) {
 
-        log.info("ready() request.getOrderId {}", request.getOrderId());
-
         Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(memberId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));
 
@@ -98,10 +96,6 @@ public class PaymentService {
 
         // paymentRequest를 map으로 변환
         Map<String, String> map = paymentRequest.toMap();
-        log.info("approval_url: {}", map.get("approval_url"));
-        log.info("cancel_url: {}", map.get("cancel_url"));
-        log.info("fail_url: {}", map.get("fail_url"));
-        log.info("partner_order_id: {}", map.get("partner_order_id"));
 
         // header, body 하나로 합치기
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(map, headers);
@@ -167,10 +161,8 @@ public class PaymentService {
 
         // 회원 포인트 충전
         Integer point = response.getAmount().getTotal();
-        log.info("point = {}", point);
         Member member = order.getMember();
         member.addPoint(point);
-        log.info("memberPoint = {}", member.getPoint());
         memberRepository.save(member);
 
         // 포인트 충전내역 저장

@@ -39,16 +39,8 @@ public class BidPubSubService {
     @RedissonLock("#message.auctionId")
     public void createBid(BidMessageDto.Request message) {
 
-        log.info("auctionId = {}", message.getAuctionId());
-        log.info("memberId = {}", message.getMemberId());
-        log.info("bidAmount = {}", message.getBidAmount());
-
         Auction auction = auctionRepository.findById(message.getAuctionId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
-
-        log.info("startPrice = {}", auction.getStartPrice());
-        log.info("currentPrice = {}", auction.getCurrentPrice());
-        log.info("instantPrice = {}", auction.getInstantPrice());
 
         Member member = memberRepository.findByMemberIdAndDeletedAtIsNull(message.getMemberId())
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 회원입니다."));

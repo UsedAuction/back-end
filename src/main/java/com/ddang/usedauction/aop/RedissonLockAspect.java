@@ -33,7 +33,7 @@ public class RedissonLockAspect {
         RedissonLock annotation = method.getAnnotation(
             RedissonLock.class); // RedissonLock 어노테이션을 가져옴
         String lockKey = parseSpel(annotation.value(), joinPoint);
-        log.info("lockKey = {}", lockKey);
+        log.debug("lockKey = {}", lockKey);
 
         RLock lock = redissonClient.getLock(lockKey);
 
@@ -45,7 +45,7 @@ public class RedissonLockAspect {
                 return;
             }
 
-            log.info("Lock 얻고 로직 실행");
+            log.debug("Lock 얻고 로직 실행");
             aopForTransaction.proceed(joinPoint); // 어노테이션이 선언된 메소드를 별도의 트랜잭션으로 실행
         } catch (InterruptedException e) {
             log.error("Lock 에러 발생", e);

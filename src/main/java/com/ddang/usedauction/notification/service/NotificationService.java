@@ -48,30 +48,30 @@ public class NotificationService {
 
         // 콜백
         sseEmitter.onCompletion(() -> {
-            log.info("onCompletion emitterId: {}", emitterId);
             emitterRepository.deleteById(emitterId);
         });
         sseEmitter.onTimeout(() -> {
-            log.info("onTimeout emitterId: {}", emitterId);
             emitterRepository.deleteById(emitterId);
         });
         sseEmitter.onError((e) -> {
-            log.info("onError emitterId: {}", emitterId);
             emitterRepository.deleteById(emitterId);
         });
 
         String dummyStr = "연결 완료 / memberId: " + member.getId();
 
         // 503 에러방지를 위한 더미 이벤트 전송
-        sendNotification(sseEmitter, emitterId, NotificationDummyDto.builder().dummyContent(dummyStr).build());
+        sendNotification(sseEmitter, emitterId,
+            NotificationDummyDto.builder().dummyContent(dummyStr).build());
 
         // 받지 못한 알림이 있으면 보내주기
         if (!lastEventId.isEmpty()) {
             Map<String, Object> cacheEvents =
-                emitterRepository.findAllEventCacheStartWithMemberId(String.valueOf(member.getId()));
+                emitterRepository.findAllEventCacheStartWithMemberId(
+                    String.valueOf(member.getId()));
             cacheEvents.entrySet().stream()
                 .filter(eventCache -> lastEventId.compareTo(eventCache.getKey()) < 0)
-                .forEach(eventCache -> sendNotification(sseEmitter, eventCache.getKey(), eventCache.getValue()));
+                .forEach(eventCache -> sendNotification(sseEmitter, eventCache.getKey(),
+                    eventCache.getValue()));
         }
 
         return sseEmitter;
@@ -83,20 +83,15 @@ public class NotificationService {
     public void send(Long memberId, Long auctionId, String content,
         NotificationType notificationType) {
 
-        log.info("알림 전송 send()");
-
         Notification notification =
-            notificationRepository.save(createNotification(memberId, auctionId, content, notificationType));
-        log.info("notification: {}", notification);
+            notificationRepository.save(
+                createNotification(memberId, auctionId, content, notificationType));
 
         Map<String, SseEmitter> emitters =
             emitterRepository.findAllEmitterStartWithMemberId(String.valueOf(memberId));
-        log.info("emitters: {}", emitters.keySet());
 
         emitters.forEach(
             (emitterId, emitter) -> {
-                log.info("emitterId: {}", emitterId);
-                log.info("emitter: {}", emitter.toString());
                 emitterRepository.saveEventCache(emitterId, notification);
                 sendNotification(emitter, emitterId, NotificationDto.Response.from(notification));
             }
@@ -118,11 +113,6 @@ public class NotificationService {
     // 실제로 알림을 전송하는 메서드
     private void sendNotification(SseEmitter sseEmitter, String emitterId, Object data) {
         try {
-
-            log.info("실제로 알림을 전송 sendNotification()");
-            log.info("emitterId: {}", emitterId);
-            log.info("data: {}", data.toString());
-
             sseEmitter.send(SseEmitter.event()
                 .id(emitterId)
                 .name("sse")

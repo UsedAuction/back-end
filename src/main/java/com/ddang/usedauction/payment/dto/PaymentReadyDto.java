@@ -34,9 +34,6 @@ public class PaymentReadyDto {
 
         //  map으로 변환
         public Map<String, String> toMap() {
-
-            log.info("toMap this.partnerOrderId: {}", this.partnerOrderId);
-
             Map<String, String> map = new HashMap<>();
             map.put("cid", this.cid);
             map.put("partner_order_id", this.partnerOrderId);

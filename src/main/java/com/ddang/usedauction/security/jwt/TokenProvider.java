@@ -137,15 +137,15 @@ public class TokenProvider {
             return !refreshTokenService.hasKeyBlackList(accessToken) && !claims.getExpiration()
                 .before(new Date());
         } catch (ExpiredJwtException e) {
-            log.info("만료된 토큰입니다.");
+            log.error("만료된 토큰입니다.");
         } catch (SecurityException | MalformedJwtException e) {
-            log.info("유효하지 않은 토큰입니다.");
+            log.error("유효하지 않은 토큰입니다.");
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 토큰입니다.");
+            log.error("지원되지 않는 토큰입니다.");
         } catch (IllegalArgumentException e) {
-            log.info("토큰이 비어있습니다.");
+            log.error("토큰이 비어있습니다.");
         } catch (SignatureException e) {
-            log.info("잘못된 서명의 토큰입니다.");
+            log.error("잘못된 서명의 토큰입니다.");
         }
 
         return false;

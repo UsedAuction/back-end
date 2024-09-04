@@ -239,8 +239,6 @@ public class AuctionService implements CommandLineRunner {
     @Transactional
     public AuctionEndDto endAuction(Long auctionId) {
 
-        log.info("경매 종료 처리 시작");
-
         Auction auction = auctionRepository.findById(auctionId)
             .orElseThrow(() -> new NoSuchElementException("존재하지 않는 경매입니다."));
 
@@ -254,7 +252,6 @@ public class AuctionService implements CommandLineRunner {
             .auctionState(AuctionState.END) // 경매 종료 처리
             .build();
         Auction savedAuction = auctionRepository.save(auction);
-        log.info("경매 종료 처리 후 저장");
 
         return AuctionEndDto.from(savedAuction, bid);
     }

@@ -35,7 +35,6 @@ public class AuctionRedisRepository {
         bucket.set("", Duration.ofSeconds(second));
         bucket.addListener((ExpiredObjectListener) name -> {
             publisher.publishEvent(AuctionEndEvent.of(auctionId));
-            log.info("종료된 경매 PK = {}", auctionId);
         });
     }
 
@@ -48,7 +47,6 @@ public class AuctionRedisRepository {
         bucket.set("", Duration.ofDays(7)); // 7일 후 만료
         bucket.addListener((ExpiredObjectListener) name -> {
             publisher.publishEvent(AuctionAutoConfirmEvent.of(auctionId, buyerId, confirmDto));
-            log.info("자동 구매 확정 처리된 경매 PK = {}", auctionId);
         });
     }
 }

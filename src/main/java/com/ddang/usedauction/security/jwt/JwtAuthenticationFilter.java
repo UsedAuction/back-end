@@ -1,7 +1,6 @@
 package com.ddang.usedauction.security.jwt;
 
 import com.ddang.usedauction.token.dto.TokenDto;
-import com.ddang.usedauction.token.service.RefreshTokenService;
 import com.ddang.usedauction.util.CookieUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -24,10 +22,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
-    private final RefreshTokenService refreshTokenService;
-
-    @Value("${spring.jwt.refresh.expiration}")
-    private long refreshTokenExpired;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -35,10 +29,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String accessToken = tokenProvider.resolveTokenFromRequest(request);
 
-        log.info("Request URI = {}, Method = {}, Headers = {}",
+        log.debug("Request URI = {}, Method = {}, Headers = {}",
             request.getRequestURI(), request.getMethod(), request.getHeaderNames());
 
-        log.info("doFilterInternal accessToken = {}", accessToken);
+        log.debug("doFilterInternal accessToken = {}", accessToken);
 
         // accessToken 검증
         if (StringUtils.hasText(accessToken)) {
@@ -56,35 +50,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 만료되었으면 accessToken 재발급
         Authentication authentication = tokenProvider.getAuthentication(oldAccessToken);
         String memberIdByToken = tokenProvider.getMemberIdByToken(oldAccessToken);
-//        String refreshToken = refreshTokenService.findRefreshTokenByAccessToken(
-//            oldAccessToken);
+
         Cookie cookie = CookieUtil.getCookie(request, "refreshToken")
             .orElse(null);
 
         // refreshToken 만료되었으면 로그아웃 처리
         if (cookie == null || tokenProvider.isExpiredToken(cookie.getValue())) {
-            log.info("로그아웃 처리 진행");
-//            log.info("handleExpiredAccessToken refreshToken In Redis = {}", refreshToken);
-            log.info("handleExpiredAccessToken cookie = {}",
+
+            log.debug("handleExpiredAccessToken cookie = {}",
                 cookie != null ? cookie.getValue() : null);
-            logout(request, response, oldAccessToken);
+            logout(request, response);
 
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
             return;
         }
 
-        // 만료되지 않았으면 accessToken 재발급
-//        String newAccessToken = tokenProvider.reissueAccessToken(memberIdByToken,
-//            authentication.getAuthorities());
         TokenDto tokenDto = tokenProvider.generateToken(memberIdByToken,
             authentication.getAuthorities());
-//        long refreshTokenExpiration = tokenProvider.getExpiration(refreshToken);
-//        // Redis accessToken 값 업데이트
-//        log.info("filter refreshTokenExpiration = {}", refreshTokenExpiration);
-//        refreshTokenService.deleteRefreshTokenByAccessToken(oldAccessToken);
-//        refreshTokenService.save(tokenDto.getAccessToken(), tokenDto.getRefreshToken(),
-//            refreshTokenExpired);
 
         setAuthentication(tokenDto.getAccessToken());
 
@@ -99,17 +82,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private void logout(HttpServletRequest request, HttpServletResponse response,
-        String accessToken) {
-        // Redis 사용자의 refreshToken 삭제
-//        refreshTokenService.deleteRefreshTokenByAccessToken(accessToken);
-//
-//        if (!tokenProvider.isExpiredToken(accessToken)) {
-//            long accessTokenExpiration = tokenProvider.getExpiration(accessToken);
-//
-//            refreshTokenService.setBlackList(accessToken, "accessToken",
-//                accessTokenExpiration);
-//        }
+    private void logout(HttpServletRequest request, HttpServletResponse response) {
 
         CookieUtil.deleteCookie(request, response, "refreshToken");
 
