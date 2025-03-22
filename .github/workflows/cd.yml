@@ -65,5 +65,3 @@ jobs:
             cd back-end
             git pull origin main
             ./gradlew clean bootjar
-            cd ../
-            sudo docker-compose up --build
