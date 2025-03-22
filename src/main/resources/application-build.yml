@@ -9,7 +9,7 @@ spring:
 
   sql:
     init:
-      mode: never
+      mode: always
   
   # 데이터베이스
   jpa:
