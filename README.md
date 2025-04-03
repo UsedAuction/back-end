@@ -61,7 +61,7 @@
 
 ## 백엔드 아키텍처
 
-<img width="961" alt="image" src="https://github.com/user-attachments/assets/b6736ac2-fe40-47ec-9f13-4dca4030e246">
+![image](https://github.com/user-attachments/assets/066e200c-2508-4b0c-ad4e-55ee611e8f2f)
 
 
 ## ERD
